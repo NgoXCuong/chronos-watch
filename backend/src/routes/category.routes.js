@@ -11,6 +11,7 @@ router.get("/:id_or_slug", categoryController.getDetail);
 // Admin only routes
 router.post("/", verifyToken, isAdmin, categoryController.create);
 router.put("/:id", verifyToken, isAdmin, categoryController.update);
+router.patch("/:id/toggle-status", verifyToken, isAdmin, categoryController.toggleStatus);
 router.delete("/:id", verifyToken, isAdmin, categoryController.delete);
 
 export default router;

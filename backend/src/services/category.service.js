@@ -34,6 +34,14 @@ const categoryService = {
         if (!category) throw new Error("Danh mục không tồn tại");
         await category.destroy();
         return true;
+    },
+
+    toggleStatus: async (id) => {
+        const category = await Category.findByPk(id);
+        if (!category) throw new Error("Danh mục không tồn tại");
+        category.is_active = !category.is_active;
+        await category.save();
+        return category;
     }
 };
 

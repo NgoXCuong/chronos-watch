@@ -44,6 +44,15 @@ const categoryController = {
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
+    },
+
+    toggleStatus: async (req, res) => {
+        try {
+            const category = await categoryService.toggleStatus(req.params.id);
+            res.json({ message: "Cập nhật trạng thái thành công", category });
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
     }
 };
 

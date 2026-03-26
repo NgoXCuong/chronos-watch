@@ -27,6 +27,14 @@ const brandService = {
         if (!brand) throw new Error("Thương hiệu không tồn tại");
         await brand.destroy();
         return true;
+    },
+
+    toggleStatus: async (id) => {
+        const brand = await Brand.findByPk(id);
+        if (!brand) throw new Error("Thương hiệu không tồn tại");
+        brand.is_active = !brand.is_active;
+        await brand.save();
+        return brand;
     }
 };
 
