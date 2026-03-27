@@ -20,12 +20,23 @@ const categoryService = {
     },
 
     create: async (data) => {
+        if (data.parent_id) {
+            const parent = await Category.findByPk(data.parent_id);
+            if (!parent) throw new Error("Danh mục cha không tồn tại");
+        }
         return await Category.create(data);
     },
 
     update: async (id, data) => {
         const category = await Category.findByPk(id);
         if (!category) throw new Error("Danh mục không tồn tại");
+        
+        if (data.parent_id) {
+            if (data.parent_id === id) throw new Error("Danh mục không thể làm cha của chính nó");
+            const parent = await Category.findByPk(data.parent_id);
+            if (!parent) throw new Error("Danh mục cha không tồn tại");
+        }
+
         return await category.update(data);
     },
 

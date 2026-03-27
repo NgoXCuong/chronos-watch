@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
+import UserAddress from './user_address.model.js';
 
 const User = sequelize.define('User', {
     username: { type: DataTypes.STRING, unique: true, allowNull: false },
@@ -16,5 +17,9 @@ const User = sequelize.define('User', {
     tableName: 'users',
     underscored: true,
 });
+
+// Associations
+User.hasMany(UserAddress, { foreignKey: 'user_id', as: 'addresses' });
+UserAddress.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 export default User;

@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import UserAddress from "../models/user_address.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
@@ -102,6 +103,44 @@ const authService = {
         user.reset_password_expires = null;
         await user.save();
         return true;
+    },
+
+    updateProfile: async (userId, updateData) => {
+        const user = await User.findByPk(userId);
+        if (!user) throw new Error('Người dùng không tồn tại');
+
+        const { full_name, phone, address, avatar_url } = updateData;
+        
+        if (full_name) user.full_name = full_name;
+        if (phone) user.phone = phone;
+        if (avatar_url) user.avatar_url = avatar_url;
+
+        // Xử lý address (theo yêu cầu của bạn là một trường address trong request)
+        // Vì SQL dùng bảng user_addresses nên nếu user truyền 'address' lên, ta sẽ cập nhật vào bảng đo.
+        if (address) {
+            // Chiến lược đơn giản: Cập nhật hoặc tạo mới address mặc định cho user.
+            let userAddress = await UserAddress.findOne({ where: { user_id: userId, is_default: true } });
+            if (!userAddress) {
+                userAddress = await UserAddress.findOne({ where: { user_id: userId } });
+            }
+
+            if (userAddress) {
+                userAddress.address_line = address;
+                await userAddress.save();
+            } else {
+                await UserAddress.create({
+                    user_id: userId,
+                    recipient_name: full_name || user.full_name || user.username,
+                    recipient_phone: phone || user.phone || '0000000000',
+                    address_line: address,
+                    city: 'Chưa cập nhật',
+                    is_default: true
+                });
+            }
+        }
+
+        await user.save();
+        return await User.findByPk(userId, { include: ['addresses'] });
     },
 
     logout: async (userId) => {

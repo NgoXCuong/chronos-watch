@@ -1,4 +1,5 @@
 import categoryService from "../services/category.service.js";
+import formatSequelizeError from "../utils/errorHandler.js";
 
 const categoryController = {
     getAll: async (req, res) => {
@@ -6,7 +7,7 @@ const categoryController = {
             const categories = await categoryService.getAll();
             res.json(categories);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(400).json({ message: formatSequelizeError(error) });
         }
     },
 

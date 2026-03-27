@@ -1,4 +1,5 @@
 import authService from "../services/auth.service.js";
+import formatSequelizeError from "../utils/errorHandler.js";
 
 const authController = {
     register: async (req, res) => {
@@ -9,7 +10,7 @@ const authController = {
                 user: { id: user.id, username: user.username, email: user.email }
             });
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            res.status(400).json({ message: formatSequelizeError(error) });
         }
     },
 
@@ -46,7 +47,24 @@ const authController = {
             const user = await authService.getProfile(req.user.id);
             res.json(user);
         } catch (error) {
-            res.status(404).json({ message: error.message });
+            res.status(404).json({ message: formatSequelizeError(error) });
+        }
+    },
+
+    updateProfile: async (req, res) => {
+        try {
+            const updateData = { ...req.body };
+            if (req.file) {
+                updateData.avatar_url = req.file.path;
+            }
+
+            const user = await authService.updateProfile(req.user.id, updateData);
+            res.json({
+                message: "Cập nhật hồ sơ thành công!",
+                user
+            });
+        } catch (error) {
+            res.status(400).json({ message: formatSequelizeError(error) });
         }
     },
 

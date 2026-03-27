@@ -1,4 +1,5 @@
 import productService from "../services/product.service.js";
+import formatSequelizeError from "../utils/errorHandler.js";
 
 const productController = {
     getAll: async (req, res) => {
@@ -6,7 +7,7 @@ const productController = {
             const result = await productService.getAll(req.query);
             res.json(result);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(400).json({ message: formatSequelizeError(error) });
         }
     },
 
@@ -34,11 +35,19 @@ const productController = {
             }
 
             // Parse category_ids và specifications nếu được gửi qua form-data (string)
-            if (typeof data.category_ids === 'string') {
-                data.category_ids = JSON.parse(data.category_ids);
+            if (typeof data.category_ids === 'string' && data.category_ids.trim() !== "") {
+                try {
+                    data.category_ids = JSON.parse(data.category_ids);
+                } catch (e) {
+                    throw new Error("Định dạng category_ids không hợp lệ. Phải là một mảng JSON (vd: [1, 2])");
+                }
             }
-            if (typeof data.specifications === 'string') {
-                data.specifications = JSON.parse(data.specifications);
+            if (typeof data.specifications === 'string' && data.specifications.trim() !== "") {
+                try {
+                    data.specifications = JSON.parse(data.specifications);
+                } catch (e) {
+                    throw new Error("Định dạng specifications không hợp lệ. Phải là JSON (vd: {\"key\": \"value\"})");
+                }
             }
 
             const product = await productService.create(data);
@@ -62,11 +71,19 @@ const productController = {
                 data.image_gallery = req.files.gallery.map(file => file.path);
             }
 
-            if (typeof data.category_ids === 'string') {
-                data.category_ids = JSON.parse(data.category_ids);
+            if (typeof data.category_ids === 'string' && data.category_ids.trim() !== "") {
+                try {
+                    data.category_ids = JSON.parse(data.category_ids);
+                } catch (e) {
+                    throw new Error("Định dạng category_ids không hợp lệ.");
+                }
             }
-            if (typeof data.specifications === 'string') {
-                data.specifications = JSON.parse(data.specifications);
+            if (typeof data.specifications === 'string' && data.specifications.trim() !== "") {
+                try {
+                    data.specifications = JSON.parse(data.specifications);
+                } catch (e) {
+                    throw new Error("Định dạng specifications không hợp lệ.");
+                }
             }
 
             const product = await productService.update(req.params.id, data);

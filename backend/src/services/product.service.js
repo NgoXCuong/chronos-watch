@@ -5,7 +5,7 @@ import { Op } from "sequelize";
 
 const productService = {
     getAll: async (filters = {}) => {
-        const { category_id, brand_id, search, sort, limit = 10, page = 1 } = filters;
+        const { category_id, brand_id, search, sort, limit = 10, page = 1, min_price, max_price, ...rest } = filters;
         const offset = (page - 1) * limit;
 
         const where = { status: 'active' };
@@ -13,6 +13,22 @@ const productService = {
         if (search) {
             where.name = { [Op.like]: `%${search}%` };
         }
+
+        // Lọc theo giá
+        if (min_price || max_price) {
+            where.price = {};
+            if (min_price) where.price[Op.gte] = min_price;
+            if (max_price) where.price[Op.lte] = max_price;
+        }
+
+        // Lọc theo thông số kỹ thuật (specifications)
+        // Ví dụ: glass=Sapphire, movement=Automatic
+        const specFilters = ['glass', 'movement', 'water_resistance', 'case_material'];
+        specFilters.forEach(key => {
+            if (rest[key]) {
+                where[`specifications.${key}`] = rest[key];
+            }
+        });
 
         const include = [
             { model: Brand, as: 'brand', attributes: ['name', 'slug'] },
@@ -29,6 +45,7 @@ const productService = {
         if (sort === 'price_asc') order = [['price', 'ASC']];
         if (sort === 'price_desc') order = [['price', 'DESC']];
         if (sort === 'popular') order = [['views', 'DESC']];
+        if (sort === 'oldest') order = [['created_at', 'ASC']];
 
         return await Product.findAndCountAll({
             where,
@@ -36,7 +53,7 @@ const productService = {
             order,
             limit: parseInt(limit),
             offset: parseInt(offset),
-            distinct: true // Quan trọng khi dùng include Many-to-Many
+            distinct: true
         });
     },
 

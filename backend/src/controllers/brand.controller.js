@@ -1,4 +1,5 @@
 import brandService from "../services/brand.service.js";
+import formatSequelizeError from "../utils/errorHandler.js";
 
 const brandController = {
     getAll: async (req, res) => {
@@ -6,7 +7,7 @@ const brandController = {
             const brands = await brandService.getAll();
             res.json(brands);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            res.status(400).json({ message: formatSequelizeError(error) });
         }
     },
 
