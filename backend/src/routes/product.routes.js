@@ -8,6 +8,7 @@ const router = express.Router();
 
 // Public routes
 router.get("/", productController.getAll);
+router.get("/:id_or_slug/related", productController.getRelated);
 router.get("/:id_or_slug", productController.getDetail);
 
 // Admin only routes

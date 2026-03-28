@@ -5,6 +5,7 @@ import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
 import sequelize from "../config/db.js";
 import vnpayService from "./vnpay.service.js";
+import voucherService from "./voucher.service.js";
 
 const orderService = {
     checkout: async (userId, orderData, ipAddr) => {
@@ -27,14 +28,31 @@ const orderService = {
                 subtotal += item.product.price * item.quantity;
             }
 
-            const totalAmount = subtotal + (orderData.shipping_fee || 0) - (orderData.discount_amount || 0);
+            const totalItemsPrice = subtotal;
+            let discountAmount = orderData.discount_amount || 0;
+            let voucherId = null;
 
-            // 3. Create Order
+            // 3. Handle Voucher
+            if (orderData.voucher_code) {
+                const voucher = await voucherService.validateVoucher(orderData.voucher_code, totalItemsPrice);
+                discountAmount = voucherService.calculateDiscount(voucher, totalItemsPrice);
+                voucherId = voucher.id;
+
+                // Cập nhật lượt dùng voucher
+                await voucher.update({ used_count: voucher.used_count + 1 }, { transaction });
+            }
+
+            const totalAmount = totalItemsPrice + (orderData.shipping_fee || 0) - discountAmount;
+
+            // 4. Create Order
+            const { voucher_code, ...restOrderData } = orderData;
             const order = await Order.create({
                 user_id: userId,
-                ...orderData,
-                subtotal,
+                ...restOrderData,
+                subtotal: totalItemsPrice,
+                discount_amount: discountAmount,
                 total_amount: totalAmount,
+                voucher_id: voucherId,
                 status: 'pending',
                 payment_status: 'unpaid'
             }, { transaction });

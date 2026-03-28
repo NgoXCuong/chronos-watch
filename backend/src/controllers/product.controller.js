@@ -103,6 +103,16 @@ const productController = {
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
+    },
+
+    getRelated: async (req, res) => {
+        try {
+            const limit = req.query.limit || 4;
+            const related = await productService.getRelated(req.params.id_or_slug, limit);
+            res.json(related);
+        } catch (error) {
+            res.status(404).json({ message: error.message });
+        }
     }
 };
 

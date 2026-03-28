@@ -1,7 +1,7 @@
 import Product from "../models/product.model.js";
 import Brand from "../models/brand.model.js";
 import Category from "../models/category.model.js";
-import { Op } from "sequelize";
+import { Op, fn, col, literal } from "sequelize";
 
 const productService = {
     getAll: async (filters = {}) => {
@@ -47,7 +47,29 @@ const productService = {
         if (sort === 'popular') order = [['views', 'DESC']];
         if (sort === 'oldest') order = [['created_at', 'ASC']];
 
+        const attributes = {
+            include: [
+                [
+                    literal(`(
+                        SELECT COALESCE(AVG(rating), 0)
+                        FROM reviews
+                        WHERE reviews.product_id = Product.id
+                    )`),
+                    'average_rating'
+                ],
+                [
+                    literal(`(
+                        SELECT COUNT(*)
+                        FROM reviews
+                        WHERE reviews.product_id = Product.id
+                    )`),
+                    'review_count'
+                ]
+            ]
+        };
+
         return await Product.findAndCountAll({
+            attributes,
             where,
             include,
             order,
@@ -60,6 +82,26 @@ const productService = {
     getDetail: async (id_or_slug) => {
         const where = isNaN(id_or_slug) ? { slug: id_or_slug } : { id: id_or_slug };
         const product = await Product.findOne({
+            attributes: {
+                include: [
+                    [
+                        literal(`(
+                            SELECT COALESCE(AVG(rating), 0)
+                            FROM reviews
+                            WHERE reviews.product_id = Product.id
+                        )`),
+                        'average_rating'
+                    ],
+                    [
+                        literal(`(
+                            SELECT COUNT(*)
+                            FROM reviews
+                            WHERE reviews.product_id = Product.id
+                        )`),
+                        'review_count'
+                    ]
+                ]
+            },
             where,
             include: [
                 { model: Brand, as: 'brand' },
@@ -102,8 +144,27 @@ const productService = {
     delete: async (id) => {
         const product = await Product.findByPk(id);
         if (!product) throw new Error("Sản phẩm không tồn tại");
-        await product.destroy();
+        await product.update({ status: 'inactive' });
         return true;
+    },
+
+    getRelated: async (id_or_slug, limit = 4) => {
+        const where = isNaN(id_or_slug) ? { slug: id_or_slug } : { id: id_or_slug };
+        const product = await Product.findOne({ where });
+        if (!product) throw new Error("Sản phẩm không tồn tại");
+
+        return await Product.findAll({
+            where: {
+                status: 'active',
+                id: { [Op.ne]: product.id },
+                brand_id: product.brand_id
+            },
+            include: [
+                { model: Brand, as: 'brand', attributes: ['name', 'slug'] }
+            ],
+            limit: parseInt(limit),
+            order: [['views', 'DESC']]
+        });
     }
 };
 

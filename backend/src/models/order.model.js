@@ -1,6 +1,6 @@
-import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 import User from './user.model.js';
+import Voucher from './voucher.model.js';
 
 const Order = sequelize.define('Order', {
     user_id: {
@@ -68,5 +68,8 @@ const Order = sequelize.define('Order', {
 
 Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(Order, { foreignKey: 'user_id', as: 'orders' });
+
+Order.belongsTo(Voucher, { foreignKey: 'voucher_id', as: 'voucher' });
+Voucher.hasMany(Order, { foreignKey: 'voucher_id', as: 'orders' });
 
 export default Order;
