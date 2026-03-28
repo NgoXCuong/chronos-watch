@@ -4,10 +4,15 @@ import formatSequelizeError from "../utils/errorHandler.js";
 const orderController = {
     checkout: async (req, res) => {
         try {
-            const order = await orderService.checkout(req.user.id, req.body);
+            const ipAddr = req.headers['x-forwarded-for'] || 
+                         req.connection.remoteAddress || 
+                         req.socket.remoteAddress || 
+                         req.connection.socket.remoteAddress;
+
+            const result = await orderService.checkout(req.user.id, req.body, ipAddr);
             res.status(201).json({
-                message: "Đặt hàng thành công!",
-                order
+                message: result.paymentUrl ? "Vui lòng thực hiện thanh toán" : "Đặt hàng thành công!",
+                ...result
             });
         } catch (error) {
             res.status(400).json({ message: formatSequelizeError(error) });

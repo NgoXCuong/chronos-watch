@@ -4,9 +4,10 @@ import OrderHistory from "../models/order_history.model.js";
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
 import sequelize from "../config/db.js";
+import vnpayService from "./vnpay.service.js";
 
 const orderService = {
-    checkout: async (userId, orderData) => {
+    checkout: async (userId, orderData, ipAddr) => {
         const transaction = await sequelize.transaction();
         try {
             // 1. Get cart items
@@ -68,10 +69,50 @@ const orderService = {
             await Cart.destroy({ where: { user_id: userId }, transaction });
 
             await transaction.commit();
-            return order;
+
+            // 7. Handle VNPay URL generation if needed
+            if (orderData.payment_method === 'vnpay') {
+                const paymentUrl = vnpayService.createPaymentUrl(order, ipAddr);
+                return { order, paymentUrl };
+            }
+
+            return { order };
         } catch (error) {
             await transaction.rollback();
             throw error;
+        }
+    },
+
+    finishPayment: async (vnp_Params) => {
+        const isValid = vnpayService.validateResponse(vnp_Params);
+        const orderId = vnp_Params['vnp_TxnRef'];
+        const responseCode = vnp_Params['vnp_ResponseCode'];
+
+        const order = await Order.findByPk(orderId);
+        if (!order) throw new Error('Đơn hàng không tồn tại');
+
+        if (isValid && responseCode === '00') {
+            const transaction = await sequelize.transaction();
+            try {
+                order.payment_status = 'paid';
+                order.status = 'confirmed';
+                await order.save({ transaction });
+
+                await OrderHistory.create({
+                    order_id: orderId,
+                    status: 'confirmed',
+                    note: 'Thanh toán VNPay thành công. Đơn hàng đã được xác nhận tự động.'
+                }, { transaction });
+
+                await transaction.commit();
+                return { success: true, order };
+            } catch (error) {
+                await transaction.rollback();
+                throw error;
+            }
+        } else {
+            // Payment failed or signature invalid
+            return { success: false, order, message: "Thanh toán không thành công" };
         }
     },
 
