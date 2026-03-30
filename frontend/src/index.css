@@ -1,1 +1,167 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  :root {
+    --luxury-gold: #C5A059;
+    --luxury-black: #121212;
+    --luxury-charcoal: #1A1A1A;
+    --luxury-pearl: #F5F5F5;
+  }
+
+  body {
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .font-price, .font-banner {
+    font-family: 'Oswald', sans-serif;
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .luxury-card {
+    @apply bg-card/40 backdrop-blur-xl border border-border shadow-2xl;
+  }
+
+  .luxury-input {
+    @apply bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all duration-300;
+  }
+
+  .luxury-button-gold {
+    @apply bg-gradient-to-br from-primary/80 via-primary to-primary shadow-lg shadow-primary/20 transition-all duration-500 text-primary-foreground font-semibold hover:opacity-90;
+  }
+}
+
+@layer utilities {
+  .italic-fade-in {
+    animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .bg-luxury-gradient {
+    background: radial-gradient(circle at center, #1A1A1A 0%, #0A0A0A 100%);
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+  }
+}
+
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: 'Geist Variable', sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Light Mode - Luxury Pearl/Cream */
+  --background: oklch(0.98 0.01 70); /* Creamy Pearl */
+  --foreground: oklch(0.15 0.02 20); /* Deep Charcoal */
+  --card: oklch(0.95 0.01 70);
+  --card-foreground: oklch(0.15 0.02 20);
+  --popover: oklch(0.98 0.01 70);
+  --popover-foreground: oklch(0.15 0.02 20);
+  --primary: oklch(0.55 0.15 45); /* Luxury Amber/Gold */
+  --primary-foreground: oklch(0.98 0.01 70);
+  --secondary: oklch(0.92 0.02 20);
+  --secondary-foreground: oklch(0.2 0.02 20);
+  --muted: oklch(0.92 0.02 20);
+  --muted-foreground: oklch(0.45 0.02 20);
+  --accent: oklch(0.92 0.02 20);
+  --accent-foreground: oklch(0.2 0.02 20);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.15 0.02 20 / 0.1);
+  --input: oklch(0.15 0.02 20 / 0.05);
+  --ring: oklch(0.55 0.15 45);
+  --radius: 0rem; /* Straight luxury edges */
+}
+
+.dark {
+  /* Dark Mode - Deep Zinc/Black */
+  --background: oklch(0.12 0 0); /* Near Black */
+  --foreground: oklch(0.95 0 0); /* Off White */
+  --card: oklch(0.15 0 0);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.12 0 0);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.65 0.15 45); /* Brighter Gold for Dark */
+  --primary-foreground: oklch(0.12 0 0);
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.2 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.2 0 0);
+  --accent-foreground: oklch(0.95 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.95 0 0 / 0.1);
+  --input: oklch(0.95 0 0 / 0.05);
+  --ring: oklch(0.65 0.15 45);
+}
