@@ -47,6 +47,26 @@ const adminService = {
             total_orders: totalOrders,
             top_selling_products: topProducts
         };
+    },
+
+    getAllUsers: async () => {
+        return await User.findAll({
+            attributes: ['id', 'username', 'email', 'role', 'status', 'created_at'],
+            order: [['created_at', 'DESC']]
+        });
+    },
+
+    getAllOrders: async () => {
+        return await Order.findAll({
+            include: [
+                { 
+                    model: User, 
+                    as: 'user', 
+                    attributes: ['username', 'email'] 
+                }
+            ],
+            order: [['created_at', 'DESC']]
+        });
     }
 };
 
