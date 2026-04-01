@@ -4,7 +4,7 @@ import formatSequelizeError from "../utils/errorHandler.js";
 const brandController = {
     getAll: async (req, res) => {
         try {
-            const brands = await brandService.getAll();
+            const brands = await brandService.getAll(req.query);
             res.json(brands);
         } catch (error) {
             res.status(400).json({ message: formatSequelizeError(error) });

@@ -1,10 +1,14 @@
 import Category from "../models/category.model.js";
 
 const categoryService = {
-    getAll: async () => {
+    getAll: async (query = {}) => {
         // Trả về toàn bộ danh mục, có thể lồng nhau
+        const where = { parent_id: null };
+        if (!query.all) {
+            where.is_active = true;
+        }
         return await Category.findAll({ 
-            where: { is_active: true, parent_id: null }, // Lấy danh mục gốc
+            where, // Lấy danh mục gốc
             include: [{ model: Category, as: 'children', include: ['children'] }] // Lồng tối đa 3 cấp
         });
     },

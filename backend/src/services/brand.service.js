@@ -1,8 +1,10 @@
 import Brand from "../models/brand.model.js";
 
 const brandService = {
-    getAll: async () => {
-        return await Brand.findAll({ where: { is_active: true } });
+    getAll: async (query = {}) => {
+        const where = {};
+        if (!query.all) where.is_active = true;
+        return await Brand.findAll({ where });
     },
 
     getDetail: async (id_or_slug) => {

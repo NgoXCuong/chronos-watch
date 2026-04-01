@@ -35,7 +35,7 @@ const Voucher = sequelize.define('Voucher', {
     },
     usage_limit: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 1
     },
     used_count: {

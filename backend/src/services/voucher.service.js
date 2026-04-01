@@ -50,7 +50,7 @@ const voucherService = {
             throw new Error("Mã giảm giá đã hết hạn hoặc chưa đến ngày sử dụng.");
         }
 
-        if (voucher.used_count >= voucher.usage_limit) {
+        if (voucher.usage_limit !== null && voucher.used_count >= voucher.usage_limit) {
             throw new Error("Mã giảm giá đã hết lượt sử dụng.");
         }
 

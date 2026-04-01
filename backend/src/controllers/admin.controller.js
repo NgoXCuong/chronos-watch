@@ -26,6 +26,56 @@ const adminController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    getOrderDetail: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const order = await adminService.getOrderDetail(id);
+            res.json(order);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    getNotifications: async (req, res) => {
+        try {
+            const notifications = await adminService.getNotifications();
+            res.json(notifications);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    getAllReviews: async (req, res) => {
+        try {
+            const reviews = await adminService.getAllReviews();
+            res.json(reviews);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    updateReviewStatus: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { is_active } = req.body;
+            const review = await adminService.updateReviewStatus(id, is_active);
+            res.json(review);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    replyToReview: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { reply } = req.body;
+            const review = await adminService.replyToReview(id, reply);
+            res.json(review);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 
