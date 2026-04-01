@@ -31,7 +31,7 @@ const FeaturedCollections = () => {
                     <div className="max-w-xl text-left">
                         <span className="text-primary text-xs tracking-[0.4em] uppercase font-semibold mb-4 block">Our Collections</span>
                         <h2 className="text-4xl md:text-5xl font-heading text-foreground tracking-widest uppercase mb-6 drop-shadow-sm">
-                            Dấu Ấn <br/><span className="italic font-light text-primary">Tuyệt Tác</span>
+                            Dấu Ấn <br /><span className="italic font-light text-primary">Tuyệt Tác</span>
                         </h2>
                         <div className="w-16 h-px bg-primary/30 mb-6"></div>
                         <p className="text-muted-foreground font-light leading-relaxed">
@@ -48,13 +48,13 @@ const FeaturedCollections = () => {
                         <div key={idx} className="group relative h-[500px] overflow-hidden cursor-pointer shadow-2xl">
                             {/* Overlay Background */}
                             <div className="absolute inset-0 z-0 scale-100 group-hover:scale-110 transition-transform duration-[2000ms]">
-                                <img 
-                                    src={col.image} 
+                                <img
+                                    src={col.image}
                                     alt={col.title}
                                     className="w-full h-full object-cover brightness-50 contrast-[1.1]"
                                 />
                             </div>
-                            
+
                             {/* Content */}
                             <div className="absolute inset-0 z-10 p-10 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity">
                                 <span className="text-primary text-[10px] tracking-[0.3em] uppercase font-bold mb-2">Exclusive</span>

@@ -25,6 +25,54 @@
   .font-price, .font-banner {
     font-family: 'Oswald', sans-serif;
   }
+
+  .font-roboto {
+    font-family: 'Roboto', sans-serif !important;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Roboto', sans-serif !important;
+  }
+
+  /* Luxury Quill Editor Customization */
+  @import "react-quill-new/dist/quill.snow.css";
+
+  .ql-toolbar.ql-snow {
+    border: 1px solid #e2e8f0 !important;
+    border-top-left-radius: 0.75rem !important;
+    border-top-right-radius: 0.75rem !important;
+    background-color: #f8fafc !important;
+    padding: 0.75rem !important;
+  }
+
+  .ql-container.ql-snow {
+    border: 1px solid #e2e8f0 !important;
+    border-bottom-left-radius: 0.75rem !important;
+    border-bottom-right-radius: 0.75rem !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.875rem !important;
+    min-height: 300px !important;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .ql-editor {
+    padding: 1.25rem !important;
+  }
+
+  .ql-editor.ql-blank::before {
+    color: #94a3b8 !important;
+    font-style: normal !important;
+  }
+
+  /* Luxury Focus Effect */
+  .quill-luxury:focus-within .ql-toolbar.ql-snow,
+  .quill-luxury:focus-within .ql-container.ql-snow {
+    border-color: #f59e0b !important; /* amber-500 */
+  }
+
+  .quill-luxury:focus-within .ql-container.ql-snow {
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1) !important;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -122,24 +170,24 @@
 }
 
 :root {
-  /* Light Mode - Luxury Pearl/Cream */
-  --background: oklch(0.98 0.01 70); /* Creamy Pearl */
-  --foreground: oklch(0.15 0.02 20); /* Deep Charcoal */
-  --card: oklch(0.95 0.01 70);
-  --card-foreground: oklch(0.15 0.02 20);
-  --popover: oklch(0.98 0.01 70);
-  --popover-foreground: oklch(0.15 0.02 20);
+  /* Light Mode - Crisp Luxury White */
+  --background: oklch(0.99 0 0); /* Pure White / Pearl */
+  --foreground: oklch(0.1 0 0); /* Deep Black / Almost #111 */
+  --card: oklch(0.97 0 0);
+  --card-foreground: oklch(0.1 0 0);
+  --popover: oklch(0.99 0 0);
+  --popover-foreground: oklch(0.1 0 0);
   --primary: oklch(0.55 0.15 45); /* Luxury Amber/Gold */
-  --primary-foreground: oklch(0.98 0.01 70);
-  --secondary: oklch(0.92 0.02 20);
-  --secondary-foreground: oklch(0.2 0.02 20);
-  --muted: oklch(0.92 0.02 20);
-  --muted-foreground: oklch(0.45 0.02 20);
-  --accent: oklch(0.92 0.02 20);
-  --accent-foreground: oklch(0.2 0.02 20);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.15 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.35 0 0); /* Darker gray, not too faded */
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.15 0 0);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.15 0.02 20 / 0.1);
-  --input: oklch(0.15 0.02 20 / 0.05);
+  --border: oklch(0.1 0 0 / 0.15);
+  --input: oklch(0.1 0 0 / 0.1);
   --ring: oklch(0.55 0.15 45);
   --radius: 0rem; /* Straight luxury edges */
 }

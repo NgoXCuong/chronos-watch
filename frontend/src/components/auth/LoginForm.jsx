@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-const LoginForm = () => {
+const LoginForm = ({ variant = 'dark' }) => {
+    const isLight = variant === 'light';
     const [credentials, setCredentials] = useState({ account: '', password: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -30,9 +32,15 @@ const LoginForm = () => {
 
         setLoading(true);
         try {
-            await login(credentials);
+            const data = await login(credentials);
             toast.success('Đăng nhập thành công!');
-            navigate('/');
+
+            // Redirect based on role
+            if (data?.user?.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
         } catch (err) {
             setError(err.response?.data?.message || 'Tài khoản hoặc mật khẩu không chính xác');
             toast.error(err.response?.data?.message || 'Đăng nhập thất bại');
@@ -44,19 +52,28 @@ const LoginForm = () => {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-                <div className="bg-red-950/20 text-red-500 p-3 rounded-none flex items-start gap-2 text-sm border border-red-500/30">
+                <div className={cn(
+                    "p-3 rounded-none flex items-start gap-2 text-sm border",
+                    isLight
+                        ? "bg-red-50 text-red-600 border-red-200"
+                        : "bg-red-950/20 text-red-500 border-red-500/30"
+                )}>
                     <AlertCircle size={18} className="shrink-0" />
                     <span>{error}</span>
                 </div>
             )}
 
             <div className="space-y-2 group">
-                <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                <Label className={cn(
+                    "text-xs tracking-widest transition-colors duration-300",
+                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                )}>
                     Tài khoản (Email hoặc Username)
                 </Label>
                 <Input
                     name="account"
                     type="text"
+                    variant={variant}
                     icon={Mail}
                     placeholder="Nhập email hoặc username"
                     value={credentials.account}
@@ -66,12 +83,16 @@ const LoginForm = () => {
             </div>
 
             <div className="space-y-2 group">
-                <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                <Label className={cn(
+                    "text-xs tracking-widest transition-colors duration-300",
+                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                )}>
                     Mật khẩu
                 </Label>
                 <Input
                     name="password"
                     type="password"
+                    variant={variant}
                     icon={Lock}
                     placeholder="••••••••"
                     value={credentials.password}
@@ -82,10 +103,18 @@ const LoginForm = () => {
 
             <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" className="rounded-none bg-zinc-900 border-zinc-700 text-primary focus:ring-primary/50 h-4 w-4" />
-                    <span className="text-zinc-400">Ghi nhớ đăng nhập</span>
+                    <input
+                        type="checkbox"
+                        className={cn(
+                            "rounded-none h-4 w-4",
+                            isLight
+                                ? "bg-white border-zinc-300 text-amber-600 focus:ring-amber-500/50"
+                                : "bg-zinc-900 border-zinc-700 text-primary focus:ring-primary/50"
+                        )}
+                    />
+                    <span className={isLight ? "text-zinc-600" : "text-zinc-400"}>Ghi nhớ đăng nhập</span>
                 </label>
-                <Link to="/forgot-password" title="Chưa hỗ trợ" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                <Link to="/forgot-password" title="Chưa hỗ trợ" className="text-amber-600 hover:text-amber-700 font-medium transition-colors">
                     Quên mật khẩu?
                 </Link>
             </div>
@@ -100,9 +129,12 @@ const LoginForm = () => {
                 Đăng Nhập
             </Button>
 
-            <div className="text-center text-sm text-zinc-400 mt-6 pt-4 border-t border-white/5">
+            <div className={cn(
+                "text-center text-sm mt-6 pt-4 border-t",
+                isLight ? "text-zinc-500 border-zinc-200" : "text-zinc-400 border-white/5"
+            )}>
                 Chưa có tài khoản?{' '}
-                <Link to="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+                <Link to="/register" className="text-amber-600 hover:text-amber-700 font-semibold transition-colors">
                     Đăng ký ngay
                 </Link>
             </div>

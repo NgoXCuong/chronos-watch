@@ -121,19 +121,21 @@ CREATE TABLE `product_categories` (
 CREATE TABLE `vouchers` (
   `id`                  INT           NOT NULL AUTO_INCREMENT,
   `code`                VARCHAR(50)   NOT NULL,
-  `discount_type`       ENUM('fixed','percent') DEFAULT 'fixed',
+  `discount_type`       ENUM('fixed','percentage') DEFAULT 'fixed',
   `discount_value`      DECIMAL(15,0) NOT NULL,
-  `max_discount_amount` DECIMAL(15,0) DEFAULT NULL,
+  `max_discount`        DECIMAL(15,0) DEFAULT 0,
   `min_order_value`     DECIMAL(15,0) DEFAULT 0,
   `usage_limit`         INT           DEFAULT 100,
-  `usage_count`         INT           DEFAULT 0,
-  `start_date`          DATETIME      DEFAULT NULL,
-  `end_date`            DATETIME      DEFAULT NULL,
-  `is_active`           TINYINT(1)    DEFAULT 1,
+  `used_count`          INT           DEFAULT 0,
+  `start_date`          DATETIME      NOT NULL,
+  `end_date`            DATETIME      NOT NULL,
+  `status`              ENUM('active','inactive') DEFAULT 'active',
+  `created_at`          DATETIME      NOT NULL,
+  `updated_at`          DATETIME      NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_voucher_code` (`code`),
-  CONSTRAINT `chk_voucher_dates` CHECK (`end_date` >= `start_date`)
+  UNIQUE KEY `unique_voucher_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- ============================================================
 -- 8. BẢNG orders (Đơn hàng - Snapshot thông tin tại lúc mua)

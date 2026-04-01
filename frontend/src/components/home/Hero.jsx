@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import heroImg from '../../assets/hero.png';
+import heroImg from '../../assets/logo.jpg';
 import { ArrowRight } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ const Hero = () => {
                 />
                 <div className={cn(
                     "absolute inset-0 transition-opacity duration-500",
-                    theme === 'light' ? "bg-white/10" : "bg-gradient-to-b from-black/60 via-transparent to-black"
+                    theme === 'light' ? "bg-white/40" : "bg-gradient-to-b from-black/60 via-transparent to-black"
                 )}></div>
                 <div className={cn(
                     "absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t transition-all duration-500",

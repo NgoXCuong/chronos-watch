@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-const RegisterForm = () => {
+const RegisterForm = ({ variant = 'dark' }) => {
+    const isLight = variant === 'light';
     const [userData, setUserData] = useState({
         username: '',
         email: '',
@@ -65,7 +67,12 @@ const RegisterForm = () => {
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {errors.general && (
-                <div className="bg-red-950/20 text-red-500 p-3 rounded-none flex items-start gap-2 text-sm border border-red-500/30">
+                <div className={cn(
+                    "p-3 rounded-none flex items-start gap-2 text-sm border",
+                    isLight 
+                        ? "bg-red-50 text-red-600 border-red-200" 
+                        : "bg-red-950/20 text-red-500 border-red-500/30"
+                )}>
                     <AlertCircle size={18} className="shrink-0" />
                     <span>{errors.general}</span>
                 </div>
@@ -73,12 +80,16 @@ const RegisterForm = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 group">
-                    <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                    <Label className={cn(
+                        "text-xs tracking-widest transition-colors duration-300",
+                        isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                    )}>
                         Tên tài khoản
                     </Label>
                     <Input
                         name="username"
                         type="text"
+                        variant={variant}
                         icon={User}
                         placeholder="Username của bạn"
                         value={userData.username}
@@ -90,12 +101,16 @@ const RegisterForm = () => {
                 </div>
 
                 <div className="space-y-2 group">
-                    <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                    <Label className={cn(
+                        "text-xs tracking-widest transition-colors duration-300",
+                        isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                    )}>
                         Email
                     </Label>
                     <Input
                         name="email"
                         type="email"
+                        variant={variant}
                         icon={Mail}
                         placeholder="Nhập email của bạn"
                         value={userData.email}
@@ -108,12 +123,16 @@ const RegisterForm = () => {
             </div>
 
             <div className="space-y-2 group">
-                <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                <Label className={cn(
+                    "text-xs tracking-widest transition-colors duration-300",
+                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                )}>
                     Họ và tên
                 </Label>
                 <Input
                     name="full_name"
                     type="text"
+                    variant={variant}
                     icon={User}
                     placeholder="Họ và tên của bạn"
                     value={userData.full_name}
@@ -125,12 +144,16 @@ const RegisterForm = () => {
             </div>
 
             <div className="space-y-2 group">
-                <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                <Label className={cn(
+                    "text-xs tracking-widest transition-colors duration-300",
+                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                )}>
                     Số điện thoại
                 </Label>
                 <Input
                     name="phone"
                     type="tel"
+                    variant={variant}
                     icon={Phone}
                     placeholder="0987xxxxxx"
                     value={userData.phone}
@@ -140,12 +163,16 @@ const RegisterForm = () => {
             </div>
 
             <div className="space-y-2 group">
-                <Label className="text-xs tracking-widest text-zinc-400 group-focus-within:text-primary transition-colors duration-300">
+                <Label className={cn(
+                    "text-xs tracking-widest transition-colors duration-300",
+                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
+                )}>
                     Mật khẩu
                 </Label>
                 <Input
                     name="password"
                     type="password"
+                    variant={variant}
                     icon={Lock}
                     placeholder="••••••••"
                     value={userData.password}
@@ -166,9 +193,12 @@ const RegisterForm = () => {
                 Đăng Ký Tài Khoản
             </Button>
 
-            <div className="text-center text-sm text-zinc-400 mt-2">
+            <div className={cn(
+                "text-center text-sm mt-6 pt-4 border-t",
+                isLight ? "text-zinc-500 border-zinc-200" : "text-zinc-400 border-white/5"
+            )}>
                 Đã có tài khoản?{' '}
-                <Link to="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+                <Link to="/login" className="text-amber-600 hover:text-amber-700 font-semibold transition-colors">
                     Đăng nhập ngay
                 </Link>
             </div>

@@ -1,18 +1,18 @@
 import React from 'react';
-import Hero from '../../components/home/Hero';
-import FeaturedCollections from '../../components/home/FeaturedCollections';
+import Hero from '../../../components/home/Hero';
+import FeaturedCollections from '../../../components/home/FeaturedCollections';
 
 const HomePage = () => {
     return (
         <main className="bg-background overflow-hidden transition-colors duration-500">
             <Hero />
-            
+
             {/* Story Section */}
             <section className="py-24 bg-accent/30 dark:bg-zinc-900/50 overflow-hidden font-sans border-y border-border">
                 <div className="container mx-auto px-6 flex flex-col items-center text-center tracking-tight">
                     <span className="text-primary text-xs tracking-[0.4em] uppercase font-semibold mb-6 block">Our Legacy</span>
                     <h2 className="text-4xl md:text-5xl font-heading text-foreground tracking-widest uppercase mb-10 drop-shadow-sm">
-                        Thương Hiệu <br/><span className="italic font-light text-primary">Của Những Huyền Thoại</span>
+                        Thương Hiệu <br /><span className="italic font-light text-primary">Của Những Huyền Thoại</span>
                     </h2>
                     <div className="max-w-3xl">
                         <p className="text-muted-foreground text-lg font-light leading-relaxed italic mb-10">
