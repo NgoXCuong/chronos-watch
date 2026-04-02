@@ -127,8 +127,8 @@ const VoucherListPage = () => {
                 title="Quản lý mã giảm giá"
                 subtitle="Tạo và quản lý các voucher khuyến mãi"
                 actions={
-                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-amber-600/20 transition-all active:scale-95">
-                        <Plus className="h-4 w-4" /> Tạo voucher
+                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95">
+                        <Plus className="h-4 w-4" /> Tạo voucher mới
                     </Button>
                 }
             />

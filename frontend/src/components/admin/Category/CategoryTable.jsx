@@ -2,12 +2,12 @@ import React from 'react';
 import { Edit, Trash2, ToggleLeft, ToggleRight, ChevronRight } from 'lucide-react';
 import { Button } from '../../ui/button';
 
-const CategoryTable = ({ 
-    categories, 
-    loading, 
-    onEdit, 
-    onDelete, 
-    onToggle 
+const CategoryTable = ({
+    categories,
+    loading,
+    onEdit,
+    onDelete,
+    onToggle
 }) => {
     return (
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">

@@ -57,7 +57,7 @@ const ReviewListPage = () => {
         }
     };
 
-    const filteredReviews = reviews.filter(r => 
+    const filteredReviews = reviews.filter(r =>
         r.comment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.product?.name?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -70,12 +70,12 @@ const ReviewListPage = () => {
 
     return (
         <div className="space-y-6 pb-20 font-roboto">
-            <AdminHeader 
+            <AdminHeader
                 title="Quản lý Đánh giá"
                 subtitle="Phản hồi và kiểm duyệt ý kiến khách hàng Luxury"
             />
 
-            <SearchBanner 
+            <SearchBanner
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 placeholder="Tìm theo bình luận, tên khách, sản phẩm..."
@@ -84,19 +84,19 @@ const ReviewListPage = () => {
                 count={filteredReviews.length}
                 countLabel="đánh giá"
             >
-                <div className="hidden md:flex bg-amber-50 text-amber-600 px-4 py-2 rounded-xl text-[10px] font-bold border border-amber-100 italic uppercase tracking-widest shadow-sm">
+                <div className="hidden md:flex bg-amber-50 text-amber-600 px-4 py-2 rounded-xl text-[10px] font-bold border border-amber-100  uppercase shadow-sm">
                     Lắng nghe khách hàng luxury
                 </div>
             </SearchBanner>
 
-            <ReviewList 
+            <ReviewList
                 reviews={filteredReviews}
                 loading={loading}
                 onToggleStatus={handleToggleStatus}
                 onReply={openReplyModal}
             />
 
-            <ReviewReplyModal 
+            <ReviewReplyModal
                 replyingTo={replyingTo}
                 onClose={() => setReplyingTo(null)}
                 replyText={replyText}

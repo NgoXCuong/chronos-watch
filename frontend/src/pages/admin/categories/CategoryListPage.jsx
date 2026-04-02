@@ -49,12 +49,12 @@ const CategoryListPage = () => {
     const openCreate = () => { setEditingCat(null); setForm(EMPTY_FORM); setModalOpen(true); };
     const openEdit = (cat) => {
         setEditingCat(cat);
-        setForm({ 
-            name: cat.name || '', 
-            slug: cat.slug || '', 
-            description: cat.description || '', 
-            parent_id: cat.parent_id || '', 
-            sort_order: cat.sort_order || 0 
+        setForm({
+            name: cat.name || '',
+            slug: cat.slug || '',
+            description: cat.description || '',
+            parent_id: cat.parent_id || '',
+            sort_order: cat.sort_order || 0
         });
         setModalOpen(true);
     };
@@ -66,11 +66,11 @@ const CategoryListPage = () => {
         setSaving(true);
         try {
             const payload = {
-                name: form.name, 
-                slug: form.slug, 
+                name: form.name,
+                slug: form.slug,
                 description: form.description,
                 sort_order: Number(form.sort_order) || 0,
-                ...(form.parent_id ? { parent_id: Number(form.parent_id) } : {})
+                parent_id: form.parent_id ? Number(form.parent_id) : null,
             };
             if (editingCat) {
                 await categoryApi.update(editingCat.id, payload);
@@ -113,27 +113,27 @@ const CategoryListPage = () => {
 
     return (
         <div className="space-y-6 pb-10 font-roboto">
-            <AdminHeader 
+            <AdminHeader
                 title="Quản lý danh mục"
                 subtitle="Cấu trúc phân cấp sản phẩm toàn hệ thống"
                 actions={
-                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-amber-600/20 transition-all active:scale-95">
-                        <Plus className="h-4 w-4" /> Thêm danh mục
+                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95">
+                        <Plus className="h-4 w-4" /> Thêm danh mục mới
                     </Button>
                 }
             />
 
-            <SearchBanner 
+            <SearchBanner
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 placeholder="Tìm kiếm danh mục..."
                 onRefresh={fetchCategories}
                 loading={loading}
                 count={filtered.length}
-                countLabel="danh mục"
+                countLabel="Danh mục"
             />
 
-            <CategoryTable 
+            <CategoryTable
                 categories={filtered}
                 loading={loading}
                 onEdit={openEdit}
@@ -141,7 +141,7 @@ const CategoryListPage = () => {
                 onToggle={handleToggle}
             />
 
-            <CategoryFormModal 
+            <CategoryFormModal
                 isOpen={modalOpen}
                 onClose={closeModal}
                 onSubmit={handleSubmit}

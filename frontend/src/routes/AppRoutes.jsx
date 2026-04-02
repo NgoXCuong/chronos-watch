@@ -18,6 +18,7 @@ import ReviewListPage from '../pages/admin/reviews/ReviewListPage';
 import BrandListPage from '../pages/admin/brands/BrandListPage';
 import CategoryListPage from '../pages/admin/categories/CategoryListPage';
 import VoucherListPage from '../pages/admin/vouchers/VoucherListPage';
+import BannerListPage from '../pages/admin/banners/BannerListPage';
 import { useAuth } from '../hooks/useAuth';
 
 const AppRoutes = () => {
@@ -80,6 +81,7 @@ const AppRoutes = () => {
                                 <Route path="brands" element={<BrandListPage />} />
                                 <Route path="categories" element={<CategoryListPage />} />
                                 <Route path="vouchers" element={<VoucherListPage />} />
+                                <Route path="banners" element={<BannerListPage />} />
                                 <Route path="users" element={<UserListPage />} />
                             </Routes>
                         </AdminLayout>

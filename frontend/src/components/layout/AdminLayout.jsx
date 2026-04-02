@@ -17,17 +17,18 @@ import {
     LineChart,
     ExternalLink,
     Bell,
-    Check
+    Check,
+    Image as ImageIcon
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Button, buttonVariants } from '../ui/button';
 import { cn } from '../../lib/utils';
 import adminApi from '../../api/admin.api';
-import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuTrigger 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
 } from '../ui/dropdown-menu';
 
 const AdminLayout = ({ children }) => {
@@ -75,6 +76,7 @@ const AdminLayout = ({ children }) => {
                 { path: '/admin/orders', icon: ClipboardList, label: 'Đơn hàng' },
                 { path: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
                 { path: '/admin/reviews', icon: Star, label: 'Đánh giá' },
+                { path: '/admin/banners', icon: ImageIcon, label: 'Banners' },
             ]
         },
         {
@@ -133,7 +135,7 @@ const AdminLayout = ({ children }) => {
                                                 key={item.path}
                                                 to={item.path}
                                                 className={cn(
-                                                    "flex items-center gap-3 px-4 py-3 transition-all duration-200 group text-sm relative",
+                                                    "flex items-center gap-3 px-4 py-2.5 transition-all duration-200 group text-sm relative",
                                                     isActive
                                                         ? "bg-amber-50 text-amber-700 font-bold border-l-4 border-amber-600"
                                                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-l-4 border-transparent"
@@ -197,7 +199,7 @@ const AdminLayout = ({ children }) => {
                     <div className="flex items-center gap-6">
                         {/* Notification Bell */}
                         <DropdownMenu>
-                            <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "relative h-10 w-10 rounded-xl bg-slate-50 text-slate-500 hover:text-amber-600 hover:bg-amber-50 border border-slate-100 transition-all group")}>
+                            <DropdownMenuTrigger className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "relative h-10 w-10 rounded-full bg-slate-50 text-slate-500 hover:text-amber-600 hover:bg-amber-50 border border-slate-100 transition-all group")}>
                                 <Bell className="h-5 w-5 group-hover:animate-swing" />
                                 {unreadCount > 0 && (
                                     <span className="absolute -top-1 -right-1 h-5 w-5 bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white ring-1 ring-rose-500/20">
@@ -205,7 +207,7 @@ const AdminLayout = ({ children }) => {
                                     </span>
                                 )}
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-80 p-0 bg-white rounded-[2rem] shadow-2xl border-slate-100 overflow-hidden ring-1 ring-slate-200/50">
+                            <DropdownMenuContent align="end" className="w-80 p-0 bg-white rounded-md shadow-2xl border-slate-100 overflow-hidden ring-1 ring-slate-200/50">
                                 <div className="p-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
                                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Thông báo</h3>
                                     {unreadCount > 0 && (
@@ -215,14 +217,13 @@ const AdminLayout = ({ children }) => {
                                 <div className="max-h-[400px] overflow-y-auto">
                                     {notifications.length > 0 ? (
                                         notifications.map((notif) => (
-                                            <DropdownMenuItem 
-                                                key={notif.id} 
+                                            <DropdownMenuItem
+                                                key={notif.id}
                                                 onClick={() => handleNotificationClick(notif.link)}
                                                 className="p-4 cursor-pointer border-b border-slate-50 hover:bg-slate-50/80 transition-all flex items-start gap-4 focus:bg-amber-50/30"
                                             >
-                                                <div className={`mt-1 p-2 rounded-xl flex-shrink-0 ${
-                                                    notif.type === 'order' ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'
-                                                }`}>
+                                                <div className={`mt-1 p-2 rounded-xl flex-shrink-0 ${notif.type === 'order' ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'
+                                                    }`}>
                                                     {notif.type === 'order' ? <ClipboardList size={16} /> : <Box size={16} />}
                                                 </div>
                                                 <div className="space-y-1 py-0.5">
@@ -254,11 +255,11 @@ const AdminLayout = ({ children }) => {
                         <div className="flex items-center gap-4 pl-4 border-l border-slate-100">
                             <div className="flex flex-col items-end hidden sm:flex">
                                 <span className="text-sm font-bold text-slate-800 leading-none">{user?.username}</span>
-                                <span className="text-[10px] text-amber-600 font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100 uppercase tracking-tighter">
-                                    Admin Luxury
+                                <span className="text-[10px] text-amber-600 font-bold mt-1 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
+                                    Admin
                                 </span>
                             </div>
-                            <div className="h-10 w-10 rounded-2xl bg-amber-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-amber-600/20 ring-4 ring-white">
+                            <div className="h-10 w-10 rounded-full bg-amber-600 flex items-center justify-center text-white font-bold text-base shadow-lg shadow-amber-600/20 ring-4 ring-white">
                                 {user?.username?.charAt(0).toUpperCase()}
                             </div>
                         </div>

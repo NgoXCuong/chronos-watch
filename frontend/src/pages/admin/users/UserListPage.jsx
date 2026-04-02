@@ -60,29 +60,29 @@ const UserListPage = () => {
         toast.success("Đã xuất file Excel thành công!");
     };
 
-    const filteredUsers = users.filter(u => 
+    const filteredUsers = users.filter(u =>
         u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const statCards = [
-        { 
-            label: 'Tổng thành viên', icon: UsersIcon, value: users.length, 
-            color: 'text-slate-900', bg: 'bg-white', 
+        {
+            label: 'Tổng thành viên', icon: UsersIcon, value: users.length,
+            color: 'text-slate-900', bg: 'bg-white',
             dot: 'bg-slate-900', trend: '↑ 12.5%', trendColor: 'text-emerald-600',
             hist: [20, 25, 23, 28, 30, 35, users.length], chartColor: '#0F172A'
         },
-        { 
-            label: 'Ban quản trị', icon: ShieldCheck, value: users.filter(u => u.role === 'admin').length, 
-            color: 'text-white', bg: 'bg-amber-600', 
+        {
+            label: 'Ban quản trị', icon: ShieldCheck, value: users.filter(u => u.role === 'admin').length,
+            color: 'text-white', bg: 'bg-amber-600',
             dot: 'bg-white', trend: '↑ 1 mã mới', trendColor: 'text-amber-100',
             hist: [1, 2, 2, 3, 3, 3, users.filter(u => u.role === 'admin').length], chartColor: '#FEF3C7',
             pulse: true
         },
-        { 
-            label: 'Đang hoạt động', icon: UserCheck, value: users.filter(u => u.status === 'active').length, 
-            color: 'text-white', bg: 'bg-slate-900', 
+        {
+            label: 'Đang hoạt động', icon: UserCheck, value: users.filter(u => u.status === 'active').length,
+            color: 'text-white', bg: 'bg-slate-900',
             dot: 'bg-amber-500', trend: '↑ 8% tháng này', trendColor: 'text-amber-500',
             hist: [15, 18, 17, 20, 22, 25, users.filter(u => u.status === 'active').length], chartColor: '#F59E0B',
             pulse: true
@@ -91,16 +91,39 @@ const UserListPage = () => {
 
     return (
         <div className="space-y-8 pb-20 font-roboto">
-            <AdminHeader 
+            <AdminHeader
                 title="Cộng đồng Thành viên"
                 subtitle="Quản lý bảo mật và phân quyền hệ thống"
                 actions={
                     <>
-                        <Button onClick={handleExportExcel} variant="outline" className="gap-2 h-11 px-5 rounded-2xl border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all">
-                            <FileSpreadsheet className="h-4 w-4" /> Xuất Excel
+                        {/* EXPORT EXCEL */}
+                        <Button
+                            onClick={handleExportExcel}
+                            className="gap-2 h-11 px-5 rounded-2xl 
+                           bg-emerald-500 text-white 
+                           font-bold text-xs uppercase tracking-widest
+                           shadow-md shadow-emerald-500/20
+                           hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30
+                           active:scale-95 transition-all duration-200"
+                        >
+                            <FileSpreadsheet className="h-4 w-4" />
+                            Xuất Excel
                         </Button>
-                        <Button onClick={fetchUsers} variant="outline" className="gap-2 h-11 px-5 rounded-2xl border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all">
-                            <RefreshCw className="h-4 w-4" /> Làm mới
+
+                        {/* REFRESH */}
+                        <Button
+                            onClick={fetchUsers}
+                            className="gap-2 h-11 px-5 rounded-2xl 
+                           bg-blue-500 text-white 
+                           font-bold text-xs uppercase tracking-widest
+                           shadow-md shadow-blue-500/20
+                           hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30
+                           active:scale-95 transition-all duration-200"
+                        >
+                            <RefreshCw
+                                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                            />
+                            Làm mới
                         </Button>
                     </>
                 }
@@ -108,7 +131,7 @@ const UserListPage = () => {
 
             <StatsGrid stats={statCards} />
 
-            <SearchBanner 
+            <SearchBanner
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 placeholder="Tìm kiếm thành viên..."

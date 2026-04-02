@@ -45,7 +45,7 @@ const ProductListPage = () => {
     };
 
     const toggleSelect = (id) => {
-        setSelectedIds(prev => 
+        setSelectedIds(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
     };
@@ -65,39 +65,39 @@ const ProductListPage = () => {
 
     return (
         <div className="space-y-6 pb-10 pill-roboto">
-            <AdminHeader 
+            <AdminHeader
                 title="Quản lý sản phẩm"
                 subtitle="Quản lý toàn bộ kho hàng đồng hồ"
                 actions={
-                    <Button 
-                        onClick={() => navigate('/admin/products/create')} 
-                        className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-amber-600/20 transition-all active:scale-95"
+                    <Button
+                        onClick={() => navigate('/admin/products/create')}
+                        className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95"
                     >
-                        <Plus className="h-4 w-4" /> Thêm sản phẩm
+                        <Plus className="h-4 w-4" /> Thêm sản phẩm mới
                     </Button>
                 }
             />
 
-            <SearchBanner 
+            <SearchBanner
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 placeholder="Tìm kiếm sản phẩm..."
                 onRefresh={fetchProducts}
                 loading={loading}
                 count={count}
-                countLabel="sản phẩm"
+                countLabel="Sản phẩm"
             >
                 {selectedIds.length > 0 && (
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 rounded-lg border border-amber-100 animate-in fade-in slide-in-from-left-2 transition-all">
                         <span className="text-xs font-bold text-amber-700">Đã chọn {selectedIds.length}</span>
                         <div className="w-px h-3 bg-amber-200 mx-1" />
-                        <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-md px-2">Xóa</Button>
-                        <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold uppercase text-slate-600 hover:bg-white rounded-md px-2">Ẩn</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-md px-2">Xóa bỏ</Button>
+                        <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold text-slate-600 hover:bg-white rounded-md px-2">Ẩn đi</Button>
                     </div>
                 )}
             </SearchBanner>
 
-            <ProductTable 
+            <ProductTable
                 products={products}
                 loading={loading}
                 selectedIds={selectedIds}

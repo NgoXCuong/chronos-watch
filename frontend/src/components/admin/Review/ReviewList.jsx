@@ -1,19 +1,19 @@
 import React from 'react';
-import { 
-    Star, 
-    MessageSquare, 
-    CheckCircle, 
-    XCircle, 
+import {
+    Star,
+    MessageSquare,
+    CheckCircle,
+    XCircle,
     Box,
     Send
 } from 'lucide-react';
 import { Button } from '../../ui/button';
 
-const ReviewList = ({ 
-    reviews, 
-    loading, 
-    onToggleStatus, 
-    onReply 
+const ReviewList = ({
+    reviews,
+    loading,
+    onToggleStatus,
+    onReply
 }) => {
     if (loading) {
         return (
@@ -25,9 +25,9 @@ const ReviewList = ({
 
     if (!reviews.length) {
         return (
-            <div className="py-20 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
+            <div className="py-20 text-center bg-white rounded-md border border-slate-100 shadow-sm">
                 <Star className="h-16 w-16 text-slate-100 mx-auto mb-4" />
-                <p className="text-slate-400 font-medium italic">Chưa có đánh giá nào được tìm thấy</p>
+                <p className="text-slate-400 font-medium">Chưa có đánh giá nào được tìm thấy</p>
             </div>
         );
     }
@@ -91,27 +91,25 @@ const ReviewList = ({
                                 )}
 
                                 <div className="flex flex-wrap items-center gap-3 pt-5 border-t border-slate-50">
-                                    <Button 
-                                        variant={review.admin_reply ? "outline" : "default"} 
+                                    <Button
+                                        variant={review.admin_reply ? "outline" : "default"}
                                         onClick={() => onReply(review)}
-                                        className={`rounded-xl h-10 px-6 gap-2 text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
-                                            review.admin_reply 
-                                            ? "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800" 
+                                        className={`rounded-xl h-10 px-6 gap-2 text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${review.admin_reply
+                                            ? "border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"
                                             : "bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/20"
-                                        }`}
+                                            }`}
                                     >
                                         <Send size={14} /> {review.admin_reply ? "Sửa phản hồi" : "Phản hồi khách"}
                                     </Button>
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         onClick={() => onToggleStatus(review)}
-                                        className={`rounded-xl h-10 px-6 gap-2 text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${
-                                            review.is_active 
-                                            ? "text-rose-600 border-rose-100 hover:bg-rose-50 hover:text-rose-700" 
+                                        className={`rounded-xl h-10 px-6 gap-2 text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 ${review.is_active
+                                            ? "text-rose-600 border-rose-100 hover:bg-rose-50 hover:text-rose-700"
                                             : "text-emerald-600 border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
-                                        }`}
+                                            }`}
                                     >
-                                        {review.is_active ? <XCircle size={14} /> : <CheckCircle size={14} />} 
+                                        {review.is_active ? <XCircle size={14} /> : <CheckCircle size={14} />}
                                         {review.is_active ? "Ẩn bình luận" : "Công khai lại"}
                                     </Button>
                                 </div>

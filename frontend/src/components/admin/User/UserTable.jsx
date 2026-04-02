@@ -1,25 +1,25 @@
 import React from 'react';
-import { 
-    MoreVertical, 
-    Mail, 
-    History, 
-    Shield, 
-    UserX, 
-    UserCheck 
+import {
+    MoreVertical,
+    Mail,
+    History,
+    Shield,
+    UserX,
+    UserCheck
 } from 'lucide-react';
-import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuTrigger, 
-    DropdownMenuSeparator 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator
 } from '../../ui/dropdown-menu';
 import { Button, buttonVariants } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 
 const UserTable = ({ users, loading }) => {
     return (
-        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100">

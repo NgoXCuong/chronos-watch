@@ -1,32 +1,32 @@
 import React from 'react';
-import { 
-    MoreVertical, 
-    Eye, 
-    CheckCircle2, 
-    Truck, 
-    Package, 
-    XCircle, 
+import {
+    MoreVertical,
+    Eye,
+    CheckCircle2,
+    Truck,
+    Package,
+    XCircle,
     RefreshCcw,
     ShoppingBag
 } from 'lucide-react';
-import { 
-    DropdownMenu, 
-    DropdownMenuContent, 
-    DropdownMenuItem, 
-    DropdownMenuTrigger, 
-    DropdownMenuSeparator 
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator
 } from '../../ui/dropdown-menu';
 import { Button, buttonVariants } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 
 const STATUS_CONFIG = {
-    pending:   { label: 'Chờ duyệt',   bg: 'bg-amber-50',   text: 'text-amber-600',  border: 'border-amber-100',  dot: 'bg-amber-500', icon: Package },
-    confirmed: { label: 'Đã xác nhận', bg: 'bg-blue-50',    text: 'text-blue-600',   border: 'border-blue-100',   dot: 'bg-blue-500', icon: CheckCircle2 },
-    processing: { label: 'Đang xử lý', bg: 'bg-indigo-50',  text: 'text-indigo-600', border: 'border-indigo-100', dot: 'bg-indigo-500', icon: RefreshCcw },
-    shipped:   { label: 'Đang giao',   bg: 'bg-purple-50',  text: 'text-purple-600', border: 'border-purple-100', dot: 'bg-purple-500', icon: Truck },
-    delivered: { label: 'Hoàn thành',  bg: 'bg-emerald-50', text: 'text-emerald-600',border: 'border-emerald-100',dot: 'bg-emerald-500', icon: CheckCircle2 },
-    cancelled: { label: 'Đã hủy',      bg: 'bg-rose-50',    text: 'text-rose-600',   border: 'border-rose-100',   dot: 'bg-rose-500', icon: XCircle },
-    returned:  { label: 'Hoàn hàng',   bg: 'bg-slate-50',   text: 'text-slate-500',  border: 'border-slate-100',  dot: 'bg-slate-400', icon: RefreshCcw },
+    pending: { label: 'Chờ duyệt', bg: 'bg-amber-50', text: 'text-amber-600', border: 'border-amber-100', dot: 'bg-amber-500', icon: Package },
+    confirmed: { label: 'Đã xác nhận', bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100', dot: 'bg-blue-500', icon: CheckCircle2 },
+    processing: { label: 'Đang xử lý', bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100', dot: 'bg-indigo-500', icon: RefreshCcw },
+    shipped: { label: 'Đang giao', bg: 'bg-purple-50', text: 'text-purple-600', border: 'border-purple-100', dot: 'bg-purple-500', icon: Truck },
+    delivered: { label: 'Hoàn thành', bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100', dot: 'bg-emerald-500', icon: CheckCircle2 },
+    cancelled: { label: 'Đã hủy', bg: 'bg-rose-50', text: 'text-rose-600', border: 'border-rose-100', dot: 'bg-rose-500', icon: XCircle },
+    returned: { label: 'Hoàn hàng', bg: 'bg-slate-50', text: 'text-slate-500', border: 'border-slate-100', dot: 'bg-slate-400', icon: RefreshCcw },
 };
 
 const StatusBadge = ({ status }) => {
@@ -39,16 +39,16 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-const OrderTable = ({ 
-    orders, 
-    loading, 
-    onStatusUpdate, 
-    onView, 
-    formatCurrency, 
-    updatingId 
+const OrderTable = ({
+    orders,
+    loading,
+    onStatusUpdate,
+    onView,
+    formatCurrency,
+    updatingId
 }) => {
     return (
-        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100">
@@ -81,8 +81,8 @@ const OrderTable = ({
                             </tr>
                         )}
                         {orders.map(order => (
-                            <tr 
-                                key={order.id} 
+                            <tr
+                                key={order.id}
                                 className="hover:bg-slate-50/50 transition-all cursor-pointer group"
                                 onClick={() => onView(order.id)}
                             >
@@ -125,12 +125,12 @@ const OrderTable = ({
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator className="my-1 bg-slate-50" />
                                             <p className="px-3 py-2 text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1 border-b border-slate-50">Cập nhật nhanh</p>
-                                            
+
                                             {updatingId === order.id ? (
                                                 <div className="py-4 text-center"><RefreshCw className="h-4 w-4 animate-spin mx-auto text-amber-600" /></div>
                                             ) : (
                                                 Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
-                                                    <DropdownMenuItem 
+                                                    <DropdownMenuItem
                                                         key={key}
                                                         className={cn("gap-3 cursor-pointer py-2 px-3 rounded-lg text-[11px] font-bold outline-none", order.status === key ? "bg-slate-50 opacity-50" : "hover:bg-slate-50")}
                                                         disabled={order.status === key}

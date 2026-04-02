@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     RefreshCw,
     FileSpreadsheet
 } from 'lucide-react';
@@ -13,6 +13,7 @@ import AdminHeader from '../../../components/admin/Common/AdminHeader';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import OrderTable, { STATUS_CONFIG } from '../../../components/admin/Order/OrderTable';
 import OrderStatusFilter from '../../../components/admin/Order/OrderStatusFilter';
+import { cn } from '../../../lib/utils';
 
 const STATUSES = Object.entries(STATUS_CONFIG).map(([k, v]) => ({ key: k, label: v.label }));
 
@@ -92,22 +93,48 @@ const OrderListPage = () => {
 
     return (
         <div className="space-y-6 pb-10 font-roboto">
-            <AdminHeader 
+            <AdminHeader
                 title="Quản lý Đơn hàng"
                 subtitle="Theo dõi và xử lý vận hành giao hàng"
                 actions={
                     <>
-                        <Button onClick={handleExportExcel} variant="outline" className="gap-2 h-11 px-5 rounded-2xl border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm">
-                            <FileSpreadsheet className="h-4 w-4" /> Xuất Excel
+                        {/* EXPORT EXCEL */}
+                        <Button
+                            onClick={handleExportExcel}
+                            className="gap-2 h-11 px-5 rounded-2xl 
+                           bg-emerald-500 text-white 
+                           font-bold text-xs uppercase tracking-widest
+                           shadow-md shadow-emerald-500/20
+                           hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30
+                           active:scale-95 transition-all"
+                        >
+                            <FileSpreadsheet className="h-4 w-4" />
+                            Xuất Excel
                         </Button>
-                        <Button onClick={fetchOrders} variant="outline" className="gap-2 h-11 px-5 rounded-2xl border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-all shadow-sm">
-                            <RefreshCw className="h-4 w-4" /> Làm mới
+
+                        {/* REFRESH */}
+                        <Button
+                            onClick={fetchOrders}
+                            className="gap-2 h-11 px-5 rounded-2xl 
+                           bg-blue-500 text-white 
+                           font-bold text-xs uppercase tracking-widest
+                           shadow-md shadow-blue-500/20
+                           hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30
+                           active:scale-95 transition-all"
+                        >
+                            <RefreshCw
+                                className={cn(
+                                    "h-4 w-4 transition-all",
+                                    loading && "animate-spin"
+                                )}
+                            />
+                            Làm mới
                         </Button>
                     </>
                 }
             />
 
-            <OrderStatusFilter 
+            <OrderStatusFilter
                 activeStatus={filterStatus}
                 onStatusChange={setFilterStatus}
                 totalCount={orders.length}
@@ -115,7 +142,7 @@ const OrderListPage = () => {
                 statuses={STATUSES}
             />
 
-            <SearchBanner 
+            <SearchBanner
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 placeholder="Tìm theo mã đơn, khách hàng, email..."
@@ -125,7 +152,7 @@ const OrderListPage = () => {
                 countLabel="đơn hàng"
             />
 
-            <OrderTable 
+            <OrderTable
                 orders={filtered}
                 loading={loading}
                 onStatusUpdate={handleStatusUpdate}

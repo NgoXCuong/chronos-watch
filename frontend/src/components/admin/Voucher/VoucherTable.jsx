@@ -2,16 +2,16 @@ import React from 'react';
 import { Tag, Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../ui/button';
 
-const VoucherTable = ({ 
-    vouchers, 
-    loading, 
-    searchTerm, 
-    formatCurrency, 
-    isExpired, 
-    onEdit, 
-    onDelete 
+const VoucherTable = ({
+    vouchers,
+    loading,
+    searchTerm,
+    formatCurrency,
+    isExpired,
+    onEdit,
+    onDelete
 }) => {
-    const filteredVouchers = vouchers.filter(v => 
+    const filteredVouchers = vouchers.filter(v =>
         v.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
 

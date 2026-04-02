@@ -102,27 +102,27 @@ const BrandListPage = () => {
 
     return (
         <div className="space-y-6 pb-10 font-roboto">
-            <AdminHeader 
+            <AdminHeader
                 title="Quản lý thương hiệu"
                 subtitle="Quản lý các thương hiệu đồng hồ"
                 actions={
-                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-amber-600/20 transition-all active:scale-95">
-                        <Plus className="h-4 w-4" /> Thêm thương hiệu
+                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95">
+                        <Plus className="h-4 w-4" /> Thêm thương hiệu mới
                     </Button>
                 }
             />
 
-            <SearchBanner 
+            <SearchBanner
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 placeholder="Tìm kiếm thương hiệu..."
                 onRefresh={fetchBrands}
                 loading={loading}
                 count={filtered.length}
-                countLabel="thương hiệu"
+                countLabel="Thương hiệu"
             />
 
-            <BrandTable 
+            <BrandTable
                 brands={filtered}
                 loading={loading}
                 onEdit={openEdit}
@@ -130,7 +130,7 @@ const BrandListPage = () => {
                 onToggle={handleToggle}
             />
 
-            <BrandFormModal 
+            <BrandFormModal
                 isOpen={modalOpen}
                 onClose={closeModal}
                 onSubmit={handleSubmit}
