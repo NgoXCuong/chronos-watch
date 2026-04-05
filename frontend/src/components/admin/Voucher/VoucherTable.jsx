@@ -21,13 +21,13 @@ const VoucherTable = ({
                 <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 border-b border-slate-100">
                         <tr>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mã code</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Loại</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Giá trị</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Đơn tối thiểu</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Hạn dùng</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Đã dùng</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Mã code</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Loại</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Giá trị</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Đơn tối thiểu</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Hạn dùng</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase">Đã dùng</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">

@@ -145,17 +145,40 @@ const ProductEditorPage = () => {
         }
     };
 
-    // Quill config
+    // Quill config — toolbar được thiết kế để sinh ra HTML sạch
+    // Không có color/background vì chúng inject inline style gây hỏng dark mode
     const quillModules = {
         toolbar: [
+            // Heading hierarchy — dùng thẻ <h1>, <h2>, <h3> đúng chuẩn
             [{ 'header': [1, 2, 3, false] }],
+            // Font size
+            [{ 'size': ['small', false, 'large', 'huge'] }],
+            // Inline formatting
             ['bold', 'italic', 'underline', 'strike'],
+            // Block elements
+            ['blockquote', 'code-block'],
+            // Lists
             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'color': [] }, { 'background': [] }],
+            [{ 'indent': '-1' }, { 'indent': '+1' }],
+            // Alignment — tạo class ql-align-center, ql-align-right...
+            [{ 'align': [] }],
+            // Media
             ['link', 'image'],
+            // Clean formatting
             ['clean']
         ],
     };
+
+    // Formats whitelist — chỉ cho phép các format có trong toolbar
+    // Loại bỏ 'color' và 'background' để không inject inline style
+    const quillFormats = [
+        'header', 'size',
+        'bold', 'italic', 'underline', 'strike',
+        'blockquote', 'code-block',
+        'list', 'bullet', 'indent',
+        'align',
+        'link', 'image',
+    ];
 
     if (loading) return (
         <div className="h-96 flex items-center justify-center">
@@ -192,7 +215,8 @@ const ProductEditorPage = () => {
                     <ProductDescription 
                         form={form} 
                         setForm={setForm} 
-                        quillModules={quillModules} 
+                        quillModules={quillModules}
+                        quillFormats={quillFormats}
                     />
 
                     <ProductSpecifications form={form} setForm={setForm} />

@@ -31,13 +31,19 @@ const productService = {
         });
 
         const include = [
-            { model: Brand, as: 'brand', attributes: ['name', 'slug'] },
+            { 
+                model: Brand, 
+                as: 'brand', 
+                attributes: ['name', 'slug'],
+                required: false 
+            },
             { 
                 model: Category, 
                 as: 'categories', 
                 attributes: ['id', 'name', 'slug'],
                 where: category_id ? { id: category_id } : {},
-                through: { attributes: [] }
+                through: { attributes: [] },
+                required: category_id ? true : false 
             }
         ];
 

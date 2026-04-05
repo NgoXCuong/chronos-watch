@@ -15,12 +15,12 @@ const BrandTable = ({
                 <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 border-b border-slate-100">
                         <tr>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Thương hiệu</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Slug</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mô tả</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Quốc gia</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Thương hiệu</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Slug</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Mô tả</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Quốc gia</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Trạng thái</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -48,18 +48,18 @@ const BrandTable = ({
                                                 : <span className="text-slate-400 font-semibold text-xs">{brand.name?.charAt(0)}</span>}
                                         </div>
                                         <div>
-                                            <p className="font-bold text-slate-800 text-sm uppercase tracking-tight">{brand.name}</p>
+                                            <p className="font-bold text-slate-800 text-sm uppercase">{brand.name}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 text-slate-500 text-xs font-medium">{brand.slug || '—'}</td>
                                 <td className="px-4 py-3 text-slate-500 text-xs max-w-xs truncate">{brand.description || '—'}</td>
-                                <td className="px-4 py-3 text-slate-500 text-xs font-medium uppercase tracking-tighter">{brand.country || '—'}</td>
+                                <td className="px-4 py-3 text-slate-500 text-xs font-medium uppercase">{brand.country || '—'}</td>
                                 <td className="px-4 py-3">
                                     <button onClick={() => onToggle(brand)} className="flex items-center gap-1.5 focus:outline-none">
                                         {brand.is_active
-                                            ? <><ToggleRight className="h-4.5 w-4.5 text-emerald-500" /><span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 uppercase tracking-widest">Hoạt động</span></>
-                                            : <><ToggleLeft className="h-4.5 w-4.5 text-slate-400" /><span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 uppercase tracking-widest">Ẩn</span></>}
+                                            ? <><ToggleRight className="h-4.5 w-4.5 text-emerald-500" /><span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 uppercase">Hoạt động</span></>
+                                            : <><ToggleLeft className="h-4.5 w-4.5 text-slate-400" /><span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 uppercase">Ẩn</span></>}
                                     </button>
                                 </td>
                                 <td className="px-4 py-3 text-right">
@@ -78,7 +78,7 @@ const BrandTable = ({
                 </table>
             </div>
             <div className="px-4 py-2.5 border-t border-slate-50 bg-slate-50/30">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tổng: {brands.length} thương hiệu</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Tổng: {brands.length} thương hiệu</p>
             </div>
         </div>
     );

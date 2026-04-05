@@ -32,7 +32,8 @@ const Brand = sequelize.define('Brand', {
     tableName: 'brands',
     underscored: true,
     timestamps: true,
-    updatedAt: false // Bảng brands trong SQL không có updated_at
+    createdAt: 'created_at',
+    updatedAt: false
 });
 
 export default Brand;

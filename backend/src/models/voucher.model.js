@@ -49,7 +49,9 @@ const Voucher = sequelize.define('Voucher', {
 }, {
     tableName: 'vouchers',
     underscored: true,
-    timestamps: true
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 export default Voucher;

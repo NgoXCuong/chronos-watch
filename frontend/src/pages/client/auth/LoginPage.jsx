@@ -22,11 +22,11 @@ const LoginPage = () => {
                 <div className="absolute inset-0 flex flex-col justify-between p-16 text-white z-10">
                     <div className="flex items-center gap-4">
                         <div className="w-px h-12 bg-amber-500/50"></div>
-                        <h1 className="text-4xl font-heading tracking-[0.3em] font-light text-white">CHRONOS</h1>
+                        <h1 className="text-4xl font-heading  font-light text-white">CHRONOS</h1>
                     </div>
 
                     <div className="max-w-xl">
-                        <span className="text-amber-400 text-xs uppercase tracking-[0.5em] mb-4 block font-medium font-heading">Legacy & Prestige</span>
+                        <span className="text-amber-400 text-xs uppercase mb-4 block font-medium font-heading">Legacy & Prestige</span>
                         <h2 className="text-5xl lg:text-6xl font-heading leading-tight mb-6">Nghi thức của sự thanh lịch.</h2>
                         <div className="w-20 h-px bg-amber-500/30 mb-6"></div>
                         <p className="text-zinc-100 font-light italic text-xl leading-relaxed">
@@ -34,7 +34,7 @@ const LoginPage = () => {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-6 text-[10px] uppercase tracking-[0.4em] text-zinc-300 font-medium">
+                    <div className="flex items-center gap-6 text-[10px] uppercase text-zinc-300 font-medium">
                         <span>Heritage</span>
                         <span className="w-1 h-1 rounded-full bg-zinc-400"></span>
                         <span>Craftsmanship</span>
@@ -53,17 +53,17 @@ const LoginPage = () => {
                     <div className="mb-16">
                         {/* Mobile Header */}
                         <div className="md:hidden flex flex-col items-center mb-10">
-                            <h1 className="text-3xl font-heading tracking-[0.4em] text-zinc-900 mb-2">CHRONOS</h1>
+                            <h1 className="text-3xl font-heading  text-zinc-900 mb-2">CHRONOS</h1>
                             <div className="w-10 h-px bg-amber-500/50"></div>
                         </div>
 
-                        <h3 className="text-4xl font-heading text-zinc-900 tracking-tight mb-3">Chào Mừng</h3>
-                        <p className="text-zinc-500 font-light tracking-wide">Đăng nhập vào không gian dành cho giới mộ điệu.</p>
+                        <h3 className="text-4xl font-heading text-zinc-900 mb-3">Chào Mừng</h3>
+                        <p className="text-zinc-500 font-light">Đăng nhập vào không gian dành cho giới mộ điệu.</p>
                     </div>
 
                     <LoginForm variant="light" />
 
-                    <div className="mt-12 border-t border-zinc-100 pt-6 text-[10px] text-center tracking-[0.3em] text-zinc-400 font-heading uppercase">
+                    <div className="mt-12 border-t border-zinc-100 pt-6 text-[10px] text-center  text-zinc-400 font-heading uppercase">
                         &copy; MMXXIV Chronos Prestige Group
                     </div>
                 </div>

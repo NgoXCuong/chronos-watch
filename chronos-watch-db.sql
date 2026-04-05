@@ -1,6 +1,9 @@
 CREATE DATABASE chronos_watch_db;
 USE chronos_watch_db;
 
+DROP TABLE IF EXISTS banners;
+
+
 ALTER TABLE users ADD COLUMN reset_password_token VARCHAR(255) DEFAULT NULL;
 ALTER TABLE users ADD COLUMN reset_password_expires DATETIME DEFAULT NULL;
 
@@ -152,7 +155,7 @@ CREATE TABLE `orders` (
   `discount_amount` DECIMAL(15,0) DEFAULT 0,
   `total_amount`    DECIMAL(15,0) NOT NULL,
   `voucher_id`      INT           DEFAULT NULL,
-  `status`          ENUM('pending','confirmed','shipping','delivered','cancelled','returned') DEFAULT 'pending',
+  `status`          ENUM('pending','confirmed','processing','shipping','delivered','cancelled','returned') DEFAULT 'pending',
   `payment_method`  ENUM('cod','vnpay','banking') DEFAULT 'cod',
   `payment_status`  ENUM('unpaid','paid','refunded')     DEFAULT 'unpaid',
   `created_at`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -227,56 +230,12 @@ CREATE TABLE `reviews` (
   CONSTRAINT `chk_rating`  CHECK (rating BETWEEN 1 AND 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `banners` (
-  `id`          INT          NOT NULL AUTO_INCREMENT,
-  `title`       VARCHAR(255) DEFAULT NULL,
-  `image_url`   VARCHAR(255) NOT NULL,
-  `link_url`    VARCHAR(255) DEFAULT NULL,
-  `position`    ENUM('home_main', 'home_sidebar', 'popup') DEFAULT 'home_main',
-  `sort_order`  INT          DEFAULT 0,
-  `is_active`   TINYINT(1)   DEFAULT 1,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================================
--- 12. TRIGGERS (Tự động hóa kho & Lịch sử)
+-- 12. TRIGGERS (Đã lược bỏ - Logic chuyển về Backend)
 -- ============================================================
-DELIMITER $$
-
--- Trừ kho khi bán hàng
-CREATE TRIGGER `tr_after_order_detail_insert`
-AFTER INSERT ON `order_details`
-FOR EACH ROW
-BEGIN
-    UPDATE `products`
-    SET `stock` = `stock` - NEW.quantity,
-        `sold_count` = `sold_count` + NEW.quantity
-    WHERE `id` = NEW.product_id;
-END$$
-
--- Hoàn kho khi Hủy/Trả hàng & Ghi lịch sử đơn
-CREATE TRIGGER `tr_after_order_status_update`
-AFTER UPDATE ON `orders`
-FOR EACH ROW
-BEGIN
-    -- Hoàn kho
-    IF (NEW.status IN ('cancelled', 'returned')) AND (OLD.status NOT IN ('cancelled', 'returned')) THEN
-        UPDATE `products` p
-        JOIN `order_details` od ON p.id = od.product_id
-        SET p.stock = p.stock + od.quantity,
-            p.sold_count = p.sold_count - od.quantity
-        WHERE od.order_id = NEW.id;
-
-        IF NEW.voucher_id IS NOT NULL THEN
-            UPDATE `vouchers` SET `usage_count` = `usage_count` - 1 WHERE `id` = NEW.voucher_id;
-        END IF;
-    END IF;
-    
-    -- Ghi lịch sử mỗi khi chuyển trạng thái
-    IF NEW.status <> OLD.status THEN
-        INSERT INTO `order_history` (order_id, status, note) 
-        VALUES (NEW.id, NEW.status, CONCAT('Trạng thái cập nhật: ', NEW.status));
-    END IF;
-END$$
+-- Các nghiệp vụ trừ kho, hoàn kho và ghi lịch sử đơn hàng
+-- hiện đã được xử lý tập trung tại Backend (Sequelize)
+-- để tránh xung đột dữ liệu và hỗ trợ Custom Note.
 
 DELIMITER ;

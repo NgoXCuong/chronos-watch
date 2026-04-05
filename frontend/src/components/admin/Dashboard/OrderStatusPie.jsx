@@ -22,7 +22,7 @@ const OrderStatusPie = ({ data, totalOrders }) => {
           Cơ cấu vận hành hiện tại
         </p>
       </div>
-      <div className="h-64 relative">
+      <div style={{ width: '100%', height: 256, overflow: 'hidden' }} className="relative">
         {data && data.length > 0 ? (
           <>
             <ResponsiveContainer width="100%" height="100%">

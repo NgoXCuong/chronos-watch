@@ -6,25 +6,25 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-none text-sm font-medium tracking-widest uppercase transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center rounded-none text-[10px] font-bold tracking-[0.3em] uppercase transition-all duration-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] group",
   {
     variants: {
       variant: {
-        default: "bg-amber-600 text-white hover:bg-amber-500 shadow-lg shadow-amber-900/20",
-        primary: "bg-amber-600 text-white hover:bg-amber-500 shadow-lg shadow-amber-900/20",
-        luxury: "bg-zinc-100 text-zinc-950 hover:bg-white shadow-xl shadow-white/5",
-        outline: "border border-amber-500/30 bg-transparent text-amber-500 hover:bg-amber-500/5",
-        secondary: "bg-zinc-800 text-zinc-100 hover:bg-zinc-700",
-        ghost: "hover:bg-zinc-800 hover:text-zinc-100",
-        link: "text-amber-500 underline-offset-4 hover:underline",
-        destructive: "bg-red-900/20 border border-red-500/30 text-red-500 hover:bg-red-500/10",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_10px_30px_rgba(197,160,89,0.2)] border-none",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_10px_30px_rgba(197,160,89,0.2)] border-none",
+        luxury: "bg-white text-zinc-950 hover:bg-zinc-100 shadow-xl shadow-white/5 border border-zinc-200",
+        outline: "border border-primary/30 bg-transparent text-primary hover:bg-primary/5 hover:border-primary transition-colors",
+        secondary: "bg-zinc-900 text-zinc-100 hover:bg-zinc-800 border border-white/5",
+        ghost: "hover:bg-zinc-100 dark:hover:bg-zinc-800 text-muted-foreground hover:text-foreground",
+        link: "text-primary underline-offset-4 hover:underline font-bold",
+        destructive: "bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20",
       },
       size: {
-        default: "h-12 px-8 py-3",
-        sm: "h-9 px-4 text-xs",
-        lg: "h-14 px-10 text-base",
-        icon: "h-10 w-10",
-        full: "w-full h-12 px-8",
+        default: "h-14 px-10",
+        sm: "h-10 px-6",
+        lg: "h-16 px-12",
+        icon: "h-12 w-12",
+        full: "w-full h-14 px-10",
       },
     },
     defaultVariants: {

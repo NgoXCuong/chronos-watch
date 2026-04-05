@@ -20,6 +20,10 @@ const voucherApi = {
     delete: async (id) => {
         const { data } = await axios.delete(`/vouchers/${id}`);
         return data;
+    },
+    validate: async (code, total) => {
+        const { data } = await axios.get('/vouchers/validate', { params: { code, total } });
+        return data;
     }
 };
 

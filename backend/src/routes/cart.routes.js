@@ -12,5 +12,6 @@ router.post("/add", cartController.addToCart);
 router.put("/update", cartController.updateQuantity);
 router.delete("/remove/:productId", cartController.removeFromCart);
 router.delete("/clear", cartController.clearCart);
+router.post("/sync", cartController.syncCart);
 
 export default router;

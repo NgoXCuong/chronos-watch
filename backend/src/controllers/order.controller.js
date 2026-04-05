@@ -50,6 +50,15 @@ const orderController = {
         }
     },
 
+    markAsPaid: async (req, res) => {
+        try {
+            const order = await orderService.markAsPaid(req.params.id);
+            res.json({ message: "Đã xác nhận thu tiền COD thành công", order });
+        } catch (error) {
+            res.status(400).json({ message: formatSequelizeError(error) });
+        }
+    },
+
     cancelOrder: async (req, res) => {
         try {
             const { note } = req.body;

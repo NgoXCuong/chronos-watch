@@ -1,162 +1,143 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, Heart, ShoppingBag, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { Clock, CheckCircle2 } from 'lucide-react';
+
+import { useTheme } from '../../../context/ThemeContext';
 import productApi from '../../../api/product.api';
-import { formatCurrency } from '../../../utils/formatCurrency';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '../../../hooks/useAuth';
+
+// New Modular Components
+import ProductBreadcrumbs from '../../../components/products/detail/ProductBreadcrumbs';
+import ProductGallery from '../../../components/products/detail/ProductGallery';
+import ProductInfo from '../../../components/products/detail/ProductInfo';
+import ProductActions from '../../../components/products/detail/ProductActions';
+import ProductTrustFeatures from '../../../components/products/detail/ProductTrustFeatures';
+import ProductDetailsTabs from '../../../components/products/detail/ProductDetailsTabs';
+import ProductEditorial from '../../../components/products/detail/ProductEditorial';
+import RelatedProducts from '../../../components/products/detail/RelatedProducts';
+
+import { Button } from '../../../components/ui/button';
 
 const ProductDetailPage = () => {
     const { slug } = useParams();
-    const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-    
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     const [product, setProduct] = useState(null);
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [thumbsSwiper, setThumbsSwiper] = useState(null);
     const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
-        fetchProductDetail();
-    }, [slug]);
-
-    const fetchProductDetail = async () => {
         setLoading(true);
-        try {
-            const data = await productApi.getDetail(slug);
-            setProduct(data);
-        } catch (error) {
-            console.error("Lỗi lấy chi tiết sản phẩm:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleAddToCart = () => {
-        if (!isAuthenticated) {
-            navigate('/login');
-            return;
-        }
-        // TODO: Implement Add to Cart logic
-        alert(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-    };
+        productApi.getDetail(slug)
+            .then(data => {
+                setProduct(data);
+                // Fetch related products
+                productApi.getAll({
+                    limit: 4,
+                    brand_id: data.brand_id,
+                    exclude_id: data.id
+                }).then(relData => {
+                    const items = relData?.rows || (Array.isArray(relData) ? relData : (relData?.data || []));
+                    setRelatedProducts(items.filter(p => (p.id || p._id) !== data.id));
+                });
+            })
+            .catch(err => console.error("Detail Fetch Error:", err))
+            .finally(() => {
+                setLoading(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+    }, [slug]);
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background pt-32 pb-16 flex items-center justify-center">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className={`min-h-screen flex items-center justify-center ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
+                <div className="relative">
+                    <div className="w-16 h-16 border-2 border-amber-500/20 rounded-full"></div>
+                    <div className="absolute top-0 left-0 w-16 h-16 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="mt-4 text-[10px] uppercase text-amber-500 font-bold text-center">Chronos</div>
+                </div>
             </div>
         );
     }
 
     if (!product) {
         return (
-            <div className="min-h-screen bg-background pt-32 pb-16 flex flex-col items-center justify-center text-center px-6">
-                <h2 className="text-4xl font-heading text-destructive mb-4">404</h2>
-                <p className="text-muted-foreground uppercase tracking-widest mb-8">Sản phẩm không tồn tại hoặc đã bị xóa.</p>
-                <Link to="/products" className="text-primary hover:underline uppercase tracking-widest text-sm">Quay lại Cửa Hàng</Link>
+            <div className={`min-h-screen flex flex-col items-center justify-center p-6 text-center ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
+                <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-zinc-900'}`} style={{ fontFamily: 'Cinzel, serif' }}>Tuyệt phẩm không tìm thấy</h2>
+                <p className={`mb-8 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Hiện tại chúng tôi không tìm thấy sản phẩm bạn yêu cầu.</p>
+                <Link to="/products">
+                    <Button className="bg-amber-600 hover:bg-amber-700 text-white rounded-none px-8 py-6 uppercase text-[10px]">
+                        Khám phá bộ sưu tập
+                    </Button>
+                </Link>
             </div>
         );
     }
 
+    const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    const images = product.image_gallery && product.image_gallery.length > 0 ? product.image_gallery : [product.image_url];
+    const discount = product.old_price ? Math.round((1 - product.price / product.old_price) * 100) : null;
+
+    // Stock Status
+    const getStockStatus = () => {
+        if (product.stock <= 0) return { label: 'Hết hàng', color: 'text-red-500', icon: <Clock className="w-4 h-4" /> };
+        if (product.stock <= 5) return { label: 'Chỉ còn ' + product.stock + ' chiếc', color: 'text-orange-500', icon: <Clock className="w-4 h-4" /> };
+        return { label: 'Còn hàng', color: 'text-emerald-500', icon: <CheckCircle2 className="w-4 h-4" /> };
+    };
+    const stockStatus = getStockStatus();
+
     return (
-        <div className="min-h-screen bg-background pt-24 pb-24 transition-colors duration-500 font-sans">
-            <div className="container mx-auto px-6">
-                
-                {/* Breadcrumb */}
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted-foreground mb-12">
-                    <Link to="/" className="hover:text-foreground transition-colors">Trang Chủ</Link>
-                    <ChevronRight size={12} />
-                    <Link to="/products" className="hover:text-foreground transition-colors">Đồng Hồ</Link>
-                    <ChevronRight size={12} />
-                    <span className="text-foreground">{product.name}</span>
-                </div>
+        <div className={`min-h-screen transition-colors duration-500 pb-20 ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
+            <ProductBreadcrumbs product={product} isDark={isDark} />
 
-                <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
-                    {/* Image Gallery */}
-                    <div className="w-full lg:w-1/2 flex flex-col gap-6">
-                        <div className="bg-white border border-border/50 aspect-square flex items-center justify-center p-12 hover:shadow-2xl transition-shadow duration-700">
-                            <img 
-                                src={product.image_url || "https://via.placeholder.com/600?text=No+Image"} 
-                                alt={product.name}
-                                className="w-full h-full object-contain"
-                            />
-                        </div>
-                    </div>
+            <div className="max-w-[1360px] mx-auto px-4 md:px-8 py-8 md:py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
+                    <ProductGallery 
+                        product={product} 
+                        images={images} 
+                        discount={discount} 
+                        isDark={isDark} 
+                        thumbsSwiper={thumbsSwiper}
+                        setThumbsSwiper={setThumbsSwiper}
+                    />
 
-                    {/* Product Info */}
-                    <div className="w-full lg:w-1/2 flex flex-col justify-center">
-                        <p className="text-sm text-primary font-bold tracking-[0.3em] uppercase mb-4">
-                            {product.Brand?.name || 'Thương Hiệu Riêng'}
-                        </p>
-                        <h1 className="text-3xl md:text-5xl font-heading text-foreground tracking-wider leading-tight mb-6">
-                            {product.name}
-                        </h1>
+                    <div className="flex flex-col pt-2">
+                        <ProductInfo 
+                            product={product} 
+                            stockStatus={stockStatus} 
+                            isDark={isDark} 
+                            formatCurrency={formatCurrency} 
+                        />
+                        
+                        <ProductActions 
+                            product={product} 
+                            quantity={quantity} 
+                            setQuantity={setQuantity} 
+                            isDark={isDark} 
+                        />
 
-                        <div className="text-3xl text-foreground font-price tracking-wide mb-8">
-                            {formatCurrency(product.price)}
-                        </div>
-
-                        <div className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground font-light leading-relaxed mb-10">
-                            {product.description ? (
-                                <div dangerouslySetInnerHTML={{ __html: product.description }} />
-                            ) : (
-                                <p className="italic">Chưa có mô tả chi tiết cho sản phẩm này.</p>
-                            )}
-                        </div>
-
-                        <hr className="border-border my-8" />
-
-                        {/* Actions */}
-                        <div className="flex items-end gap-6 mb-12">
-                            <div className="flex flex-col gap-3">
-                                <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Số lượng</label>
-                                <div className="flex items-center border border-border">
-                                    <button 
-                                        className="px-4 py-3 text-foreground hover:bg-accent transition-colors"
-                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    >-</button>
-                                    <span className="px-6 py-3 text-foreground font-medium min-w-[3rem] text-center">{quantity}</span>
-                                    <button 
-                                        className="px-4 py-3 text-foreground hover:bg-accent transition-colors"
-                                        onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                                    >+</button>
-                                </div>
-                            </div>
-
-                            <Button 
-                                onClick={handleAddToCart}
-                                className="flex-1 py-7 uppercase tracking-[0.2em] font-bold bg-foreground text-background hover:bg-primary hover:text-primary-foreground rounded-none transition-all duration-500"
-                            >
-                                Thêm Vào Giỏ <ShoppingBag size={18} className="ml-2" />
-                            </Button>
-
-                            <button className="p-4 border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors">
-                                <Heart size={24} strokeWidth={1.5} />
-                            </button>
-                        </div>
-
-                        {/* Guaranty & Features */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 border-t border-border">
-                            <div className="flex flex-col gap-3 items-start">
-                                <ShieldCheck size={28} className="text-primary" strokeWidth={1} />
-                                <span className="text-xs uppercase tracking-widest text-foreground font-semibold">Bảo Hành 5 Năm</span>
-                                <p className="text-[10px] text-muted-foreground">Chính hãng quốc tế</p>
-                            </div>
-                            <div className="flex flex-col gap-3 items-start">
-                                <Truck size={28} className="text-primary" strokeWidth={1} />
-                                <span className="text-xs uppercase tracking-widest text-foreground font-semibold">Giao Hàng Miễn Phí</span>
-                                <p className="text-[10px] text-muted-foreground">Toàn quốc an toàn tuyệt đối</p>
-                            </div>
-                            <div className="flex flex-col gap-3 items-start">
-                                <RotateCcw size={28} className="text-primary" strokeWidth={1} />
-                                <span className="text-xs uppercase tracking-widest text-foreground font-semibold">Đổi Trả Dễ Dàng</span>
-                                <p className="text-[10px] text-muted-foreground">Trong vòng 14 ngày</p>
-                            </div>
-                        </div>
-
+                        <ProductTrustFeatures isDark={isDark} />
                     </div>
                 </div>
+
+                <ProductDetailsTabs product={product} isDark={isDark} />
+
+                <ProductEditorial product={product} isDark={isDark} />
+
+                <RelatedProducts relatedProducts={relatedProducts} isDark={isDark} />
             </div>
+
+            <style>{`
+                /* Global Swiper Thumb Overlay Style - kept for synchronization */
+                .thumbs-swiper-luxury .swiper-slide-thumb-active {
+                    border-color: #d97706 !important;
+                }
+                .thumbs-swiper-luxury .swiper-slide-thumb-active img {
+                    opacity: 1 !important;
+                }
+            `}</style>
         </div>
     );
 };

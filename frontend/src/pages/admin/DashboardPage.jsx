@@ -51,24 +51,37 @@ const DashboardPage = () => {
     );
   }
 
+  // Tính % tăng giảm thực tế so với tháng trước
+  const computeTrend = (current, previous) => {
+    if (!previous || previous === 0) return current > 0 ? '+100%' : '0%';
+    const pct = ((current - previous) / previous) * 100;
+    return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+  };
+  const trendColor = (current, previous, reverse = false) => {
+    if (!previous || previous === 0) return 'text-slate-400';
+    const up = current >= previous;
+    if (reverse) return up ? 'text-rose-500' : 'text-emerald-500';
+    return up ? 'text-emerald-500' : 'text-rose-500';
+  };
+
   const statCards = [
     {
       label: "Doanh thu tháng này",
       value: formatCurrency(stats?.monthly_revenue),
       icon: DollarSign,
-      trend: "+12.5%",
-      trendColor: "text-emerald-500",
+      trend: computeTrend(stats?.monthly_revenue, stats?.last_month_revenue),
+      trendColor: trendColor(stats?.monthly_revenue, stats?.last_month_revenue),
       color: "text-white",
       bg: "bg-slate-900",
       dot: "bg-amber-500",
       pulse: true,
       hist: [
-        stats?.monthly_revenue * 0.8,
-        stats?.monthly_revenue * 0.9,
+        stats?.last_month_revenue * 0.7,
+        stats?.last_month_revenue * 0.85,
+        stats?.last_month_revenue * 0.9,
+        stats?.last_month_revenue,
         stats?.monthly_revenue * 0.85,
-        stats?.monthly_revenue * 0.95,
-        stats?.monthly_revenue * 1.1,
-        stats?.monthly_revenue * 1.25,
+        stats?.monthly_revenue,
       ],
       chartColor: "#F59E0B",
     },
@@ -76,37 +89,37 @@ const DashboardPage = () => {
       label: "Tổng đơn hàng",
       value: stats?.total_orders || 0,
       icon: ShoppingBag,
-      trend: "+8.2%",
-      trendColor: "text-emerald-600",
+      trend: computeTrend(stats?.total_orders, stats?.last_month_orders),
+      trendColor: trendColor(stats?.total_orders, stats?.last_month_orders),
       color: "text-slate-900",
       bg: "bg-white",
       dot: "bg-blue-500",
       pulse: true,
-      hist: [15, 18, 17, 20, 22, stats?.total_orders || 25],
+      hist: [stats?.last_month_orders * 0.6, stats?.last_month_orders * 0.8, stats?.last_month_orders, stats?.total_orders * 0.7, stats?.total_orders * 0.9, stats?.total_orders || 0],
       chartColor: "#3B82F6",
     },
     {
       label: "Giá trị TB đơn (AOV)",
       value: formatCurrency(stats?.aov),
       icon: CreditCard,
-      trend: "-2.4%",
-      trendColor: "text-rose-600",
+      trend: computeTrend(stats?.aov, stats?.last_month_aov),
+      trendColor: trendColor(stats?.aov, stats?.last_month_aov),
       color: "text-slate-900",
       bg: "bg-white",
       dot: "bg-emerald-500",
-      hist: [1.2e6, 1.3e6, 1.25e6, 1.4e6, 1.35e6, stats?.aov || 1.3e6],
+      hist: [stats?.last_month_aov * 0.8, stats?.last_month_aov * 0.9, stats?.last_month_aov, stats?.aov * 0.8, stats?.aov * 0.9, stats?.aov || 0],
       chartColor: "#10B981",
     },
     {
       label: "Tổng khách hàng",
       value: stats?.total_users || 0,
       icon: Users,
-      trend: "+14.1%",
-      trendColor: "text-amber-100",
+      trend: computeTrend(stats?.total_users, stats?.last_month_users),
+      trendColor: trendColor(stats?.total_users, stats?.last_month_users),
       color: "text-white",
       bg: "bg-amber-600",
       dot: "bg-white",
-      hist: [80, 85, 90, 95, 105, stats?.total_users || 120],
+      hist: [stats?.last_month_users * 0.7, stats?.last_month_users * 0.85, stats?.last_month_users, stats?.total_users * 0.8, stats?.total_users * 0.95, stats?.total_users || 0],
       chartColor: "#FEF3C7",
     },
   ];
@@ -146,7 +159,7 @@ const DashboardPage = () => {
       <StatsGrid stats={statCards} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <RevenueChart data={revenueData} formatCurrency={formatCurrency} />
+        <RevenueChart />
         <OrderStatusPie data={pieData} totalOrders={stats?.total_orders} />
       </div>
 

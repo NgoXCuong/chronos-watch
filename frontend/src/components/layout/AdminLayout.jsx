@@ -76,7 +76,6 @@ const AdminLayout = ({ children }) => {
                 { path: '/admin/orders', icon: ClipboardList, label: 'Đơn hàng' },
                 { path: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
                 { path: '/admin/reviews', icon: Star, label: 'Đánh giá' },
-                { path: '/admin/banners', icon: ImageIcon, label: 'Banners' },
             ]
         },
         {
@@ -106,7 +105,7 @@ const AdminLayout = ({ children }) => {
                     <div className="p-4 flex items-center justify-between border-b border-slate-100">
                         <Link to="/admin" className={cn("flex items-center gap-2 font-bold text-base", !isSidebarOpen && "lg:hidden")}>
                             <span className="text-amber-600 font-heading">CHRONOS</span>
-                            <span className="text-slate-900 font-light text-[9px] tracking-[0.2em] uppercase">SYSTEM</span>
+                            <span className="text-slate-900 font-light text-[9px] uppercase">SYSTEM</span>
                         </Link>
                         <Button
                             variant="ghost"
@@ -123,7 +122,7 @@ const AdminLayout = ({ children }) => {
                         {menuSections.map((section) => (
                             <div key={section.title} className="mb-4">
                                 {isSidebarOpen && (
-                                    <div className="px-4 py-2 text-[10px] font-bold text-slate-400 tracking-[0.15em] uppercase">
+                                    <div className="px-4 py-2 text-[10px] font-bold text-slate-400 uppercase">
                                         {section.title}
                                     </div>
                                 )}
@@ -173,7 +172,7 @@ const AdminLayout = ({ children }) => {
                             )}
                         >
                             <LogOut className="h-4 w-4 text-rose-500" />
-                            <span className={cn(!isSidebarOpen && "lg:hidden font-bold tracking-wide")}>Đăng xuất</span>
+                            <span className={cn(!isSidebarOpen && "lg:hidden font-bold ")}>Đăng xuất</span>
                         </button>
                     </div>
                 </div>
@@ -191,7 +190,7 @@ const AdminLayout = ({ children }) => {
                         >
                             <Menu className="h-5 w-5" />
                         </Button>
-                        <h1 className="text-lg font-bold text-slate-800 font-heading tracking-wide">
+                        <h1 className="text-lg font-bold text-slate-800 font-heading ">
                             {menuSections.flatMap(s => s.items).find(i => i.path === location.pathname || (i.path !== '/admin' && location.pathname.startsWith(i.path)))?.label || 'Quản trị'}
                         </h1>
                     </div>
@@ -209,9 +208,9 @@ const AdminLayout = ({ children }) => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-80 p-0 bg-white rounded-md shadow-2xl border-slate-100 overflow-hidden ring-1 ring-slate-200/50">
                                 <div className="p-5 bg-slate-50/50 border-b border-slate-100 flex items-center justify-between">
-                                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Thông báo</h3>
+                                    <h3 className="text-sm font-bold text-slate-900 uppercase">Thông báo</h3>
                                     {unreadCount > 0 && (
-                                        <button onClick={() => setUnreadCount(0)} className="text-[10px] font-bold text-amber-600 hover:underline uppercase tracking-wide">Đánh dấu đã đọc</button>
+                                        <button onClick={() => setUnreadCount(0)} className="text-[10px] font-bold text-amber-600 hover:underline uppercase ">Đánh dấu đã đọc</button>
                                     )}
                                 </div>
                                 <div className="max-h-[400px] overflow-y-auto">
@@ -229,7 +228,7 @@ const AdminLayout = ({ children }) => {
                                                 <div className="space-y-1 py-0.5">
                                                     <p className="text-xs font-bold text-slate-900 leading-tight">{notif.title}</p>
                                                     <p className="text-[11px] text-slate-500 leading-normal line-clamp-2">{notif.message}</p>
-                                                    <p className="text-[9px] text-slate-400 font-medium uppercase tracking-tighter">
+                                                    <p className="text-[9px] text-slate-400 font-medium uppercase">
                                                         {new Date(notif.time).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit' })} • {new Date(notif.time).toLocaleDateString('vi-VN')}
                                                     </p>
                                                 </div>
@@ -240,12 +239,12 @@ const AdminLayout = ({ children }) => {
                                             <div className="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                                 <Check className="h-6 w-6 text-slate-300" />
                                             </div>
-                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tất cả đều ổn!</p>
+                                            <p className="text-xs font-bold text-slate-400 uppercase ">Tất cả đều ổn!</p>
                                             <p className="text-[10px] text-slate-300 mt-1">Không có thông báo mới nào</p>
                                         </div>
                                     )}
                                 </div>
-                                <Link to="/admin/orders" className="block text-center py-4 text-xs font-bold text-slate-500 hover:text-amber-600 bg-slate-50 hover:bg-white transition-all uppercase tracking-widest border-t border-slate-100">
+                                <Link to="/admin/orders" className="block text-center py-4 text-xs font-bold text-slate-500 hover:text-amber-600 bg-slate-50 hover:bg-white transition-all uppercase border-t border-slate-100">
                                     Xem tất cả báo cáo
                                 </Link>
                             </DropdownMenuContent>

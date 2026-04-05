@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useLocation } from 'react-router-dom';
 
 const LoginForm = ({ variant = 'dark' }) => {
     const isLight = variant === 'light';
@@ -16,6 +17,8 @@ const LoginForm = ({ variant = 'dark' }) => {
 
     const { login } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -35,11 +38,11 @@ const LoginForm = ({ variant = 'dark' }) => {
             const data = await login(credentials);
             toast.success('Đăng nhập thành công!');
 
-            // Redirect based on role
+            // Redirect based on role or 'from' state
             if (data?.user?.role === 'admin') {
                 navigate('/admin');
             } else {
-                navigate('/');
+                navigate(from, { replace: true });
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Tài khoản hoặc mật khẩu không chính xác');

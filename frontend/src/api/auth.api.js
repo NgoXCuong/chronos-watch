@@ -16,6 +16,18 @@ const authApi = {
     logout: async () => {
         const { data } = await api.post("/auth/logout");
         return data;
+    },
+    updateProfile: async (formData) => {
+        const { data } = await api.put("/auth/profile", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+        return data;
+    },
+    changePassword: async (passwordData) => {
+        const { data } = await api.put("/auth/change-password", passwordData);
+        return data;
     }
 };
 

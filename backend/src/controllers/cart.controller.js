@@ -58,6 +58,16 @@ const cartController = {
         } catch (error) {
             res.status(400).json({ message: formatSequelizeError(error) });
         }
+    },
+
+    syncCart: async (req, res) => {
+        try {
+            const { items } = req.body;
+            const updatedCart = await cartService.syncCart(req.user.id, items);
+            res.json({ message: "Đồng bộ giỏ hàng thành công", cart: updatedCart });
+        } catch (error) {
+            res.status(400).json({ message: formatSequelizeError(error) });
+        }
     }
 };
 

@@ -9,6 +9,17 @@ const adminApi = {
             throw error.response?.data || error.message;
         }
     },
+    getRevenueStats: async (startDate, endDate) => {
+        try {
+            const params = {};
+            if (startDate) params.start_date = startDate;
+            if (endDate) params.end_date = endDate;
+            const response = await axios.get('/admin/revenue-stats', { params });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
     getAllUsers: async () => {
         try {
             const response = await axios.get('/admin/users');
@@ -36,6 +47,14 @@ const adminApi = {
     updateOrderStatus: async (id, status, note) => {
         try {
             const response = await axios.patch(`/orders/${id}/status`, { status, note });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+    markOrderAsPaid: async (id) => {
+        try {
+            const response = await axios.patch(`/orders/${id}/mark-paid`);
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;

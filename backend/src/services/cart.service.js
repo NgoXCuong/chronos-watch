@@ -68,6 +68,37 @@ const cartService = {
             where: { user_id: userId }
         });
         return true;
+    },
+
+    syncCart: async (userId, items) => {
+        if (!Array.isArray(items)) return;
+
+        for (const item of items) {
+            const productId = item.product_id || item.id || item._id;
+            const quantity = parseInt(item.quantity) || 1;
+
+            const product = await Product.findByPk(productId);
+            if (!product || product.stock < 1) continue;
+
+            let cartItem = await Cart.findOne({
+                where: { user_id: userId, product_id: productId }
+            });
+
+            const finalQuantity = cartItem ? (cartItem.quantity + quantity) : quantity;
+            const cappedQuantity = Math.min(finalQuantity, product.stock);
+
+            if (cartItem) {
+                cartItem.quantity = cappedQuantity;
+                await cartItem.save();
+            } else {
+                await Cart.create({
+                    user_id: userId,
+                    product_id: productId,
+                    quantity: cappedQuantity
+                });
+            }
+        }
+        return await cartService.getCart(userId);
     }
 };
 

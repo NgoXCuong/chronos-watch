@@ -70,6 +70,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateUser = (userData) => {
+        setUser(prevUser => ({ ...prevUser, ...userData }));
+    };
+
     const value = {
         user,
         loading,
@@ -77,6 +81,7 @@ export const AuthProvider = ({ children }) => {
         login,
         register,
         logout,
+        updateUser,
         checkAuthStatus
     };
 

@@ -32,7 +32,7 @@ const ProductImages = ({
                     ) : (
                         <>
                             <Upload className="h-8 w-8 text-slate-300 mb-2" />
-                            <span className="text-xs text-slate-400 font-medium tracking-tight">Tải lên ảnh 1x1</span>
+                            <span className="text-xs text-slate-400 font-medium ">Tải lên ảnh 1x1</span>
                         </>
                     )}
                 </div>
@@ -43,7 +43,7 @@ const ProductImages = ({
             <div>
                 <div className="flex items-center justify-between mb-2">
                     <Label>Bố sưu tập ảnh</Label>
-                    <button type="button" onClick={() => galleryRef.current.click()} className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">+ Thêm ảnh</button>
+                    <button type="button" onClick={() => galleryRef.current.click()} className="text-[10px] font-bold text-amber-600 uppercase ">+ Thêm ảnh</button>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                     {galleryPreviews.map((url, idx) => (

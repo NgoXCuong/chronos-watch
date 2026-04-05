@@ -16,11 +16,11 @@ const RegisterPage = () => {
                     <div className="mb-6">
                         {/* Mobile Header */}
                         <div className="md:hidden flex flex-col items-center mb-6">
-                            <h1 className="text-3xl font-heading tracking-[0.4em] text-zinc-900 mb-2">CHRONOS</h1>
+                            <h1 className="text-3xl font-heading -[0.4em] text-zinc-900 mb-2">CHRONOS</h1>
                             <div className="w-10 h-px bg-amber-500/50"></div>
                         </div>
 
-                        <h3 className="text-3xl font-heading text-zinc-900 tracking-tight mb-2 uppercase tracking-[0.1em]">Gia Nhập</h3>
+                        <h3 className="text-3xl font-heading text-zinc-900 -tight mb-2 uppercase -[0.1em]">Gia Nhập</h3>
                         <p className="text-zinc-500 font-light tracking-wide">Bắt đầu hành trình cùng di sản thời gian.</p>
                     </div>
 

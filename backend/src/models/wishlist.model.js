@@ -23,7 +23,8 @@ const Wishlist = sequelize.define('Wishlist', {
 }, {
     tableName: 'wishlists',
     underscored: true,
-    timestamps: true
+    timestamps: true,
+    updatedAt: false // SQL only has created_at
 });
 
 // Associations

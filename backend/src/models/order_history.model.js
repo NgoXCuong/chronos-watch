@@ -23,6 +23,7 @@ const OrderHistory = sequelize.define('OrderHistory', {
     tableName: 'order_history',
     underscored: true,
     timestamps: true,
+    createdAt: 'created_at',
     updatedAt: false
 });
 

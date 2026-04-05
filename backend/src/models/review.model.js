@@ -31,11 +31,25 @@ const Review = sequelize.define('Review', {
     comment: {
         type: DataTypes.TEXT,
         allowNull: true
+    },
+    is_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    },
+    admin_reply: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    replied_at: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
     tableName: 'reviews',
     underscored: true,
-    timestamps: true
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 // Associations

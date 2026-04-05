@@ -66,24 +66,26 @@ const Product = sequelize.define('Product', {
 }, {
     tableName: 'products',
     underscored: true,
-    timestamps: true
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 // Associations
 Product.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brand' });
 Brand.hasMany(Product, { foreignKey: 'brand_id', as: 'products' });
 
-Product.belongsToMany(Category, { 
-    through: ProductCategory, 
-    foreignKey: 'product_id', 
+Product.belongsToMany(Category, {
+    through: ProductCategory,
+    foreignKey: 'product_id',
     otherKey: 'category_id',
-    as: 'categories' 
+    as: 'categories'
 });
-Category.belongsToMany(Product, { 
-    through: ProductCategory, 
-    foreignKey: 'category_id', 
+Category.belongsToMany(Product, {
+    through: ProductCategory,
+    foreignKey: 'category_id',
     otherKey: 'product_id',
-    as: 'products' 
+    as: 'products'
 });
 
 export default Product;

@@ -76,6 +76,16 @@ const adminController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    getRevenueStats: async (req, res) => {
+        try {
+            const { start_date, end_date } = req.query;
+            const data = await adminService.getRevenueStats(start_date, end_date);
+            res.json(data);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 

@@ -24,11 +24,11 @@ const UserTable = ({ users, loading }) => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100">
                         <tr>
-                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Thành viên</th>
-                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-center">Vai trò</th>
-                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Gia nhập</th>
-                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Trạng thái</th>
-                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-right">Thao tác</th>
+                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase">Thành viên</th>
+                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase text-center">Vai trò</th>
+                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase">Gia nhập</th>
+                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase">Trạng thái</th>
+                            <th className="px-8 py-5 text-[11px] font-semibold text-slate-500 uppercase text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -46,21 +46,21 @@ const UserTable = ({ users, loading }) => {
                                             {u.username?.charAt(0).toUpperCase() || 'U'}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors uppercase tracking-tight">{u.username}</p>
-                                            <p className="text-[10px] text-slate-400 font-semibold tracking-wide">{u.email}</p>
+                                            <p className="text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors uppercase">{u.username}</p>
+                                            <p className="text-[10px] text-slate-400 font-semibold ">{u.email}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-8 py-5 text-center">
-                                    <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border shadow-sm ${u.role === 'admin' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                                    <span className={`px-3 py-1 rounded-full text-[9px] font-bold uppercase border shadow-sm ${u.role === 'admin' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
                                         {u.role}
                                     </span>
                                 </td>
-                                <td className="px-8 py-5 text-[11px] text-slate-500 font-bold uppercase tracking-tighter">
+                                <td className="px-8 py-5 text-[11px] text-slate-500 font-bold uppercase">
                                     {new Date(u.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </td>
                                 <td className="px-8 py-5">
-                                    <span className={`flex items-center gap-2 text-[9px] font-bold px-3 py-1 rounded-xl border uppercase tracking-widest w-fit shadow-sm ${u.status === 'active' ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-rose-600 bg-rose-50 border-rose-100'}`}>
+                                    <span className={`flex items-center gap-2 text-[9px] font-bold px-3 py-1 rounded-xl border uppercase w-fit shadow-sm ${u.status === 'active' ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-rose-600 bg-rose-50 border-rose-100'}`}>
                                         <span className={`h-1.5 w-1.5 rounded-full ${u.status === 'active' ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
                                         {u.status === 'active' ? 'Hoạt động' : 'Kiểm soát'}
                                     </span>
@@ -71,7 +71,7 @@ const UserTable = ({ users, loading }) => {
                                             <MoreVertical className="h-5 w-5" />
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-56 p-2 bg-white rounded-[1.5rem] shadow-2xl border-slate-100 ring-1 ring-slate-200/50">
-                                            <p className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 border-b border-slate-50">Hành động bảo mật</p>
+                                            <p className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase mb-1 border-b border-slate-50">Hành động bảo mật</p>
                                             <DropdownMenuItem className="gap-3 cursor-pointer py-2.5 px-3 rounded-xl text-xs font-bold text-slate-700 focus:bg-slate-50 transition-all outline-none">
                                                 <Mail className="h-4 w-4 text-slate-400" /> Liên hệ Email
                                             </DropdownMenuItem>
@@ -100,7 +100,7 @@ const UserTable = ({ users, loading }) => {
                 </table>
             </div>
             <div className="px-8 py-5 border-t border-slate-50 bg-slate-50/30">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Phân tích hồ sơ: {users.length} thành viên hiển thị</p>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Phân tích hồ sơ: {users.length} thành viên hiển thị</p>
             </div>
         </div>
     );

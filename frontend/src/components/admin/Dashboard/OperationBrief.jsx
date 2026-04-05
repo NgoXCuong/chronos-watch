@@ -36,7 +36,7 @@ const OperationBrief = ({ lowStockProducts, stats }) => {
                       style={{ width: `${(prod.stock / 10) * 100}%` }}
                     />
                   </div>
-                  <span className="text-[10px] font-bold text-rose-600 uppercase tracking-tighter">
+                  <span className="text-[10px] font-bold text-rose-600 uppercase">
                     Còn {prod.stock} sp
                   </span>
                 </div>
@@ -44,7 +44,7 @@ const OperationBrief = ({ lowStockProducts, stats }) => {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 rounded-lg text-[10px] font-bold uppercase tracking-widest border-slate-100 px-3 hover:bg-slate-50 transition-all"
+                className="h-8 rounded-lg text-[10px] font-bold uppercase border-slate-100 px-3 hover:bg-slate-50 transition-all"
               >
                 Nhập hàng
               </Button>
@@ -56,7 +56,7 @@ const OperationBrief = ({ lowStockProducts, stats }) => {
             <p className="text-sm font-bold text-emerald-800">
               Kho hàng đang ổn định
             </p>
-            <p className="text-[10px] text-emerald-600 uppercase tracking-widest font-medium">
+            <p className="text-[10px] text-emerald-600 uppercase  font-medium">
               Tất cả sản phẩm đều đủ hàng
             </p>
           </div>
@@ -65,7 +65,7 @@ const OperationBrief = ({ lowStockProducts, stats }) => {
 
       <div className="mt-8 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative group">
         <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500 rounded-full opacity-10 group-hover:scale-125 transition-transform duration-700" />
-        <h4 className="text-sm font-bold opacity-60 uppercase tracking-widest mb-1">
+        <h4 className="text-sm font-bold opacity-60 uppercase  mb-1">
           Mẹo quản trị
         </h4>
         <p className="text-xs font-medium leading-relaxed italic">

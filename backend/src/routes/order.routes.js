@@ -14,5 +14,6 @@ router.post("/:id/cancel", orderController.cancelOrder);
 
 // Admin routes
 router.patch("/:id/status", isAdmin, orderController.updateStatus);
+router.patch("/:id/mark-paid", isAdmin, orderController.markAsPaid);
 
 export default router;

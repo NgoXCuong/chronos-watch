@@ -1,344 +1,434 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingBag, User, Heart, Menu, X, Sun, Moon, LogOut, Package, UserCircle, ChevronRight, Phone } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+    ShoppingCart, Search, User, Menu, X,
+    LogOut, Settings, FileText, ChevronDown, Sun, Moon,
+    Heart
+} from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
-import { cn } from '@/lib/utils';
-import {
-    DropdownMenuGroup,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
+import categoryApi from '../../api/category.api';
+import brandApi from '../../api/brand.api';
 
 const Navbar = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { isAuthenticated, logout, user } = useAuth();
-    const { theme, toggleTheme } = useTheme();
-    const navigate = useNavigate();
+    const [activeDropdown, setActiveDropdown] = useState(null);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [brands, setBrands] = useState([]);
+
     const location = useLocation();
+    const navigate = useNavigate();
+    const navRef = useRef(null);
+    const { isAuthenticated, user, logout } = useAuth();
+    const { theme, toggleTheme } = useTheme();
+    const { cartCount } = useCart();
+    const { wishlistCount } = useWishlist();
 
-    // Prevent body scroll when mobile menu is open
-    useEffect(() => {
-        if (mobileMenuOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-        return () => { document.body.style.overflow = 'unset'; };
-    }, [mobileMenuOpen]);
-
-    // Close menu on route change
-    useEffect(() => {
-        setMobileMenuOpen(false);
-    }, [location.pathname]);
+    const isDark = theme === 'dark';
 
     useEffect(() => {
-        const handleScroll = () => {
-            setIsScrolled(window.scrollY > 20); // trigger earlier since top bar disappears
-        };
+        const handleScroll = () => setScrolled(window.scrollY > 20);
         window.addEventListener('scroll', handleScroll);
+        handleScroll();
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const navLinks = [
-        { name: 'Sản Phẩm', path: '/products' },
-        { name: 'Thương Hiệu', path: '/brands' },
-        { name: 'Di Sản', path: '/heritage' },
-        { name: 'Liên Hệ', path: '/contact' },
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [catRes, brandRes] = await Promise.all([categoryApi.getAll(), brandApi.getAll()]);
+                setCategories((Array.isArray(catRes) ? catRes : catRes?.data || []).filter(c => c.isActive !== false));
+                setBrands((Array.isArray(brandRes) ? brandRes : brandRes?.data || []).filter(b => b.isActive !== false));
+            } catch (err) { console.error('Failed to fetch menu data', err); }
+        };
+        fetchData();
+    }, []);
 
-    const handleLogout = async () => {
-        await logout();
-        navigate('/');
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (navRef.current && !navRef.current.contains(e.target)) {
+                setActiveDropdown(null);
+                setSearchOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        setMobileMenuOpen(false);
+        setActiveDropdown(null);
+        setSearchOpen(false);
+    }, [location.pathname]);
+
+    useEffect(() => {
+        document.body.style.overflow = mobileMenuOpen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [mobileMenuOpen]);
+
+    const handleLogout = () => { logout(); navigate('/'); };
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
+            setSearchOpen(false);
+            setSearchQuery('');
+        }
     };
 
+    // Theme-aware classes
+    const headerBg = scrolled
+        ? (isDark
+            ? 'bg-zinc-950/95 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.5)] border-b border-white/5'
+            : 'bg-white/95 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.08)] border-b border-black/5')
+        : (isDark
+            ? 'bg-zinc-950 border-b border-white/5'
+            : 'bg-white border-b border-zinc-100');
+
+    const announceBg = isDark ? 'bg-zinc-900/50 border-b border-white/5' : 'bg-zinc-50 border-b border-zinc-100';
+    const announceText = isDark ? 'text-zinc-400' : 'text-zinc-500';
+    const logoText = isDark ? 'text-zinc-100 hover:text-amber-400' : 'text-zinc-900 hover:text-amber-600';
+    const logoSub = isDark ? 'text-zinc-600' : 'text-zinc-400';
+    const navLink = isDark
+        ? 'text-zinc-300 hover:text-amber-400'
+        : 'text-zinc-600 hover:text-amber-600';
+    const iconBtn = isDark
+        ? 'text-zinc-400 hover:text-amber-400'
+        : 'text-zinc-500 hover:text-amber-600';
+    const dropBg = isDark
+        ? 'bg-zinc-950/98 border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)]'
+        : 'bg-white border-zinc-100 shadow-[0_20px_60px_rgba(0,0,0,0.12)]';
+    const dropLabel = isDark ? 'text-amber-500/70' : 'text-amber-600/70';
+    const dropItem = isDark
+        ? 'text-zinc-400 hover:text-white hover:bg-white/5'
+        : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50';
+    const dropDot = isDark ? 'group-hover/item:bg-amber-500' : 'group-hover/item:bg-amber-500';
+
     return (
-        <header role="banner" className="font-sans relative z-50">
-            {/* Top Bar - Disappears on scroll */}
-            <div className={cn(
-                "w-full bg-zinc-900 border-b border-white/10 text-zinc-300 py-1.5 px-6 transition-all duration-300 flex items-center justify-between text-[10px] uppercase tracking-widest",
-                isScrolled ? "h-0 opacity-0 overflow-hidden py-0 border-transparent" : "h-auto opacity-100"
-            )}>
-                <div className="container mx-auto flex items-center justify-between">
-                    <p className="hidden sm:block">Chính Hãng 100% • Bảo Hành 5 Năm Toàn Cầu</p>
-                    <div className="flex items-center gap-6 w-full justify-center sm:w-auto sm:justify-end">
-                        <a href="tel:0988123456" className="flex items-center gap-1.5 hover:text-white transition-colors">
-                            <Phone size={10} /> Hotline: 0988.123.456
-                        </a>
-                        <span className="hidden sm:inline">|</span>
-                        <button className="hover:text-white transition-colors hidden sm:block focus:outline-none">VN (VND)</button>
+        <>
+            <header
+                ref={navRef}
+                className={`sticky top-0 left-0 right-0 z-[100] transition-all duration-500 ${headerBg}`}
+            >
+                {/* Announcement bar */}
+                <div className={`${announceBg} hidden md:block`}>
+                    <div className="max-w-[1400px] mx-auto px-8 h-6 flex items-center justify-between">
+                        <span className={`text-[10px]  uppercase ${announceText}`}>
+                            Vận chuyển miễn phí cho đơn hàng trên 5.000.000₫
+                        </span>
+                        <div className="flex items-center gap-6">
+                            {isAuthenticated ? (
+                                <span className={`text-[10px]  uppercase ${announceText}`}>
+                                    Xin chào, <span className="text-amber-500 dark:text-amber-400">{user?.full_name || user?.username}</span>
+                                </span>
+                            ) : (
+                                <div className={`flex items-center gap-4 text-[10px]  uppercase ${announceText}`}>
+                                    <Link to="/login" className="hover:text-amber-500 transition-colors">Đăng nhập</Link>
+                                    <span className={isDark ? 'text-zinc-700' : 'text-zinc-300'}>|</span>
+                                    <Link to="/register" className="hover:text-amber-500 transition-colors">Đăng ký</Link>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Main Navigation */}
-            <nav
-                role="navigation"
-                aria-label="Main Navigation"
-                className={cn(
-                    "w-full transition-all duration-500",
-                    isScrolled
-                        ? "fixed top-0 left-0 bg-background/90 backdrop-blur-md border-b border-border py-4 lg:py-4 shadow-lg"
-                        : "absolute top-[auto] left-0 bg-transparent py-5 lg:py-6"
-                )}
-            >
-                <div className="container mx-auto px-6 flex items-center justify-between">
-                    {/* Mobile Menu Toggle (Left on Mobile) */}
-                    <button
-                        className="lg:hidden text-foreground hover:text-primary transition-colors focus:outline-none"
-                        onClick={() => setMobileMenuOpen(true)}
-                        aria-label="Mở menu điều hướng"
-                        aria-expanded={mobileMenuOpen}
-                    >
-                        <Menu size={24} strokeWidth={1.5} />
-                    </button>
+                {/* Main nav */}
+                <div className="max-w-[1400px] mx-auto px-6 md:px-8">
+                    <div className="flex items-center justify-between h-16 md:h-20">
 
-                    {/* Left: Nav Links (Desktop) */}
-                    <div className="hidden lg:flex items-center gap-8 w-1/3">
-                        {navLinks.map((link) => (
-                            <div key={link.name} className="group relative">
+                        {/* Mobile toggle */}
+                        <button
+                            className={`md:hidden p-2 -ml-2 transition-colors ${iconBtn}`}
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        >
+                            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                        </button>
+
+                        {/* Left nav (desktop) */}
+                        <nav className="hidden md:flex items-center gap-10 flex-1">
+                            {/* Collections */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setActiveDropdown('collections')}
+                                onMouseLeave={() => setActiveDropdown(null)}
+                            >
                                 <Link
-                                    to={link.path}
-                                    className={cn(
-                                        "text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 font-medium py-2",
-                                        isScrolled || theme === 'light' ? "text-muted-foreground group-hover:text-primary" : "text-zinc-300 drop-shadow-sm group-hover:text-white"
-                                    )}
+                                    to="/products"
+                                    className={`flex items-center gap-1 text-[11px] font-semibold uppercase transition-colors duration-300 py-2 ${navLink}`}
                                 >
-                                    {link.name}
+                                    Bộ Sưu Tập
+                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${activeDropdown === 'collections' ? 'rotate-180 text-amber-500' : ''}`} />
                                 </Link>
-                                {/* Active subtle indicator line */}
-                                <div className={cn(
-                                    "absolute -bottom-1 left-0 w-0 h-[1px] transition-all duration-300 group-hover:w-full",
-                                    isScrolled || theme === 'light' ? "bg-primary" : "bg-white"
-                                )}></div>
 
-                                {/* Simple Dropdown for Products (as example) */}
-                                {link.path === '/products' && (
-                                    <div className="absolute top-full left-0 pt-6 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                                        <div className="bg-background border border-border/50 shadow-2xl p-5 w-56 flex flex-col gap-1 rounded-sm">
-                                            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mb-2 border-b border-border pb-2">Danh mục</p>
-                                            <Link to="/products?category=dong-ho-nam" className="text-xs text-foreground/80 hover:text-primary hover:bg-accent -mx-2 px-2 transition-colors py-2 font-medium">Đồng Hồ Nam</Link>
-                                            <Link to="/products?category=dong-ho-nu" className="text-xs text-foreground/80 hover:text-primary hover:bg-accent -mx-2 px-2 transition-colors py-2 font-medium">Đồng Hồ Nữ</Link>
-                                            <Link to="/products?category=dong-ho-co-tu-dong" className="text-xs text-foreground/80 hover:text-primary hover:bg-accent -mx-2 px-2 transition-colors py-2 font-medium">Cơ (Automatic)</Link>
-                                            <Link to="/products?category=dong-ho-pin-quartz" className="text-xs text-foreground/80 hover:text-primary hover:bg-accent -mx-2 px-2 transition-colors py-2 font-medium">Pin (Quartz)</Link>
+                                {activeDropdown === 'collections' && (
+                                    <div className={`absolute top-full left-0 mt-0 w-56 border backdrop-blur-2xl animate-fadeInDown ${dropBg}`}>
+                                        <div className="py-2">
+                                            <div className={`px-4 py-2 border-b mb-1 ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
+                                                <p className={`text-[12px] font-bold uppercase ${dropLabel}`}>Danh Mục</p>
+                                            </div>
+                                            {(categories.length > 0 ? categories : [
+                                                { _id: '1', name: 'Đồng Hồ Nam', slug: 'nam' },
+                                                { _id: '2', name: 'Đồng Hồ Nữ', slug: 'nu' },
+                                                { _id: '3', name: 'Automatic', slug: 'automatic' },
+                                                { _id: '4', name: 'Smartwatch', slug: 'smartwatch' },
+                                                { _id: '5', name: 'Limited Edition', slug: 'limited' },
+                                            ]).slice(0, 8).map((cat, idx) => (
+                                                <Link
+                                                    key={cat.id || cat._id || `cat-${idx}`}
+                                                    to={`/products?category=${cat.slug || cat.id || cat._id}`}
+                                                    onClick={() => setActiveDropdown(null)}
+                                                    className={`flex items-center gap-3 px-4 py-2.5 text-[11px] uppercase transition-all duration-200 group/item ${dropItem}`}
+                                                >
+                                                    <span className={`w-1 h-1 rounded-full bg-amber-500/0 transition-all duration-300 ${dropDot}`}></span>
+                                                    {cat.name}
+                                                </Link>
+                                            ))}
+                                            <div className={`mt-2 pt-2 border-t px-4 pb-2 ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
+                                                <Link to="/products" className="text-[10px] text-amber-500 hover:text-amber-400 uppercase font-bold transition-colors">
+                                                    Xem tất cả →
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
                             </div>
-                        ))}
-                    </div>
 
-                    {/* Center: Logo */}
-                    <Link to="/" aria-label="Trang chủ CHRONOS" className="lg:w-1/3 flex flex-col items-center justify-center">
-                        <span className={cn(
-                            "font-heading tracking-[0.4em] uppercase transition-colors duration-500",
-                            isScrolled || theme === 'light' ? "text-foreground" : "text-white drop-shadow-md",
-                            isScrolled ? "text-xl md:text-2xl" : "text-2xl md:text-3xl"
-                        )}>CHRONOS</span>
-                        {!isScrolled && <span className="h-px bg-primary/50 w-8 mt-1.5 block"></span>}
-                    </Link>
-
-                    {/* Right: Icons */}
-                    <div className="flex items-center justify-end gap-5 lg:gap-6 w-1/3 text-muted-foreground">
-                        <button aria-label="Tìm kiếm" className={cn(
-                            "hover:text-primary transition-colors hidden sm:block focus:outline-none",
-                            !(isScrolled || theme === 'light') && "text-zinc-300 hover:text-white drop-shadow-sm"
-                        )}>
-                            <Search size={18} strokeWidth={1.5} />
-                        </button>
-
-                        <Link to="/wishlist" aria-label="Danh sách yêu thích" className={cn(
-                            "hover:text-primary transition-colors relative hidden sm:block",
-                            !(isScrolled || theme === 'light') && "text-zinc-300 hover:text-white drop-shadow-sm"
-                        )}>
-                            <Heart size={18} strokeWidth={1.5} />
-                        </Link>
-
-                        <Link to="/cart" aria-label="Giỏ hàng" className={cn(
-                            "hover:text-primary transition-colors relative group",
-                            !(isScrolled || theme === 'light') && "text-zinc-300 hover:text-white drop-shadow-sm"
-                        )}>
-                            <ShoppingBag size={18} strokeWidth={1.5} />
-                            <span className="absolute -top-1.5 -right-2 bg-primary text-primary-foreground text-[9px] min-w-[14px] h-[14px] px-0.5 rounded-full flex items-center justify-center font-bold">0</span>
-                        </Link>
-
-                        {isAuthenticated ? (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger className="focus:outline-none">
-                                    <div aria-label="Tài khoản" className={cn(
-                                        "hover:text-primary transition-colors cursor-pointer",
-                                        !(isScrolled || theme === 'light') && "text-zinc-300 hover:text-white drop-shadow-sm"
-                                    )}>
-                                        <User size={18} strokeWidth={1.5} />
-                                    </div>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56 mt-4 bg-background/95 backdrop-blur-md border-border shadow-2xl p-2 font-sans rounded-none z-[100]" align="end">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuLabel className="px-4 py-3">
-                                            <div className="flex flex-col space-y-1">
-                                                <p className="text-xs font-bold tracking-widest uppercase text-foreground">Tài Khoản</p>
-                                                <p className="text-[10px] text-muted-foreground leading-none">{user?.email}</p>
-                                            </div>
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator className="bg-border/50" />
-
-                                        <DropdownMenuItem className="px-4 py-3 cursor-pointer hover:bg-accent focus:bg-accent transition-colors group">
-                                            <UserCircle className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-primary" />
-                                            <Link to="/profile" className="text-[11px] uppercase tracking-widest text-foreground font-medium">Hồ sơ cá nhân</Link>
-                                        </DropdownMenuItem>
-
-                                        <DropdownMenuItem className="px-4 py-3 cursor-pointer hover:bg-accent focus:bg-accent transition-colors group">
-                                            <Package className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-primary" />
-                                            <Link to="/orders" className="text-[11px] uppercase tracking-widest text-foreground font-medium">Đơn hàng của tôi</Link>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-
-                                    <DropdownMenuSeparator className="bg-border/50" />
-
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem
-                                            onClick={toggleTheme}
-                                            className="px-4 py-3 cursor-pointer hover:bg-accent focus:bg-accent transition-colors group"
-                                        >
-                                            {theme === 'light' ? (
-                                                <Moon className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-primary" />
-                                            ) : (
-                                                <Sun className="mr-3 h-4 w-4 text-amber-500" />
-                                            )}
-                                            <span className="text-[11px] uppercase tracking-widest text-foreground font-medium">
-                                                {theme === 'light' ? 'Chế độ tối' : 'Chế độ sáng'}
-                                            </span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-
-                                    <DropdownMenuSeparator className="bg-border/50" />
-
-                                    <DropdownMenuItem
-                                        onClick={handleLogout}
-                                        className="px-4 py-3 cursor-pointer hover:bg-destructive/10 focus:bg-destructive/10 transition-colors group"
-                                    >
-                                        <LogOut className="mr-3 h-4 w-4 text-destructive" />
-                                        <span className="text-[11px] uppercase tracking-widest text-destructive font-bold">Đăng xuất</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        ) : (
-                            <Link to="/login" className={cn(
-                                "hidden lg:block text-[10px] uppercase tracking-widest border px-5 py-2 transition-all focus:outline-none rounded-none outline-offset-0",
-                                isScrolled || theme === 'light'
-                                    ? "text-foreground border-foreground hover:bg-foreground hover:text-background"
-                                    : "text-white border-white hover:bg-white hover:text-black backdrop-blur-sm"
-                            )}>
-                                Đăng Nhập
-                            </Link>
-                        )}
-                    </div>
-                </div>
-            </nav>
-
-            {/* Mobile Sidebar Overlay (Left side slide) */}
-            <div
-                className={cn(
-                    "fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden transition-opacity duration-300",
-                    mobileMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-                )}
-                onClick={() => setMobileMenuOpen(false)}
-                aria-hidden="true"
-            />
-
-            {/* Mobile Sidebar HTML Drawer (Slide in from left) */}
-            <div className={cn(
-                "fixed top-0 left-0 h-[100dvh] w-[85%] max-w-[340px] bg-background border-r border-border z-[70] lg:hidden flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] shadow-2xl",
-                mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            )}>
-                {/* Mobile Header */}
-                <div className="flex items-center justify-between p-6 border-b border-border/50">
-                    <span className="font-heading tracking-[0.3em] uppercase text-xl text-foreground">CHRONOS</span>
-                    <button
-                        onClick={() => setMobileMenuOpen(false)}
-                        aria-label="Đóng menu"
-                        className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-sm transition-colors"
-                    >
-                        <X size={20} strokeWidth={1.5} />
-                    </button>
-                </div>
-
-                {/* Mobile Search Input */}
-                <div className="px-6 pt-6 mb-2">
-                    <div className="relative">
-                        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                        <input type="text" placeholder="Tìm kiếm đồng hồ..." className="w-full h-10 bg-accent text-sm text-foreground pl-10 pr-4 outline-none border border-border focus:border-primary transition-colors" />
-                    </div>
-                </div>
-
-                {/* Mobile Links */}
-                <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            to={link.path}
-                            className="text-sm font-medium uppercase tracking-widest text-foreground hover:text-primary flex items-center justify-between border-b border-border/50 pb-4"
-                        >
-                            {link.name}
-                            <ChevronRight size={16} className="text-muted-foreground/50" />
-                        </Link>
-                    ))}
-
-                    <div className="mt-4 flex flex-col gap-4">
-                        {!isAuthenticated && (
-                            <Link
-                                to="/login"
-                                className="w-full text-center py-4 bg-foreground text-background uppercase tracking-[0.2em] font-semibold text-xs border border-transparent hover:bg-primary transition-colors"
+                            {/* Brands */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setActiveDropdown('brands')}
+                                onMouseLeave={() => setActiveDropdown(null)}
                             >
-                                Đăng Nhập
+                                <Link
+                                    to="/brands"
+                                    className={`flex items-center gap-1 text-[11px] font-semibold uppercase transition-colors duration-300 py-2 ${navLink}`}
+                                >
+                                    Thương Hiệu
+                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${activeDropdown === 'brands' ? 'rotate-180 text-amber-500' : ''}`} />
+                                </Link>
+
+                                {activeDropdown === 'brands' && (
+                                    <div className={`absolute top-full left-0 mt-0 w-56 border backdrop-blur-2xl animate-fadeInDown ${dropBg}`}>
+                                        <div className="py-2">
+                                            <div className={`px-4 py-2 border-b mb-1 ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
+                                                <p className={`text-[12px] font-bold uppercase ${dropLabel}`}>Thương Hiệu</p>
+                                            </div>
+                                            {(brands.length > 0 ? brands : [
+                                                { _id: '1', name: 'Rolex' }, { _id: '2', name: 'Omega' },
+                                                { _id: '3', name: 'Patek Philippe' }, { _id: '4', name: 'Cartier' },
+                                                { _id: '5', name: 'Tag Heuer' },
+                                            ]).slice(0, 8).map((brand, idx) => (
+                                                <Link
+                                                    key={brand.id || brand._id || `brand-${idx}`}
+                                                    to={`/products?brand=${brand.slug || brand.id || brand._id}`}
+                                                    onClick={() => setActiveDropdown(null)}
+                                                    className={`flex items-center gap-3 px-4 py-2.5 text-[11px] uppercase transition-all duration-200 group/item ${dropItem}`}
+                                                >
+                                                    <span className={`w-1 h-1 rounded-full bg-amber-500/0 transition-all duration-300 ${dropDot}`}></span>
+                                                    {brand.name}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <Link to="/about" className={`text-[11px] font-semibold uppercase transition-colors duration-300 ${navLink}`}>
+                                Về Chúng Tôi
                             </Link>
-                        )}
-                        <button
-                            onClick={toggleTheme}
-                            className="w-full text-center py-4 bg-accent text-foreground uppercase tracking-[0.2em] font-semibold text-xs flex items-center justify-center gap-2 border border-border"
-                        >
-                            {theme === 'light' ? (
-                                <><Moon size={14} strokeWidth={2} /> Chế Độ Tối</>
-                            ) : (
-                                <><Sun size={14} className="text-amber-500" strokeWidth={2} /> Chế Độ Sáng</>
-                            )}
-                        </button>
+                        </nav>
+
+                        {/* Center Logo */}
+                        <div className="absolute left-1/2 -translate-x-1/2">
+                            <Link to="/" className="flex flex-col items-center group">
+                                <span className={`text-xl md:text-2xl font-bold  uppercase transition-colors duration-500 ${logoText}`}
+                                    style={{ fontFamily: 'Georgia, serif' }}>
+                                    CHRONOS
+                                </span>
+                                <div className="h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent w-full mt-0.5 group-hover:via-amber-500 transition-all duration-500"></div>
+                                <span className={`text-[10px]  uppercase mt-0.5 transition-colors duration-500 ${logoSub}`}>TIMEPIECES</span>
+                            </Link>
+                        </div>
+
+                        {/* Right actions */}
+                        <div className="flex items-center gap-4 md:gap-6 flex-1 justify-end">
+                            {/* Search */}
+                            <div className="relative">
+                                <button onClick={() => setSearchOpen(!searchOpen)} className={`p-1.5 transition-colors duration-300 ${iconBtn}`}>
+                                    <Search className="w-[18px] h-[18px]" />
+                                </button>
+                                {searchOpen && (
+                                    <div className={`absolute top-full right-0 mt-4 w-72 border backdrop-blur-2xl animate-fadeInDown ${dropBg}`}>
+                                        <form onSubmit={handleSearch} className="flex items-center">
+                                            <input
+                                                autoFocus
+                                                type="text"
+                                                value={searchQuery}
+                                                onChange={e => setSearchQuery(e.target.value)}
+                                                placeholder="Tìm kiếm sản phẩm..."
+                                                className={`flex-1 bg-transparent px-4 py-3.5 text-sm outline-none  ${isDark ? 'text-white placeholder:text-zinc-600' : 'text-zinc-900 placeholder:text-zinc-400'}`}
+                                            />
+                                            <button type="submit" className="px-4 py-3.5 text-amber-500 hover:text-amber-400 transition-colors">
+                                                <Search className="w-4 h-4" />
+                                            </button>
+                                        </form>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={toggleTheme}
+                                className={`p-1.5 transition-all duration-300 rounded-full ${isDark ? 'text-amber-400 hover:text-amber-300 hover:bg-amber-400/10' : 'text-zinc-500 hover:text-amber-600 hover:bg-amber-50'}`}
+                                aria-label="Toggle theme"
+                                title={isDark ? 'Chuyển sang Light Mode' : 'Chuyển sang Dark Mode'}
+                            >
+                                {isDark
+                                    ? <Sun className="w-[18px] h-[18px]" />
+                                    : <Moon className="w-[18px] h-[18px]" />
+                                }
+                            </button>
+
+                            {/* User */}
+                            <div
+                                className="relative"
+                                onMouseEnter={() => setActiveDropdown('user')}
+                                onMouseLeave={() => setActiveDropdown(null)}
+                            >
+                                <Link to={isAuthenticated ? '/profile' : '/login'} className={`p-1.5 block transition-colors duration-300 ${iconBtn}`}>
+                                    <User className="w-[18px] h-[18px]" />
+                                </Link>
+                                {isAuthenticated && activeDropdown === 'user' && (
+                                    <div className={`absolute top-full right-0 mt-4 w-52 border backdrop-blur-2xl animate-fadeInDown ${dropBg}`}>
+                                        {/* Cầu nối vô hình giúp giữ trạng thái hiển thị khi di chuột từ icon xuống menu */}
+                                        <div className="absolute -top-4 left-0 right-0 h-4 bg-transparent"></div>
+                                        <div className={`px-4 py-3.5 border-b ${isDark ? 'border-white/8' : 'border-zinc-100'}`}>
+                                            <p className="text-[9px] text-amber-500 uppercase  mb-1">Thành Viên</p>
+                                            <p className={`text-sm font-medium truncate ${isDark ? 'text-white' : 'text-zinc-900'}`}>{user?.full_name || user?.username}</p>
+                                        </div>
+                                        <div className="py-1">
+                                            <Link to="/profile" className={`flex items-center gap-3 px-4 py-2.5 text-[11px]  uppercase transition-all ${dropItem}`}>
+                                                <Settings className="w-3.5 h-3.5" /> Hồ Sơ
+                                            </Link>
+                                            <Link to="/orders" className={`flex items-center gap-3 px-4 py-2.5 text-[11px]  uppercase transition-all ${dropItem}`}>
+                                                <FileText className="w-3.5 h-3.5" /> Đơn Hàng
+                                            </Link>
+                                            {user?.role === 'admin' && (
+                                                <Link to="/admin" className="flex items-center gap-3 px-4 py-2.5 text-[11px]  uppercase text-amber-500 hover:text-amber-400 hover:bg-amber-500/5 transition-all">
+                                                    <Settings className="w-3.5 h-3.5" /> Quản Trị
+                                                </Link>
+                                            )}
+                                        </div>
+                                        <div className={`border-t py-1 ${isDark ? 'border-white/8' : 'border-zinc-100'}`}>
+                                            <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-[11px]  uppercase text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/5 transition-all">
+                                                <LogOut className="w-3.5 h-3.5" /> Đăng Xuất
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Wishlist */}
+                            <Link to="/wishlist" className={`relative p-1.5 transition-colors duration-300 ${iconBtn}`}>
+                                <Heart className="w-[18px] h-[18px]" />
+                                {wishlistCount > 0 && (
+                                    <span className={`absolute -top-0.5 -right-0.5 min-w-[12px] h-3 px-1 flex items-center justify-center bg-red-500 text-[7px] text-white font-black rounded-full ring-2 ${isDark ? 'ring-zinc-950' : 'ring-white'}`}>
+                                        {wishlistCount}
+                                    </span>
+                                )}
+                            </Link>
+
+                            {/* Cart */}
+                            <Link to="/cart" className={`relative p-1.5 transition-colors duration-300 ${iconBtn}`}>
+                                <ShoppingCart className="w-[18px] h-[18px]" />
+                                {cartCount > 0 && (
+                                    <span className={`absolute -top-0.5 -right-0.5 min-w-[12px] h-3 px-1 flex items-center justify-center bg-amber-500 text-[7px] text-white font-black rounded-full ring-2 ${isDark ? 'ring-zinc-950' : 'ring-white'}`}>
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
-                {/* Mobile Footer Info */}
-                <div className="p-6 border-t border-border/50 bg-accent/20">
-                    <div className="flex items-center justify-between mb-4">
-                        <Link to="/wishlist" className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
-                            <Heart size={18} strokeWidth={1.5} />
-                            <span className="text-[9px] uppercase tracking-widest font-semibold">Yêu Thích</span>
+                {/* Gold bottom line */}
+                <div className="h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent"></div>
+            </header>
+
+            {/* Mobile Menu */}
+            <div className={`fixed inset-0 z-[110] transition-all duration-500 ${mobileMenuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
+                <div className={`absolute top-0 left-0 bottom-0 w-[80vw] max-w-sm flex flex-col transition-transform duration-500 border-r ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} ${isDark ? 'bg-zinc-950 border-white/10' : 'bg-white border-zinc-200'}`}>
+                    <div className={`flex items-center justify-between px-6 py-5 border-b ${isDark ? 'border-white/8' : 'border-zinc-100'}`}>
+                        <Link to="/" className={`text-lg font-bold  uppercase ${isDark ? 'text-white' : 'text-zinc-900'}`} style={{ fontFamily: 'Georgia, serif' }} onClick={() => setMobileMenuOpen(false)}>
+                            CHRONOS
                         </Link>
-                        <Link to="/cart" className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
-                            <div className="relative">
-                                <ShoppingBag size={18} strokeWidth={1.5} />
-                                <span className="absolute -top-1.5 -right-2 bg-primary text-background text-[8px] min-w-[12px] h-[12px] rounded-full flex items-center justify-center font-bold">0</span>
+                        <button onClick={() => setMobileMenuOpen(false)} className={`p-1 ${isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}>
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+
+                    <nav className="flex-1 overflow-y-auto py-4">
+                        <div className="px-4 pb-2">
+                            <p className={`text-[9px]  uppercase px-2 mb-3 ${isDark ? 'text-amber-500/70' : 'text-amber-600/60'}`}>Menu</p>
+                            {[
+                                { label: 'Trang Chủ', to: '/' },
+                                { label: 'Tất Cả Sản Phẩm', to: '/products' },
+                                { label: 'Giỏ Hàng', to: '/cart' },
+                                { label: 'Yêu Thích', to: '/wishlist' },
+                            ].map((item, idx) => (
+                                <Link key={item.to || idx} to={item.to}
+                                    className={`flex px-2 py-3 text-sm rounded transition-all ${isDark ? 'text-zinc-300 hover:text-white hover:bg-white/5' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}`}
+                                    onClick={() => setMobileMenuOpen(false)}>
+                                    {item.label}
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Theme toggle mobile */}
+                        <div className={`mx-4 mt-2 px-2 py-3 border rounded flex items-center justify-between ${isDark ? 'border-white/8' : 'border-zinc-100'}`}>
+                            <span className={`text-sm ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>Chế độ {isDark ? 'Tối' : 'Sáng'}</span>
+                            <button onClick={toggleTheme} className={`flex items-center gap-2 text-[11px] font-bold uppercase  transition-colors ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                                {isDark ? <><Sun className="w-4 h-4" /> Sáng</> : <><Moon className="w-4 h-4" /> Tối</>}
+                            </button>
+                        </div>
+                    </nav>
+
+                    <div className={`border-t px-6 py-5 ${isDark ? 'border-white/8' : 'border-zinc-100'}`}>
+                        {isAuthenticated ? (
+                            <div className="space-y-2">
+                                <p className={`text-xs mb-3 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Xin chào, <span className="text-amber-500">{user?.full_name || user?.username}</span></p>
+                                <Link to="/profile" className={`block py-1 text-sm transition-colors ${isDark ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`} onClick={() => setMobileMenuOpen(false)}>Hồ Sơ</Link>
+                                <Link to="/orders" className={`block py-1 text-sm transition-colors ${isDark ? 'text-zinc-300 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`} onClick={() => setMobileMenuOpen(false)}>Đơn Hàng</Link>
+                                <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="block py-1 text-sm text-red-400 hover:text-red-500 transition-colors">Đăng Xuất</button>
                             </div>
-                            <span className="text-[9px] uppercase tracking-widest font-semibold">Giỏ Hàng</span>
-                        </Link>
-                        {isAuthenticated && (
-                            <Link to="/profile" className="flex flex-col items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
-                                <User size={18} strokeWidth={1.5} />
-                                <span className="text-[9px] uppercase tracking-widest font-semibold">Tài Khoản</span>
-                            </Link>
+                        ) : (
+                            <div className="flex gap-3">
+                                <Link to="/login"
+                                    className={`flex-1 text-center py-2.5 border text-sm transition-all ${isDark ? 'border-white/20 text-zinc-300 hover:text-white hover:border-white/40' : 'border-zinc-200 text-zinc-600 hover:text-zinc-900 hover:border-zinc-400'}`}
+                                    onClick={() => setMobileMenuOpen(false)}>Đăng Nhập</Link>
+                                <Link to="/register"
+                                    className="flex-1 text-center py-2.5 bg-amber-600 text-sm text-white hover:bg-amber-500 transition-all"
+                                    onClick={() => setMobileMenuOpen(false)}>Đăng Ký</Link>
+                            </div>
                         )}
                     </div>
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2 border-t border-border/50 pt-4">
-                        <Phone size={12} /> Hotline: 0988.123.456
-                    </p>
                 </div>
             </div>
 
-        </header>
+            <style>{`
+                @keyframes fadeInDown {
+                    from { opacity: 0; transform: translateY(-8px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fadeInDown { animation: fadeInDown 0.2s ease forwards; }
+            `}</style>
+        </>
     );
 };
 
