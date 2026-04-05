@@ -3,10 +3,6 @@ USE chronos_watch_db;
 
 DROP TABLE IF EXISTS banners;
 
-
-ALTER TABLE users ADD COLUMN reset_password_token VARCHAR(255) DEFAULT NULL;
-ALTER TABLE users ADD COLUMN reset_password_expires DATETIME DEFAULT NULL;
-
 -- ============================================================
 -- 1. BẢNG users (Người dùng)
 -- ============================================================
@@ -15,13 +11,15 @@ CREATE TABLE `users` (
   `username`   VARCHAR(50)  NOT NULL,
   `email`      VARCHAR(100) NOT NULL,
   `password`   VARCHAR(255) NOT NULL,
-  `full_name`  VARCHAR(100) DEFAULT NULL,
-  `phone`      VARCHAR(20)  DEFAULT NULL,
-  `avatar_url` VARCHAR(255) DEFAULT NULL,
-  `role`       ENUM('admin','customer') DEFAULT 'customer',
-  `status`     ENUM('active','banned')          DEFAULT 'active',
-  `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `full_name`              VARCHAR(100) DEFAULT NULL,
+  `phone`                  VARCHAR(20)  DEFAULT NULL,
+  `avatar_url`             VARCHAR(255) DEFAULT NULL,
+  `role`                   ENUM('admin','customer') DEFAULT 'customer',
+  `status`                 ENUM('active','banned') DEFAULT 'active',
+  `reset_password_token`   VARCHAR(255) DEFAULT NULL,
+  `reset_password_expires` DATETIME     DEFAULT NULL,
+  `created_at`             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`             TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_username` (`username`),
   UNIQUE KEY `unique_email`    (`email`)
@@ -146,10 +144,15 @@ CREATE TABLE `vouchers` (
 CREATE TABLE `orders` (
   `id`              INT           NOT NULL AUTO_INCREMENT,
   `user_id`         INT           DEFAULT NULL,
+  `address_id`      INT           DEFAULT NULL,
   `full_name`       VARCHAR(100)  NOT NULL,
   `phone_number`    VARCHAR(20)   NOT NULL,
-  `address_line`    TEXT          NOT NULL,
+  `email`           VARCHAR(100)  DEFAULT NULL,
+  `address_line`    VARCHAR(255)  NOT NULL,
+  `ward`            VARCHAR(100)  DEFAULT NULL,
+  `district`        VARCHAR(100)  DEFAULT NULL,
   `city`            VARCHAR(100)  NOT NULL,
+  `order_note`      TEXT          DEFAULT NULL,
   `subtotal`        DECIMAL(15,0) NOT NULL,
   `shipping_fee`    DECIMAL(15,0) DEFAULT 0,
   `discount_amount` DECIMAL(15,0) DEFAULT 0,
@@ -157,10 +160,11 @@ CREATE TABLE `orders` (
   `voucher_id`      INT           DEFAULT NULL,
   `status`          ENUM('pending','confirmed','processing','shipping','delivered','cancelled','returned') DEFAULT 'pending',
   `payment_method`  ENUM('cod','vnpay','banking') DEFAULT 'cod',
-  `payment_status`  ENUM('unpaid','paid','refunded')     DEFAULT 'unpaid',
+  `payment_status`  ENUM('unpaid','paid','refunded') DEFAULT 'unpaid',
   `created_at`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_order_user`    FOREIGN KEY (`user_id`)    REFERENCES `users`    (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_order_user`    FOREIGN KEY (`user_id`)    REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_order_address` FOREIGN KEY (`address_id`) REFERENCES `user_addresses` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_order_voucher` FOREIGN KEY (`voucher_id`) REFERENCES `vouchers` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
