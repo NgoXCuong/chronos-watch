@@ -60,6 +60,7 @@ const productService = {
                         SELECT COALESCE(AVG(rating), 0)
                         FROM reviews
                         WHERE reviews.product_id = Product.id
+                        AND reviews.is_active = 1
                     )`),
                     'average_rating'
                 ],
@@ -68,6 +69,7 @@ const productService = {
                         SELECT COUNT(*)
                         FROM reviews
                         WHERE reviews.product_id = Product.id
+                        AND reviews.is_active = 1
                     )`),
                     'review_count'
                 ]
@@ -95,6 +97,7 @@ const productService = {
                             SELECT COALESCE(AVG(rating), 0)
                             FROM reviews
                             WHERE reviews.product_id = Product.id
+                            AND reviews.is_active = 1
                         )`),
                         'average_rating'
                     ],
@@ -103,6 +106,7 @@ const productService = {
                             SELECT COUNT(*)
                             FROM reviews
                             WHERE reviews.product_id = Product.id
+                            AND reviews.is_active = 1
                         )`),
                         'review_count'
                     ]

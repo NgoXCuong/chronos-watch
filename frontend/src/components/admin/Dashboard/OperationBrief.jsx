@@ -62,17 +62,6 @@ const OperationBrief = ({ lowStockProducts, stats }) => {
           </div>
         )}
       </div>
-
-      <div className="mt-8 p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative group">
-        <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500 rounded-full opacity-10 group-hover:scale-125 transition-transform duration-700" />
-        <h4 className="text-sm font-bold opacity-60 uppercase  mb-1">
-          Mẹo quản trị
-        </h4>
-        <p className="text-xs font-medium leading-relaxed italic">
-          Biểu đồ doanh thu đang tăng trưởng tốt. Bạn nên cân nhắc tung ra bộ
-          sưu tập mới vào cuối tuần này để tối ưu lượng khách truy cập.
-        </p>
-      </div>
     </div>
   );
 };

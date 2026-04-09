@@ -4,7 +4,7 @@ import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
 
 const Label = ({ children, icon: Icon }) => (
-    <label className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-1.5 tracking-tight">
+    <label className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-1.5">
         {Icon && <Icon className="h-4 w-4 text-amber-600" />}
         {children}
     </label>
@@ -40,11 +40,11 @@ const BrandFormModal = ({
                 <div className="relative px-8 pt-8 pb-6 bg-gradient-to-br from-slate-50 to-white border-b border-slate-100">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                            <h3 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                            <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                                 <Award className="h-5 w-5 text-amber-600" />
                                 {editingBrand ? 'Cập nhật thương hiệu' : 'Thêm mới thương hiệu'}
                             </h3>
-                            <p className="text-[11px] font-bold text-amber-600/80 uppercase tracking-[0.2em]">Quản lý thương hiệu</p>
+                            <p className="text-[11px] font-bold text-amber-600/80 uppercase">Quản lý thương hiệu</p>
                         </div>
                         <Button
                             variant="ghost"
@@ -67,7 +67,7 @@ const BrandFormModal = ({
                                         {logoPreview ? (
                                             <img src={logoPreview} alt="Preview" className="h-full w-full object-contain p-2 animate-in fade-in duration-500" />
                                         ) : (
-                                            <Upload className="h-6 w-6 text-slate-300 group-hover:text-amber-500 transition-colors" />
+                                            <Upload className="h-6 w-6 text-slate-600 group-hover:text-amber-500 transition-colors" />
                                         )}
                                     </div>
                                     <div className="flex-1">

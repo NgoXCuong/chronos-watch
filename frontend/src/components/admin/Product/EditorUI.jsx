@@ -9,7 +9,7 @@ export const Label = ({ children, required }) => (
 export const SectionTitle = ({ icon: Icon, children }) => (
     <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
         <Icon className="h-4 w-4 text-amber-600" />
-        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">{children}</h3>
+        <h3 className="text-sm font-bold text-slate-900 uppercase">{children}</h3>
     </div>
 );
 

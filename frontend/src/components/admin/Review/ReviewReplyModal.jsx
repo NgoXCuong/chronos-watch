@@ -22,7 +22,7 @@ const ReviewReplyModal = ({
 }) => {
     return (
         <Dialog open={!!replyingTo} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md rounded-[2.5rem] p-0 overflow-hidden border-none shadow-2xl">
+            <DialogContent className="sm:max-w-md p-0 overflow-hidden border-none shadow-2xl">
                 <DialogHeader className="p-8 bg-slate-900 text-white">
                     <DialogTitle className="text-xl font-bold font-heading  flex items-center gap-3">
                         <Send className="text-amber-500" /> Phản hồi khách hàng
@@ -30,14 +30,14 @@ const ReviewReplyModal = ({
                     <p className="text-slate-400 text-[10px] mt-2 font-bold uppercase ">PHẢN HỒI CHO: <span className="text-amber-400 font-black">{replyingTo?.user?.username?.toUpperCase()}</span></p>
                 </DialogHeader>
                 <div className="p-8 space-y-5">
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
-                        <p className="text-[9px] font-bold text-slate-400 uppercase  mb-2.5 flex items-center gap-1.5">Bình luận gốc</p>
+                    <div className="p-5 bg-slate-50 border border-slate-100 shadow-inner">
+                        <p className="text-[12px] font-bold text-slate-400 uppercase  mb-2.5 flex items-center gap-1.5">Bình luận gốc</p>
                         <p className="text-sm text-slate-600 font-medium italic leading-relaxed">"{replyingTo?.comment}"</p>
                     </div>
                     <div className="space-y-2.5">
                         <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Nội dung phản hồi từ Admin</label>
                         <textarea
-                            className="w-full p-6 bg-white border border-slate-200 rounded-[2rem] text-sm font-bold text-slate-800 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/50 outline-none transition-all placeholder:text-slate-300 min-h-[160px] leading-relaxed resize-none shadow-sm"
+                            className="w-full p-6 bg-white border border-slate-200 text-sm font-bold text-slate-800 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500/50 outline-none transition-all placeholder:text-slate-600 min-h-[160px] leading-relaxed resize-none shadow-sm"
                             placeholder="Viết phản hồi chu đáo & chuyên nghiệp..."
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}

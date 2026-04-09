@@ -4,7 +4,9 @@ import {
     FileSpreadsheet,
     RefreshCw,
     Users as UsersIcon,
-    ShieldCheck
+    ShieldCheck,
+    UserPlus,
+    UserX
 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import AdminHeader from '../../../components/admin/Common/AdminHeader';
@@ -66,26 +68,92 @@ const UserListPage = () => {
         u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleUpdateStatus = async (id, currentStatus) => {
+        const newStatus = currentStatus === 'active' ? 'banned' : 'active';
+        try {
+            await adminApi.updateUserStatus(id, newStatus);
+            toast.success(`Đã ${newStatus === 'active' ? 'mở khóa' : 'khóa'} tài khoản thành công`);
+            fetchUsers();
+        } catch (error) {
+            toast.error(error.message || "Lỗi cập nhật trạng thái");
+        }
+    };
+
+    const handleUpdateRole = async (id, currentRole) => {
+        const newRole = currentRole === 'admin' ? 'customer' : 'admin';
+        try {
+            await adminApi.updateUserRole(id, newRole);
+            toast.success(`Đã thay đổi vai trò thành ${newRole === 'admin' ? 'Quản trị viên' : 'Khách hàng'}`);
+            fetchUsers();
+        } catch (error) {
+            toast.error(error.message || "Lỗi cập nhật vai trò");
+        }
+    };
+
+    // Dynamic stats calculation
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const usersThisMonth = users.filter(u => new Date(u.created_at) >= startOfThisMonth).length;
+    const usersLastMonth = users.filter(u => {
+        const d = new Date(u.created_at);
+        return d >= startOfLastMonth && d < startOfThisMonth;
+    }).length;
+
+    const computeTrend = (curr, prev) => {
+        if (prev === 0) return curr > 0 ? `+${curr}` : '0%';
+        const diff = ((curr - prev) / prev) * 100;
+        return (diff >= 0 ? '+' : '') + diff.toFixed(1) + '%';
+    };
+
+    const getTrendColor = (curr, prev) => {
+        if (prev === 0) return curr > 0
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-500/10"
+            : "bg-slate-50 text-slate-400 border-slate-200";
+        return curr >= prev
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-500/10"
+            : "bg-rose-50 text-rose-700 border-rose-200 shadow-sm shadow-rose-500/10";
+    };
+
+    const bannedUsersCount = users.filter(u => u.status === 'banned').length;
+
     const statCards = [
         {
             label: 'Tổng thành viên', icon: UsersIcon, value: users.length,
             color: 'text-slate-900', bg: 'bg-white',
-            dot: 'bg-slate-900', trend: '↑ 12.5%', trendColor: 'text-emerald-600',
+            dot: 'bg-slate-900',
+            trend: computeTrend(usersThisMonth, usersLastMonth),
+            trendColor: getTrendColor(usersThisMonth, usersLastMonth),
             hist: [20, 25, 23, 28, 30, 35, users.length], chartColor: '#0F172A'
         },
         {
-            label: 'Ban quản trị', icon: ShieldCheck, value: users.filter(u => u.role === 'admin').length,
-            color: 'text-white', bg: 'bg-amber-600',
-            dot: 'bg-white', trend: '↑ 1 mã mới', trendColor: 'text-amber-100',
-            hist: [1, 2, 2, 3, 3, 3, users.filter(u => u.role === 'admin').length], chartColor: '#FEF3C7',
+            label: 'Thành viên mới', icon: UserPlus, value: usersThisMonth,
+            color: 'text-blue-600', bg: 'bg-white',
+            dot: 'bg-blue-600',
+            trend: computeTrend(usersThisMonth, usersLastMonth),
+            trendColor: "bg-blue-50 text-blue-700 border-blue-200 shadow-sm shadow-blue-500/10",
+            hist: [2, 5, 8, 12, 10, 15, usersThisMonth], chartColor: '#2563EB',
             pulse: true
         },
         {
             label: 'Đang hoạt động', icon: UserCheck, value: users.filter(u => u.status === 'active').length,
-            color: 'text-white', bg: 'bg-slate-900',
-            dot: 'bg-amber-500', trend: '↑ 8% tháng này', trendColor: 'text-amber-500',
-            hist: [15, 18, 17, 20, 22, 25, users.filter(u => u.status === 'active').length], chartColor: '#F59E0B',
+            color: 'text-emerald-600', bg: 'bg-white',
+            dot: 'bg-emerald-600',
+            trend: `${((users.filter(u => u.status === 'active').length / (users.length || 1)) * 100).toFixed(0)}%`,
+            trendColor: "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm shadow-emerald-500/10",
+            hist: [15, 18, 17, 20, 22, 25, users.filter(u => u.status === 'active').length], chartColor: '#10B981',
             pulse: true
+        },
+        {
+            label: 'Tài khoản bị khóa', icon: UserX, value: bannedUsersCount,
+            color: 'text-rose-600', bg: 'bg-white',
+            dot: 'bg-rose-600',
+            trend: bannedUsersCount > 0 ? `${((bannedUsersCount / (users.length || 1)) * 100).toFixed(1)}%` : 'Ổn định',
+            trendColor: bannedUsersCount > 0
+                ? "bg-rose-50 text-rose-700 border-rose-200 shadow-sm shadow-rose-500/10"
+                : "bg-slate-50 text-slate-500 border-slate-200",
+            hist: [0, 1, 0, 2, 1, 1, bannedUsersCount], chartColor: '#F43F5E'
         }
     ];
 
@@ -101,29 +169,13 @@ const UserListPage = () => {
                             onClick={handleExportExcel}
                             className="gap-2 h-11 px-5 rounded-2xl 
                            bg-emerald-500 text-white 
-                           font-bold text-xs uppercase tracking-widest
+                           font-bold text-xs uppercase 
                            shadow-md shadow-emerald-500/20
                            hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30
                            active:scale-95 transition-all duration-200"
                         >
                             <FileSpreadsheet className="h-4 w-4" />
                             Xuất Excel
-                        </Button>
-
-                        {/* REFRESH */}
-                        <Button
-                            onClick={fetchUsers}
-                            className="gap-2 h-11 px-5 rounded-2xl 
-                           bg-blue-500 text-white 
-                           font-bold text-xs uppercase tracking-widest
-                           shadow-md shadow-blue-500/20
-                           hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30
-                           active:scale-95 transition-all duration-200"
-                        >
-                            <RefreshCw
-                                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                            />
-                            Làm mới
                         </Button>
                     </>
                 }
@@ -141,7 +193,12 @@ const UserListPage = () => {
                 countLabel="Hiện có"
             />
 
-            <UserTable users={filteredUsers} loading={loading} />
+            <UserTable
+                users={filteredUsers}
+                loading={loading}
+                onUpdateStatus={handleUpdateStatus}
+                onUpdateRole={handleUpdateRole}
+            />
         </div>
     );
 };

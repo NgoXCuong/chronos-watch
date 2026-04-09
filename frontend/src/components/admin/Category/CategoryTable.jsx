@@ -43,8 +43,8 @@ const CategoryTable = ({
                             <tr key={cat.id} className="hover:bg-slate-50/50 transition-colors">
                                 <td className="px-4 py-3">
                                     <div className="flex items-center gap-1" style={{ paddingLeft: cat.level * 16 }}>
-                                        {cat.level > 0 && <ChevronRight className="h-3 w-3 text-slate-300 flex-shrink-0" />}
-                                        <span className={`${cat.level === 0 ? 'font-bold text-slate-800' : 'font-medium text-slate-600'} text-sm uppercase`}>{cat.name}</span>
+                                        {cat.level > 0 && <ChevronRight className="h-3 w-3 text-slate-600 flex-shrink-0" />}
+                                        <span className={`${cat.level === 0 ? 'font-bold text-slate-800' : 'font-medium text-slate-600'} text-sm `}>{cat.name}</span>
                                     </div>
                                 </td>
                                 <td className="px-4 py-3 text-slate-500 text-xs font-medium">{cat.slug || '—'}</td>

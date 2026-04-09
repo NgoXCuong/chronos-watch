@@ -175,7 +175,14 @@ const orderService = {
     getUserOrders: async (userId) => {
         return await Order.findAll({
             where: { user_id: userId },
-            include: [{ model: UserAddress, as: 'shipping_address_ref' }],
+            include: [
+                { model: UserAddress, as: 'shipping_address_ref' },
+                {
+                    model: OrderDetail,
+                    as: 'details',
+                    include: [{ model: Product, as: 'product', attributes: ['name', 'image_url'] }]
+                }
+            ],
             order: [['created_at', 'DESC']]
         });
     },

@@ -178,47 +178,72 @@ const CheckoutPage = () => {
                 <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
                     <button
                         onClick={() => navigate('/cart')}
-                        className={`flex items-center gap-2 text-[10px] uppercase font-black tracking-widest transition-colors ${isDark ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-zinc-900'}`}
+                        className={`flex items-center gap-2 text-[10px] uppercase font-black  transition-colors ${isDark ? 'text-zinc-700 hover:text-white' : 'text-zinc-600 hover:text-zinc-900'}`}
                     >
                         <ChevronLeft className="w-4 h-4" /> Quay lại giỏ hàng
                     </button>
-                    <div className="flex items-center gap-8 md:gap-16">
+                    <div className="flex items-center gap-4 md:gap-6">
                         {[
                             { label: 'Giỏ Hàng', active: false, done: true },
                             { label: 'Giao Nhận', active: true, done: false },
                             { label: 'Thanh Toán', active: false, done: false }
-                        ].map((s, i) => (
-                            <div key={i} className="flex items-center gap-3">
-                                <span className={`text-[10px] font-black ${s.active ? 'text-amber-500' : (s.done ? 'text-emerald-500' : 'text-zinc-600')}`}>
-                                    {s.done ? <CheckCircle2 className="w-3 h-3" /> : `0${i + 1}`}
-                                </span>
-                                <span className={`text-[9px] uppercase font-black tracking-[0.2em] ${s.active ? (isDark ? 'text-white' : 'text-zinc-900') : 'text-zinc-600'}`}>
-                                    {s.label}
-                                </span>
-                            </div>
+                        ].map((s, i, array) => (
+                            <React.Fragment key={i}>
+                                <div className="flex items-center gap-3 shrink-0">
+                                    {/* Vòng tròn số/icon */}
+                                    <span className={`
+                    text-[10px] font-black rounded-full w-7 h-7 flex items-center justify-center transition-all duration-300
+                    ${s.done
+                                            ? 'bg-emerald-500 text-white'
+                                            : s.active
+                                                ? 'bg-amber-500 text-white ring-4 ring-amber-500/20 scale-110'
+                                                : 'bg-zinc-200 text-zinc-500'}
+                `}>
+                                        {s.done ? <CheckCircle2 className="w-4 h-4" /> : `0${i + 1}`}
+                                    </span>
+
+                                    {/* Chữ Label */}
+                                    <span className={`
+                    text-[11px] md:text-[13px] uppercase font-bold whitespace-nowrap
+                    ${s.active
+                                            ? (isDark ? 'text-amber-400' : 'text-zinc-900')
+                                            : s.done
+                                                ? 'text-emerald-600'
+                                                : 'text-zinc-400'}
+                `}>
+                                        {s.label}
+                                    </span>
+                                </div>
+
+                                {/* Đường kẻ nối (Chỉ hiển thị giữa các bước, không hiển thị sau bước cuối) */}
+                                {i < array.length - 1 && (
+                                    <div className={`h-[2px] w-8 md:w-16 rounded-full transition-colors duration-500 ${s.done ? 'bg-emerald-500' : 'bg-zinc-200'
+                                        }`} />
+                                )}
+                            </React.Fragment>
                         ))}
                     </div>
                     <div className="w-32 hidden md:block"></div>
                 </div>
             </div>
 
-            <main className="max-w-[1400px] mx-auto px-6 pt-12 md:pt-16">
+            <main className="max-w-[1400px] mx-auto px-6 pt-6">
                 <div className="flex flex-col lg:flex-row gap-16 xl:gap-24">
 
                     {/* --- Left Column: Info --- */}
-                    <div className="flex-1 space-y-12">
+                    <div className="flex-1 space-y-6">
 
                         {/* 1. Shipping Address Selection */}
                         <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="flex items-center gap-4 mb-8">
+                            <div className="flex items-center gap-4 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
                                     <MapPin className="w-5 h-5" />
                                 </div>
-                                <h2 className={`text-xl font-bold uppercase tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>Thông tin giao hàng</h2>
+                                <h2 className={`text-xl font-bold uppercase  ${isDark ? 'text-white' : 'text-zinc-900'}`}>Thông tin giao hàng</h2>
                             </div>
 
                             {addresses.length > 0 && !isAddingNewAddress ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     {addresses.map((addr) => (
                                         <div
                                             key={addr.id}
@@ -230,11 +255,11 @@ const CheckoutPage = () => {
                                         >
                                             <div className="flex justify-between items-start mb-3">
                                                 <p className={`text-[11px] font-black uppercase ${isDark ? 'text-white' : 'text-zinc-900'}`}>{addr.recipient_name}</p>
-                                                {addr.is_default && <span className="text-[8px] bg-amber-500 text-white px-1.5 py-0.5 rounded-none font-bold uppercase">Mặc định</span>}
+                                                {addr.is_default && <span className="text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded-none font-bold uppercase">Mặc định</span>}
                                             </div>
-                                            <p className={`text-[12px] mb-1 line-clamp-1 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>{addr.address_line}</p>
-                                            <p className={`text-[12px] mb-1 ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{addr.ward ? `${addr.ward}, ` : ''}{addr.district ? `${addr.district}, ` : ''}{addr.city}</p>
-                                            <p className={`text-[12px] ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>{addr.recipient_phone}</p>
+                                            <p className={`text-[12px] mb-1 line-clamp-1 ${isDark ? 'text-zinc-600' : 'text-zinc-600'}`}>{addr.address_line}</p>
+                                            <p className={`text-[12px] mb-1 ${isDark ? 'text-zinc-700' : 'text-zinc-700'}`}>{addr.ward ? `${addr.ward}, ` : ''}{addr.district ? `${addr.district}, ` : ''}{addr.city}</p>
+                                            <p className={`text-[12px] ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>{addr.recipient_phone}</p>
 
                                             {selectedAddressId === addr.id && (
                                                 <div className="absolute top-2 right-2 text-amber-500">
@@ -246,16 +271,16 @@ const CheckoutPage = () => {
                                     <button
                                         onClick={() => setIsAddingNewAddress(true)}
                                         className={`p-5 border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-2 transition-all
-                                            ${isDark ? 'border-white/5 text-zinc-600 hover:text-zinc-400 hover:border-white/10' : 'border-zinc-200 text-zinc-400 hover:text-zinc-600 hover:border-zinc-300'}`}
+                                            ${isDark ? 'border-white/5 text-zinc-600 hover:text-zinc-600 hover:border-white/10' : 'border-zinc-200 text-zinc-600 hover:text-zinc-600 hover:border-zinc-300'}`}
                                     >
                                         <Plus className="w-4 h-4" />
-                                        <span className="text-[10px] uppercase font-black tracking-widest">Dùng địa chỉ khác</span>
+                                        <span className="text-[10px] uppercase font-black ">Dùng địa chỉ khác</span>
                                     </button>
                                 </div>
                             ) : (
                                 <div className={`p-8 border rounded-[2rem] space-y-8 ${isDark ? 'border-white/5 bg-zinc-900/20' : 'border-zinc-100 bg-zinc-50/50'}`}>
                                     <div className="flex items-center justify-between">
-                                        <h3 className={`text-sm font-bold uppercase tracking-widest ${isDark ? 'text-white' : 'text-zinc-900'}`}>Nhập địa chỉ mới</h3>
+                                        <h3 className={`text-sm font-bold uppercase  ${isDark ? 'text-white' : 'text-zinc-900'}`}>Nhập địa chỉ mới</h3>
                                         {addresses.length > 0 && (
                                             <button
                                                 onClick={() => setIsAddingNewAddress(false)}
@@ -268,7 +293,7 @@ const CheckoutPage = () => {
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className={`text-[10px] uppercase font-bold tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Người nhận</label>
+                                            <label className={`text-[10px] uppercase font-bold  ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>Người nhận</label>
                                             <input
                                                 name="recipient_name" value={formData.recipient_name} onChange={handleInputChange}
                                                 placeholder="Họ và tên"
@@ -276,7 +301,7 @@ const CheckoutPage = () => {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className={`text-[10px] uppercase font-bold tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Số điện thoại</label>
+                                            <label className={`text-[10px] uppercase font-bold  ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>Số điện thoại</label>
                                             <input
                                                 name="recipient_phone" value={formData.recipient_phone} onChange={handleInputChange}
                                                 placeholder="SĐT liên hệ"
@@ -284,7 +309,7 @@ const CheckoutPage = () => {
                                             />
                                         </div>
                                         <div className="md:col-span-2 space-y-2">
-                                            <label className={`text-[10px] uppercase font-bold tracking-widest ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Địa chỉ chi tiết</label>
+                                            <label className={`text-[10px] uppercase font-bold  ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>Địa chỉ chi tiết</label>
                                             <input
                                                 name="address_line" value={formData.address_line} onChange={handleInputChange}
                                                 placeholder="Số nhà, tên đường..."
@@ -312,27 +337,27 @@ const CheckoutPage = () => {
 
                         {/* Order Note */}
                         <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                            <div className="flex items-center gap-4 mb-8">
+                            <div className="flex items-center gap-4 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
                                     <MessageSquare className="w-5 h-5" />
                                 </div>
-                                <h2 className={`text-xl font-bold uppercase tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>Lời nhắn đơn hàng</h2>
+                                <h2 className={`text-xl font-bold uppercase  ${isDark ? 'text-white' : 'text-zinc-900'}`}>Lời nhắn đơn hàng</h2>
                             </div>
                             <textarea
                                 value={orderNote}
                                 onChange={(e) => setOrderNote(e.target.value)}
                                 placeholder="Ghi chú về đơn hàng hoặc nội dung thanh toán..."
-                                className={`w-full min-h-[120px] p-6 text-sm font-medium border rounded-[2rem] outline-none transition-all resize-none ${isDark ? 'bg-zinc-900/20 border-white/5 text-white focus:border-amber-500' : 'bg-zinc-50/50 border-zinc-100 text-zinc-900 focus:border-amber-600'}`}
+                                className={`w-full min-h-[80px] p-6 text-sm font-medium border outline-none transition-all resize-none ${isDark ? 'bg-zinc-900/20 border-white/5 text-white focus:border-amber-500' : 'bg-zinc-50/50 border-zinc-100 text-zinc-900 focus:border-amber-600'}`}
                             />
                         </section>
 
                         {/* 2. Payment Methods */}
                         <section className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                            <div className="flex items-center gap-4 mb-8">
+                            <div className="flex items-center gap-4 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
                                     <CreditCard className="w-5 h-5" />
                                 </div>
-                                <h2 className={`text-xl font-bold uppercase tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>Phương thức thanh toán</h2>
+                                <h2 className={`text-xl font-bold uppercase  ${isDark ? 'text-white' : 'text-zinc-900'}`}>Phương thức thanh toán</h2>
                             </div>
 
                             <div className="space-y-4">
@@ -343,7 +368,7 @@ const CheckoutPage = () => {
                                 ].map((method) => (
                                     <label
                                         key={method.id}
-                                        className={`flex items-start gap-5 p-6 border rounded-[1.5rem] cursor-pointer transition-all duration-300
+                                        className={`flex items-start gap-5 p-4 py-2 border cursor-pointer transition-all duration-300
                                             ${paymentMethod === method.id
                                                 ? 'border-amber-500 bg-amber-500/5'
                                                 : (isDark ? 'border-white/5 bg-zinc-900/30 hover:border-white/10' : 'border-zinc-100 bg-zinc-50/50 hover:border-zinc-200')}`}
@@ -356,10 +381,10 @@ const CheckoutPage = () => {
                                         />
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-1">
-                                                <span className={`${paymentMethod === method.id ? 'text-amber-500' : 'text-zinc-500'}`}>{method.icon}</span>
+                                                <span className={`${paymentMethod === method.id ? 'text-amber-500' : 'text-zinc-700'}`}>{method.icon}</span>
                                                 <span className={`text-[13px] font-bold ${isDark ? 'text-white' : 'text-zinc-900'}`}>{method.label}</span>
                                             </div>
-                                            <p className={`text-[11px] leading-relaxed ${isDark ? 'text-zinc-500' : 'text-zinc-500'}`}>{method.desc}</p>
+                                            <p className={`text-[11px] leading-relaxed ${isDark ? 'text-zinc-700' : 'text-zinc-700'}`}>{method.desc}</p>
                                         </div>
                                     </label>
                                 ))}
@@ -369,121 +394,105 @@ const CheckoutPage = () => {
 
                     {/* --- Right Column: Order Summary --- */}
                     <div className="w-full lg:w-[400px] xl:w-[450px]">
-                        <div className={`sticky top-32 p-8 md:p-10 border rounded-[2.5rem] transition-all duration-700
-                            ${isDark
-                                ? 'border-white/5 bg-zinc-900/40 backdrop-blur-3xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]'
-                                : 'border-zinc-100 bg-zinc-50/50 backdrop-blur-3xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)]'}`}>
+                        <div className={`sticky top-32 p-8 md:p-4 border transition-all duration-700`}>
 
-                            <h2 className={`text-[12px] uppercase font-black tracking-[0.3em] mb-8 pb-4 border-b border-zinc-500/10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
-                                Đơn hàng của bạn
+                            {/* Header với hiệu ứng gradient chữ */}
+                            <h2 className={`text-xl uppercase font-black mb-4  border-b
+            ${isDark ? 'text-white border-white/5' : 'text-zinc-900 border-zinc-100'}`}>
+                                Tóm tắt đơn hàng
                             </h2>
 
-                            {/* Summary Items */}
-                            <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {/* Danh sách sản phẩm - Nổi bật hơn với Hover */}
+                            <div className="space-y-4 mb-4 max-h-[350px] overflow-y-auto pr-3 custom-scrollbar">
                                 {cart.map((item) => (
-                                    <div key={item.id} className="flex gap-4 group">
-                                        <div className="w-16 h-16 bg-white overflow-hidden border border-zinc-500/10 flex-shrink-0 rounded-lg text-black">
-                                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                    <div key={item.id} className="flex gap-5 group items-center">
+                                        <div className={`relative w-20 h-20 overflow-hidden border transition-all duration-500 rounded-2xl p-1
+                        ${isDark ? 'bg-zinc-800 border-white/5 group-hover:border-amber-500/50' : 'bg-white border-zinc-100 group-hover:border-amber-500/50'}`}>
+                                            <img
+                                                src={item.image_url}
+                                                alt={item.name}
+                                                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
+                                            />
                                         </div>
-                                        <div className="flex-1 flex flex-col justify-center">
-                                            <h4 className={`text-[11px] font-bold line-clamp-1 mb-1 ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>{item.name}</h4>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-[10px] text-zinc-500 font-medium">Số lượng: {item.quantity}</span>
-                                                <span className={`text-[11px] font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>{formatCurrency(item.price * item.quantity)}</span>
+                                        <div className="flex-1 flex flex-col gap-1">
+                                            <h4 className={`text-[12px] font-bold  line-clamp-1 ${isDark ? 'text-zinc-100' : 'text-zinc-800'}`}>
+                                                {item.name}
+                                            </h4>
+                                            <div className="flex justify-between items-center mt-1">
+                                                <span className="text-[10px] text-zinc-500 font-bold">Số lượng: {item.quantity}</span>
+                                                <span className={`text-[13px] font-black ${isDark ? 'text-amber-400' : 'text-amber-600'}`}>
+                                                    {formatCurrency(item.price * item.quantity)}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="space-y-4 mb-10 pt-4 border-t border-zinc-500/10">
+                            {/* Phần tính toán chi phí */}
+                            <div className={`space-y-4 mb-2 pt-2 border-t ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
                                 <div className="flex justify-between items-center text-[13px]">
-                                    <span className={isDark ? 'text-zinc-500' : 'text-zinc-500'}>Tạm tính</span>
+                                    <span className="text-zinc-500 font-medium">Tạm tính</span>
                                     <span className={`font-bold ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>{formatCurrency(cartSubtotal)}</span>
                                 </div>
+
                                 <div className="flex justify-between items-center text-[13px]">
-                                    <span className={isDark ? 'text-zinc-500' : 'text-zinc-500'}>Phí vận chuyển</span>
-                                    <span className={`font-bold ${shippingFee === 0 ? 'text-emerald-500' : (isDark ? 'text-zinc-200' : 'text-zinc-800')}`}>
-                                        {shippingFee === 0 ? 'MIỄN PHÍ' : formatCurrency(shippingFee)}
+                                    <span className="text-zinc-500 font-medium">Phí vận chuyển</span>
+                                    <span className={`font-bold ${shippingFee === 0 ? 'text-emerald-500 px-2 py-0.5 bg-emerald-500/10 rounded-full text-[11px]' : (isDark ? 'text-zinc-200' : 'text-zinc-800')}`}>
+                                        {shippingFee === 0 ? 'Miễn phí' : formatCurrency(shippingFee)}
                                     </span>
                                 </div>
+
                                 {discountAmount > 0 && (
-                                    <div className="flex justify-between items-center text-[13px]">
-                                        <span className={isDark ? 'text-zinc-500' : 'text-zinc-500'}>Giảm giá (Ưu đãi)</span>
-                                        <span className={`font-bold text-red-500`}>
-                                            - {formatCurrency(discountAmount)}
-                                        </span>
+                                    <div className="flex justify-between items-center text-[13px] animate-in fade-in slide-in-from-top-1">
+                                        <span className="text-zinc-500 font-medium">Ưu đãi đặc quyền</span>
+                                        <span className="font-bold text-red-500">-{formatCurrency(discountAmount)}</span>
                                     </div>
                                 )}
-                                <div className={`pt-6 mt-6 border-t font-black flex justify-between items-end ${isDark ? 'border-white/5' : 'border-zinc-200'}`}>
-                                    <div className="flex flex-col">
-                                        <span className={`text-[8px] uppercase font-black tracking-widest mb-1 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Tổng thanh toán</span>
-                                        <span className={`text-2xl tracking-tight text-amber-500`}>
-                                            {formatCurrency(cartTotal)}
-                                        </span>
-                                    </div>
+
+                                {/* Tổng cộng với Gradient hoặc Highlight */}
+                                <div className={`pt-2 mt-6 border-t-2 border-dashed flex justify-between items-center ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
+                                    <span className={`text-[11px] uppercase font-black ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Tổng cộng</span>
+                                    <span className="text-3xl font-black text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
+                                        {formatCurrency(cartTotal)}
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Promotional Input */}
-                            <div className="mb-8 group">
-                                <label className={`block text-[9px] uppercase font-bold tracking-widest mb-3 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>Nhập mã đặc quyền</label>
-                                <div className="flex h-12">
+                            {/* Input Voucher - Thiết kế lại tối giản & sang trọng */}
+                            <div className="mb-8">
+                                <div className="flex h-10 relative overflow-hidden rounded-xl border border-zinc-500/20 group focus-within:border-amber-500/50 transition-all">
                                     <input
                                         type="text"
-                                        placeholder="CHRONOS2025"
+                                        placeholder="Mã ưu đãi"
+                                        className={`flex-1 px-4 text-[12px] font-bold outline-none bg-transparent ${isDark ? 'text-white' : 'text-zinc-900'}`}
                                         value={voucherCodeInput}
                                         onChange={(e) => setVoucherCodeInput(e.target.value)}
-                                        disabled={isApplyingVoucher || appliedVoucher}
-                                        className={`flex-1 px-4 text-[11px] font-bold border-y border-l outline-none transition-all rounded-l-xl
-                                            ${isDark
-                                                ? 'bg-black/40 border-white/5 text-white disabled:opacity-50 focus:border-amber-500'
-                                                : 'bg-white border-zinc-200 text-zinc-900 disabled:bg-zinc-100 disabled:opacity-70 focus:border-amber-600'}`}
                                     />
-                                    {appliedVoucher ? (
-                                        <button
-                                            onClick={() => { setAppliedVoucher(null); setDiscountAmount(0); setVoucherCodeInput(''); }}
-                                            className="px-6 bg-red-600 hover:bg-red-500 text-white text-[9px] font-black uppercase tracking-widest transition-all rounded-r-xl"
-                                        >
-                                            Hủy
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={handleApplyVoucher}
-                                            disabled={isApplyingVoucher}
-                                            className="px-6 bg-amber-600 hover:bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest transition-all rounded-r-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                            {isApplyingVoucher ? 'Đang Xử Lý' : 'Áp Dụng'}
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={appliedVoucher ? () => { /* remove logic */ } : handleApplyVoucher}
+                                        className={`px-6 text-[12px] font-bold uppercase transition-all 
+                        ${appliedVoucher
+                                                ? 'bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white'
+                                                : 'bg-zinc-900 text-white hover:bg-amber-600'}`}
+                                    >
+                                        {appliedVoucher ? 'Hủy' : 'Áp dụng'}
+                                    </button>
                                 </div>
                             </div>
 
+                            {/* Button chính - Hiệu ứng Shine rực rỡ */}
                             <Button
                                 onClick={handlePlaceOrder}
                                 disabled={loading}
-                                variant="primary"
-                                className="w-full h-16 rounded-xl group relative overflow-hidden"
+                                className="w-full h-16 rounded-2xl group relative overflow-hidden bg-amber-500 hover:bg-amber-600 border-none shadow-[0_20px_40px_-10px_rgba(245,158,11,0.4)] active:scale-[0.98] transition-all"
                             >
-                                {loading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <div className="flex items-center justify-center gap-3 relative z-10">
-                                        <span className="text-[11px] uppercase font-black tracking-widest">Hoàn Tất Đặt Hàng</span>
-                                        <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                                    </div>
-                                )}
+                                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+                                <div className="flex items-center justify-center gap-3 relative z-10">
+                                    <span className="text-[12px] uppercase font-black text-white">Xác nhận thanh toán</span>
+                                    <ArrowRight className="w-5 h-5 text-white transition-transform group-hover:translate-x-2" />
+                                </div>
                             </Button>
-
-                            <div className="mt-8 flex flex-col gap-4">
-                                <div className="flex items-center gap-3 text-[10px] font-bold text-zinc-500">
-                                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                    <span>Giao dịch bảo mật 256-bit SSL</span>
-                                </div>
-                                <div className="p-4 bg-amber-500/5 border border-amber-500/10 text-[10px] leading-relaxed text-zinc-500 italic">
-                                    "Bằng việc đặt hàng, quý khách đồng ý cung cấp thông tin chính xác để Chronos có thể phục vụ tốt nhất."
-                                </div>
-                            </div>
                         </div>
                     </div>
 

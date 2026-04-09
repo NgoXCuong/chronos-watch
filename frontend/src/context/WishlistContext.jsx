@@ -32,11 +32,13 @@ export const WishlistProvider = ({ children }) => {
           const res = await wishlistApi.getWishlist();
           // Assuming the API returns an array of products
           const formattedWishlist = res.map(item => ({
-            id: item.id || item.product_id,
-            name: item.name || item.product?.name,
-            price: item.price || item.product?.price,
-            image_url: item.image_url || item.product?.image_url,
-            slug: item.slug || item.product?.slug
+            id: item.product_id,
+            name: item.product?.name,
+            price: item.product?.price,
+            old_price: item.product?.old_price,
+            image_url: item.product?.image_url,
+            slug: item.product?.slug,
+            brand: item.product?.brand
           }));
           setWishlist(formattedWishlist);
         } catch (err) {
@@ -57,7 +59,8 @@ export const WishlistProvider = ({ children }) => {
       try {
         await wishlistApi.toggleWishlist(productId);
       } catch (err) {
-        toast.error('Lỗi khi cập nhật danh sách yêu thích trên máy chủ');
+        const errorMessage = err.response?.data?.message || 'Lỗi khi cập nhật danh sách yêu thích trên máy chủ';
+        toast.error(errorMessage);
         return;
       }
     }

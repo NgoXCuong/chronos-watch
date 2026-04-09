@@ -36,7 +36,7 @@ const ProductActions = ({ product, quantity, setQuantity, isDark }) => {
             <div className="flex flex-col sm:flex-row gap-4">
 
                 {/* Quantity Selector */}
-                <div className={`flex items-center h-14 border transition-all duration-300
+                <div className={`flex items-center h-12 border transition-all duration-300
                     ${isDark
                         ? 'border-white/10 bg-white/[0.03]'
                         : 'border-zinc-200 bg-zinc-50'
@@ -74,7 +74,7 @@ const ProductActions = ({ product, quantity, setQuantity, isDark }) => {
                 <Button
                     variant="primary"
                     disabled={isOutOfStock}
-                    className="flex-1 h-14"
+                    className="flex-1 h-12"
                     onClick={handleAddToCart}
                 >
                     <div className="flex items-center justify-center gap-3">
@@ -86,15 +86,15 @@ const ProductActions = ({ product, quantity, setQuantity, isDark }) => {
                 {/* Wishlist Button */}
                 <button
                     onClick={() => toggleWishlist(product)}
-                    className={`w-14 h-14 flex items-center justify-center border transition-all duration-300
-                        ${activeWishlist 
-                            ? 'bg-amber-500 border-amber-500 text-white' 
-                            : (isDark 
-                                ? 'border-white/10 bg-white/[0.03] text-zinc-500 hover:text-amber-500 hover:border-amber-500/40' 
+                    className={`w-12 h-12 flex items-center justify-center border transition-all duration-300
+                        ${activeWishlist
+                            ? 'bg-amber-500 border-amber-500 text-white'
+                            : (isDark
+                                ? 'border-white/10 bg-white/[0.03] text-zinc-500 hover:text-amber-500 hover:border-amber-500/40'
                                 : 'border-zinc-200 bg-zinc-50 text-zinc-400 hover:text-amber-600 hover:border-amber-400/60')
                         }`}
                 >
-                    <Heart className={`w-5 h-5 ${activeWishlist ? 'fill-current' : ''}`} />
+                    <Heart className={`w-6 h-6 ${activeWishlist ? 'fill-current' : ''}`} />
                 </button>
             </div>
 
@@ -102,7 +102,7 @@ const ProductActions = ({ product, quantity, setQuantity, isDark }) => {
             <Button
                 variant="outline"
                 disabled={isOutOfStock}
-                className="w-full h-14"
+                className="w-full h-12"
                 onClick={handleBuyNow}
             >
                 <div className="flex items-center justify-center gap-3">
@@ -113,7 +113,7 @@ const ProductActions = ({ product, quantity, setQuantity, isDark }) => {
 
             {/* Stock Notice */}
             {product.stock > 0 && product.stock <= 5 && (
-                <p className={`text-[10px] uppercase font-bold tracking-widest text-amber-500 animate-pulse`}>
+                <p className={`text-[10px] uppercase font-bold text-amber-500 animate-pulse`}>
                     * Chỉ còn {product.stock} chiếc cuối cùng trong kho
                 </p>
             )}

@@ -23,7 +23,7 @@ const ProductSpecifications = ({ form, setForm }) => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
                 <div className="flex items-center gap-2">
                     <Layers className="h-4 w-4 text-amber-600" />
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Thông số kỹ thuật</h3>
+                    <h3 className="text-sm font-bold text-slate-900 uppercase">Thông số kỹ thuật</h3>
                 </div>
                 <button
                     type="button"

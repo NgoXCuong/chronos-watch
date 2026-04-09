@@ -12,8 +12,8 @@ const ProductGallery = ({ product, images, discount, isDark, thumbsSwiper, setTh
         <div className="space-y-6">
             <div className={`group relative aspect-square overflow-hidden border ${isDark ? 'border-white/5 bg-zinc-900/50' : 'border-zinc-100 bg-zinc-50/50'} transition-all duration-700`}>
                 {discount && (
-                    <div className="absolute top-8 left-8 z-20 bg-amber-600 text-white text-[9px] font-bold px-4 py-2 uppercase shadow-2xl">
-                        Special Privilege -{discount}%
+                    <div className="absolute top-8 left-8 z-20 bg-amber-600 text-white text-[12px] font-bold px-4 py-2 uppercase shadow-2xl">
+                        Ưu đãi -{discount}%
                     </div>
                 )}
                 <Swiper

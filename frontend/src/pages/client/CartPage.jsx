@@ -8,6 +8,7 @@ import {
 import { useCart } from '../../context/CartContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Button } from '../../components/ui/button';
+import { cn } from '../../lib/utils';
 
 const CartPage = () => {
     const {
@@ -27,12 +28,12 @@ const CartPage = () => {
                 <div className="w-24 h-24 rounded-full bg-amber-500/10 flex items-center justify-center mb-8 animate-pulse text-amber-500">
                     <ShoppingBag className="w-10 h-10" />
                 </div>
-                <h2 className={`text-3xl font-bold mb-4 tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`} style={{ fontFamily: 'Georgia, serif' }}>Bộ sưu tập đang trống</h2>
-                <p className={`max-w-md mx-auto mb-10 text-sm leading-relaxed ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+                <h2 className={`text-3xl font-bold mb-4  ${isDark ? 'text-white' : 'text-zinc-900'}`} style={{ fontFamily: 'Georgia, serif' }}>Bộ sưu tập đang trống</h2>
+                <p className={`max-w-md mx-auto mb-10 text-sm leading-relaxed ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>
                     Hãy bắt đầu hành trình tìm kiếm tuyệt phẩm thời gian của bạn. Những chiếc đồng hồ độc bản đang chờ được khám phá.
                 </p>
                 <Link to="/products">
-                    <Button variant="primary" className="px-12 h-14 rounded-none uppercase text-[11px] font-black tracking-widest transition-all">
+                    <Button variant="primary" className="px-12 h-14 rounded-none uppercase text-[11px] font-black  transition-all">
                         Khám phá bộ sưu tập
                     </Button>
                 </Link>
@@ -41,7 +42,7 @@ const CartPage = () => {
     }
 
     return (
-        <div className={`min-h-screen pb-20 ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
+        <div className={` pb-6 ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
             {/* --- Progress Steps --- */}
             <div className={`border-b ${isDark ? 'border-white/5 bg-zinc-900/20' : 'border-zinc-100 bg-zinc-50/50'}`}>
                 <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-center gap-10 md:gap-20">
@@ -51,8 +52,8 @@ const CartPage = () => {
                         { step: '03', label: 'Thanh Toán', active: false }
                     ].map((s, i) => (
                         <div key={i} className="flex items-center gap-3 group">
-                            <span className={`text-[10px] font-black tracking-widest ${s.active ? 'text-amber-500' : 'text-zinc-500'}`}>{s.step}</span>
-                            <span className={`text-[10px] uppercase font-bold tracking-[0.2em] transition-colors ${s.active ? (isDark ? 'text-white' : 'text-zinc-900') : 'text-zinc-500'}`}>
+                            <span className={`text-[10px] font-black rounded-full bg-amber-500 w-6 h-6 flex items-center justify-center text-white`}>{s.step}</span>
+                            <span className={`text-[10px] uppercase font-bold  transition-colors ${s.active ? (isDark ? 'text-white' : 'text-zinc-900') : 'text-zinc-700'}`}>
                                 {s.label}
                             </span>
                             {i < 2 && <div className={`w-10 h-px hidden md:block ml-10 ${isDark ? 'bg-white/5' : 'bg-zinc-200'}`}></div>}
@@ -61,13 +62,13 @@ const CartPage = () => {
                 </div>
             </div>
 
-            <main className="max-w-[1400px] mx-auto px-6 pt-12 md:pt-20">
+            <main className="max-w-[1400px] mx-auto px-6 pt-4 md:pt-8">
                 <div className="flex flex-col lg:flex-row gap-16 xl:gap-24">
 
                     {/* --- Left Column: Items --- */}
                     <div className="flex-1">
                         <header className="flex items-center justify-between mb-10 pb-4 border-b dark:border-white/5 border-zinc-100">
-                            <h1 className={`text-2xl font-bold uppercase tracking-tight ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                            <h1 className={`text-2xl font-bold uppercase  ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                                 Giỏ Hàng <span className="text-amber-500 ml-2">({cart.length})</span>
                             </h1>
                             <Link to="/products" className="text-[10px] uppercase font-bold text-amber-600 hover:text-amber-500 transition-colors">
@@ -93,7 +94,7 @@ const CartPage = () => {
                                     <div className="flex-1 flex flex-col justify-between">
                                         <div className="flex justify-between items-start gap-4">
                                             <div>
-                                                <p className="text-[9px] text-amber-500 uppercase font-black tracking-widest mb-1">
+                                                <p className="text-[12px] text-amber-500 uppercase font-black  mb-1">
                                                     {item.brand?.name || 'Grand Collection'}
                                                 </p>
                                                 <Link to={`/products/${item.slug}`}>
@@ -101,13 +102,13 @@ const CartPage = () => {
                                                         {item.name}
                                                     </h3>
                                                 </Link>
-                                                <p className={`text-[10px] uppercase font-bold tracking-widest ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                                                <p className={`text-[10px] uppercase font-bold  ${isDark ? 'text-zinc-600' : 'text-zinc-600'}`}>
                                                     Mã SP: {item.id.toString().slice(-6).toUpperCase()}
                                                 </p>
                                             </div>
                                             <button
                                                 onClick={() => removeFromCart(item.id)}
-                                                className={`p-2 transition-all ${isDark ? 'text-zinc-600 hover:text-red-400' : 'text-zinc-400 hover:text-red-500'}`}
+                                                className={`p-2 transition-all ${isDark ? 'text-zinc-600 hover:text-red-400' : 'text-zinc-600 hover:text-red-500'}`}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -133,7 +134,7 @@ const CartPage = () => {
 
                                             {/* Total Price */}
                                             <div className="text-right">
-                                                <span className={`block text-[10px] uppercase font-bold mb-1 ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>Tạm tính</span>
+                                                <span className={`block text-[10px] uppercase font-bold mb-1 ${isDark ? 'text-zinc-600' : 'text-zinc-600'}`}>Tạm tính</span>
                                                 <span className={`text-base md:text-lg font-black ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                                                     {formatCurrency(item.price * item.quantity)}
                                                 </span>
@@ -152,56 +153,58 @@ const CartPage = () => {
                                 ? 'border-white/5 bg-zinc-900/40 backdrop-blur-3xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]'
                                 : 'border-zinc-100 bg-zinc-50/50 backdrop-blur-3xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)]'}`}>
 
-                            <h2 className={`text-[12px] uppercase font-black tracking-[0.3em] mb-10 pb-4 border-b border-zinc-500/10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
+                            <h2 className={`text-[12px] uppercase font-black mb-2 pb-4 border-b border-zinc-500/10 ${isDark ? 'text-white' : 'text-zinc-900'}`}>
                                 Tóm tắt đơn hàng
                             </h2>
 
-                            <div className="space-y-6 mb-10">
+                            <div className="space-y-4 mb-4">
                                 <div className="flex justify-between items-center text-[13px] group">
-                                    <span className={`transition-colors ${isDark ? 'text-zinc-500 group-hover:text-zinc-300' : 'text-zinc-500 group-hover:text-zinc-700'}`}>Tạm tính (Sản phẩm)</span>
+                                    <span className={`transition-colors ${isDark ? 'text-zinc-700 group-hover:text-zinc-300' : 'text-zinc-700 group-hover:text-zinc-700'}`}>Tạm tính (Sản phẩm)</span>
                                     <span className={`font-bold ${isDark ? 'text-zinc-200' : 'text-zinc-800'}`}>{formatCurrency(cartSubtotal)}</span>
                                 </div>
-                                <div className="flex justify-between items-center text-[13px] group">
-                                    <span className={`flex items-center gap-2 transition-colors ${isDark ? 'text-zinc-500 group-hover:text-zinc-300' : 'text-zinc-500 group-hover:text-zinc-700'}`}>
-                                        Vận chuyển <Truck className="w-3.5 h-3.5 text-amber-500/60" />
+                                <div className="flex justify-between items-center text-[13px] group hover:bg-emerald-50/50 p-1 -mx-1 rounded-md transition-all">
+                                    <span className={cn(
+                                        "flex items-center gap-2 transition-colors",
+                                        isDark ? "text-zinc-400 group-hover:text-zinc-200" : "text-zinc-600 group-hover:text-zinc-900"
+                                    )}>
+                                        Vận chuyển <Truck className="w-3.5 h-3.5 text-emerald-500" />
                                     </span>
-                                    <span className={`font-bold ${shippingFee === 0 ? 'text-emerald-500' : (isDark ? 'text-zinc-200' : 'text-zinc-800')}`}>
-                                        {shippingFee === 0 ? 'MIỄN PHÍ' : formatCurrency(shippingFee)}
-                                    </span>
+
+                                    <div className="flex items-center gap-2">
+                                        {/* Nếu bạn muốn hiện giá cũ bị gạch đi để kích thích mua hàng */}
+                                        <span className="text-[11px] text-zinc-400 line-through font-medium">
+                                            {formatCurrency(shippingFee || 30000)}
+                                        </span>
+
+                                        {/* Chữ MIỄN PHÍ nổi bật */}
+                                        <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[11px] border border-emerald-100 shadow-sm animate-pulse">
+                                            MIỄN PHÍ
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className="flex justify-between items-center text-[13px] group">
-                                    <span className={`transition-colors ${isDark ? 'text-zinc-500 group-hover:text-zinc-300' : 'text-zinc-500 group-hover:text-zinc-700'}`}>Giảm giá (Ưu đãi)</span>
+                                    <span className={`transition-colors ${isDark ? 'text-zinc-700 group-hover:text-zinc-300' : 'text-zinc-700 group-hover:text-zinc-700'}`}>Giảm giá (Ưu đãi)</span>
                                     <span className={`font-bold text-red-500`}>- {formatCurrency(0)}</span>
                                 </div>
                                 <div className={`pt-6 border-t font-black flex justify-between items-end ${isDark ? 'border-white/5' : 'border-zinc-200'}`}>
                                     <div className="flex flex-col">
-                                        <span className={`text-[8px] uppercase tracking-widest mb-1 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Tổng cộng cuối cùng</span>
-                                        <span className={`text-2xl tracking-tight text-amber-500 line-height-1`}>
+                                        <span className={`text-[10px] uppercase  mb-1 ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>Tổng cộng cuối cùng</span>
+                                        <span className={`text-2xl  text-amber-500 line-height-1`}>
                                             {formatCurrency(cartTotal)}
                                         </span>
                                     </div>
-                                    <div className="text-[10px] text-zinc-500 italic font-medium">Bao gồm VAT</div>
+                                    <div className="text-[10px] text-zinc-700 italic font-medium">Bao gồm VAT</div>
                                 </div>
                             </div>
 
                             <Link to="/checkout" className="block w-full">
-                                <Button variant="primary" className="w-full h-16 rounded-none group relative overflow-hidden">
+                                <Button variant="primary" className="w-full h-12 rounded-none group relative overflow-hidden">
                                     <div className="flex items-center justify-center gap-3 relative z-10 transition-transform group-hover:scale-105">
                                         <CreditCard className="w-4 h-4" />
-                                        <span className="text-[11px] uppercase font-black tracking-widest leading-none">Tiến Hành Thanh Toán</span>
+                                        <span className="text-[11px] uppercase font-black  leading-none">Tiến Hành Thanh Toán</span>
                                     </div>
                                 </Button>
                             </Link>
-
-                            {/* Trust badges footer */}
-                            <div className="mt-10 grid grid-cols-2 gap-4 text-[9px] uppercase font-bold tracking-widest text-zinc-500">
-                                <div className="flex items-center gap-2 border-r border-zinc-500/10">
-                                    <ShieldCheck className="w-3 h-3 text-amber-500/60" /> Bảo mật SSL
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <RotateCcw className="w-3 h-3 text-amber-500/60" /> Đổi trả 7 ngày
-                                </div>
-                            </div>
                         </div>
                     </div>
 

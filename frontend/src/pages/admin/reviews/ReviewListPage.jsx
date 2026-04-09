@@ -82,7 +82,7 @@ const ReviewListPage = () => {
                 onRefresh={fetchReviews}
                 loading={loading}
                 count={filteredReviews.length}
-                countLabel="đánh giá"
+                countLabel="Đánh giá"
             >
                 <div className="hidden md:flex bg-amber-50 text-amber-600 px-4 py-2 rounded-xl text-[10px] font-bold border border-amber-100  uppercase shadow-sm">
                     Lắng nghe khách hàng luxury

@@ -23,7 +23,7 @@ const reviewService = {
         });
 
         if (!hasBought) {
-            throw new Error("Bạn chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã được giao thành công.");
+            throw new Error("Tuyệt phẩm này chỉ dành cho những người thực sự sở hữu. Hãy để lại cảm nhận sau khi bạn đã nhận được sản phẩm.");
         }
 
         // 2. Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa (chỉ cho phép 1 lần đánh giá/sản phẩm)
@@ -35,7 +35,7 @@ const reviewService = {
         });
 
         if (existingReview) {
-            throw new Error("Bạn đã đánh giá sản phẩm này rồi.");
+            throw new Error("Dấu ấn của bạn đã được ghi lại. Mỗi tuyệt phẩm chỉ cần một lời cảm nhận chân thành.");
         }
 
         // 3. Tạo đánh giá mới
@@ -51,7 +51,7 @@ const reviewService = {
 
     getProductReviews: async (productId) => {
         return await Review.findAll({
-            where: { product_id: productId },
+            where: { product_id: productId, is_active: true },
             include: [
                 { 
                     model: User, 
@@ -65,7 +65,7 @@ const reviewService = {
 
     getReviewStats: async (productId) => {
         const reviews = await Review.findAll({
-            where: { product_id: productId },
+            where: { product_id: productId, is_active: true },
             attributes: ['rating']
         });
 

@@ -54,7 +54,7 @@ const LoginForm = ({ variant = 'dark' }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
+            {/* {error && (
                 <div className={cn(
                     "p-3 rounded-none flex items-start gap-2 text-sm border",
                     isLight
@@ -64,11 +64,11 @@ const LoginForm = ({ variant = 'dark' }) => {
                     <AlertCircle size={18} className="shrink-0" />
                     <span>{error}</span>
                 </div>
-            )}
+            )} */}
 
             <div className="space-y-2 group">
                 <Label className={cn(
-                    "text-xs tracking-widest transition-colors duration-300",
+                    "text-xs transition-colors duration-300",
                     isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                 )}>
                     Tài khoản (Email hoặc Username)
@@ -87,7 +87,7 @@ const LoginForm = ({ variant = 'dark' }) => {
 
             <div className="space-y-2 group">
                 <Label className={cn(
-                    "text-xs tracking-widest transition-colors duration-300",
+                    "text-xs transition-colors duration-300",
                     isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                 )}>
                     Mật khẩu

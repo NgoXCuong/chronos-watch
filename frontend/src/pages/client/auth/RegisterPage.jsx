@@ -16,12 +16,12 @@ const RegisterPage = () => {
                     <div className="mb-6">
                         {/* Mobile Header */}
                         <div className="md:hidden flex flex-col items-center mb-6">
-                            <h1 className="text-3xl font-heading -[0.4em] text-zinc-900 mb-2">CHRONOS</h1>
+                            <h1 className="text-3xl font-heading text-zinc-900 mb-2">CHRONOS</h1>
                             <div className="w-10 h-px bg-amber-500/50"></div>
                         </div>
 
-                        <h3 className="text-3xl font-heading text-zinc-900 -tight mb-2 uppercase -[0.1em]">Gia Nhập</h3>
-                        <p className="text-zinc-500 font-light tracking-wide">Bắt đầu hành trình cùng di sản thời gian.</p>
+                        <h3 className="text-3xl font-heading text-zinc-900 mb-2 uppercase">Gia Nhập</h3>
+                        <p className="text-zinc-700 font-light">Bắt đầu hành trình cùng di sản thời gian.</p>
                     </div>
 
                     <RegisterForm variant="light" />
@@ -43,14 +43,14 @@ const RegisterPage = () => {
                 {/* Content Overlay */}
                 <div className="absolute inset-0 flex flex-col justify-end p-16 text-white z-10">
                     <div className="max-w-xl text-right ml-auto">
-                        <span className="text-amber-400 text-xs uppercase tracking-[0.4em] mb-4 block font-medium font-heading">Fine Horology</span>
+                        <span className="text-amber-400 text-xs uppercase mb-4 block font-medium font-heading">Fine Horology</span>
                         <h2 className="text-4xl lg:text-5xl font-heading leading-tight mb-6">Nơi những kiệt tác ra đời.</h2>
                         <div className="w-20 h-px bg-amber-500/30 mb-8 ml-auto"></div>
                         <p className="text-zinc-100 font-light italic text-lg leading-relaxed mb-12">
                             "Mỗi chi tiết nhỏ là sự kết tinh của hàng ngàn giờ lao động và niềm đam mê vô tận."
                         </p>
 
-                        <div className="flex items-center gap-6 justify-end text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-medium">
+                        <div className="flex items-center gap-6 justify-end text-[10px] uppercase text-zinc-600 font-medium">
                             <span>Exclusivity</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-500"></span>
                             <span>Quality</span>

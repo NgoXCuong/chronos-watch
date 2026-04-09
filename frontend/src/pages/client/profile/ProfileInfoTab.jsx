@@ -10,7 +10,6 @@ const ProfileInfoTab = () => {
     const [formData, setFormData] = useState({
         full_name: user?.full_name || '',
         phone: user?.phone || '',
-        address: user?.address || '',
     });
     const [avatarFile, setAvatarFile] = useState(null);
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || '');
@@ -20,6 +19,7 @@ const ProfileInfoTab = () => {
         if (user) {
             setFormData({
                 full_name: user.full_name || '',
+                phone: user.phone || '',
             });
             setAvatarPreview(user.avatar_url || '');
         }
@@ -49,10 +49,11 @@ const ProfileInfoTab = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        
+
         try {
             const data = new FormData();
             data.append('full_name', formData.full_name);
+            data.append('phone', formData.phone);
             if (avatarFile) {
                 data.append('avatar', avatarFile);
             }
@@ -69,24 +70,28 @@ const ProfileInfoTab = () => {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col md:flex-row items-center gap-8">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Artistic Header Section - Optimized Spacing */}
+            <div className="flex flex-col md:flex-row items-center gap-6 pb-4 border-b border-zinc-100 dark:border-zinc-800/60">
                 <div className="relative group">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-amber-500/20 group-hover:border-amber-500/50 transition-colors shadow-lg">
-                        {avatarPreview ? (
-                            <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
-                                <User className="w-12 h-12 text-zinc-300 dark:text-zinc-600" />
-                            </div>
-                        )}
+                    <div className="w-24 h-24 md:w-28 md:h-28 rounded-sm overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-1 group-hover:border-amber-500/50 transition-all duration-700 shadow-xl">
+                        <div className="w-full h-full rounded-sm overflow-hidden">
+                            {avatarPreview ? (
+                                <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            ) : (
+                                <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+                                    <User className="w-10 h-10 text-zinc-200 dark:text-zinc-800" />
+                                </div>
+                            )}
+                        </div>
                     </div>
+                    {/* Camera Trigger - Smaller */}
                     <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute bottom-0 right-0 p-2 bg-amber-600 rounded-full text-white hover:bg-amber-700 transition-colors shadow-lg border-2 border-white dark:border-zinc-900"
+                        className="absolute -bottom-1.5 -right-1.5 w-8 h-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full flex items-center justify-center shadow-xl border-[3px] border-white dark:border-zinc-900 hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all transform hover:scale-110"
                     >
-                        <Camera className="w-4 h-4" />
+                        <Camera className="w-3.5 h-3.5" />
                     </button>
                     <input
                         type="file"
@@ -97,75 +102,109 @@ const ProfileInfoTab = () => {
                     />
                 </div>
 
-                <div className="flex-1 text-center md:text-left">
-                    <h2 className="text-2xl font-serif font-medium text-zinc-900 dark:text-white mb-1 tracking-tight">{user?.full_name || user?.username}</h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 font-light mb-4">{user?.email}</p>
-                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 text-xs uppercase tracking-[0.1em] font-bold">
-                        {user?.role || 'Khách hàng'}
+                <div className="flex-1 text-center md:text-left space-y-1.5">
+                    <div className="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 text-[12px] font-black  mb-0.5">
+                        {user?.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}
                     </div>
+                    <h2 className="text-xl md:text-2xl font-serif font-light text-zinc-900 dark:text-white ">
+                        {user?.full_name || user?.username}
+                    </h2>
+                    <p className="text-[11px] text-zinc-600 font-light">
+                        Thông tin định danh trên hệ thống Chronos.
+                    </p>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Họ và tên</label>
-                    <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-                        <input
-                            type="text"
-                            name="full_name"
-                            value={formData.full_name}
-                            onChange={handleInputChange}
-                            className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl py-3 pl-12 pr-4 text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all shadow-sm dark:shadow-none"
-                            placeholder="Nhập họ và tên"
-                        />
+            {/* Form Section */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                    <div className="space-y-1.5">
+                        <label className="text-[12px] font-black  text-zinc-600 dark:text-zinc-700">
+                            Họ và tên
+                        </label>
+                        <div className="relative group">
+                            <User className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 dark:text-zinc-700 group-focus-within:text-amber-500 transition-colors" />
+                            <input
+                                type="text"
+                                name="full_name"
+                                value={formData.full_name}
+                                onChange={handleInputChange}
+                                className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2 pl-6 pr-4 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-600 dark:placeholder:text-zinc-700"
+                                placeholder="Nhập tên của bạn"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[12px] font-black  text-zinc-600 dark:text-zinc-700">
+                            Số điện thoại
+                        </label>
+                        <div className="relative group">
+                            <Phone className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 dark:text-zinc-700 group-focus-within:text-amber-500 transition-colors" />
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2 pl-6 pr-4 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-600 dark:placeholder:text-zinc-700"
+                                placeholder="Nhập số điện thoại"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[12px] font-black  text-zinc-600 dark:text-zinc-700">
+                            Tên đăng nhập
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={user?.username || ''}
+                                disabled
+                                className="w-full bg-transparent border-b border-zinc-100 dark:border-zinc-900/40 py-2 text-sm text-zinc-600 cursor-not-allowed font-light"
+                            />
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[12px] font-bold text-zinc-500  ">Cố định</div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[12px] font-black   text-zinc-800 dark:text-zinc-700">
+                            Địa chỉ thư điện tử
+                        </label>
+                        <div className="relative">
+                            <Mail className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 dark:text-zinc-700" />
+                            <input
+                                type="email"
+                                value={user?.email || ''}
+                                disabled
+                                className="w-full bg-transparent border-b border-zinc-100 dark:border-zinc-800/40 py-2 pl-6 text-sm text-zinc-600 dark:text-zinc-700 cursor-not-allowed font-light"
+                            />
+                            <div className="absolute right-0 top-1/2 -translate-y-1/2 text-[12px] font-bold text-zinc-500  ">Cố định</div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Tên đăng nhập (Cố định)</label>
-                    <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 dark:text-zinc-700" />
-                        <input
-                            type="text"
-                            value={user?.username || ''}
-                            disabled
-                            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-xl py-3 pl-12 pr-4 text-zinc-400 dark:text-zinc-600 cursor-not-allowed font-light"
-                        />
-                    </div>
-                </div>
+                {/* Status Bar & Action - Condensed */}
+                <div className="pt-4 flex flex-col md:flex-row items-center justify-between gap-4 border-t border-zinc-100 dark:border-zinc-800/60 mt-6 md:mt-8">
+                    <p className="text-[11px] text-zinc-600 font-light italic text-center md:text-left">
+                        Thông tin được bảo mật theo tiêu chuẩn Chronos.
+                    </p>
 
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Email (Cố định)</label>
-                    <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-300 dark:text-zinc-700" />
-                        <input
-                            type="email"
-                            value={user?.email || ''}
-                            disabled
-                            className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-900 rounded-xl py-3 pl-12 pr-4 text-zinc-400 dark:text-zinc-600 cursor-not-allowed font-light"
-                        />
-                    </div>
-                </div>
-
-                <div className="md:col-span-2 pt-4 border-t border-zinc-100 dark:border-zinc-800/50 mt-4">
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 w-full md:w-auto px-10 py-3.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-800 disabled:cursor-not-allowed text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg shadow-amber-600/20 active:scale-[0.98]"
+                        className="w-full md:w-auto px-8 py-2.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all font-black text-[11px] uppercase  shadow-lg disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                         ) : (
                             <>
-                                <Save className="w-4 h-4" />
-                                Cập nhật thông tin
+                                <Save className="w-3.5 h-3.5 transition-transform" />
+                                Lưu thay đổi
                             </>
                         )}
                     </button>
-                    <p className="mt-4 text-xs text-zinc-500 font-light text-center md:text-left italic">
-                        * Bạn có thể quản lý thông tin giao hàng tại tab <b>Sổ địa chỉ</b>.
-                    </p>
                 </div>
             </form>
         </div>

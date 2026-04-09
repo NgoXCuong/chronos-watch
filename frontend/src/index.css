@@ -103,6 +103,7 @@
   .luxury-link:hover::after {
     @apply w-full;
   }
+
 }
 
 @layer utilities {

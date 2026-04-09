@@ -58,12 +58,12 @@ const LoginPage = () => {
                         </div>
 
                         <h3 className="text-4xl font-heading text-zinc-900 mb-3">Chào Mừng</h3>
-                        <p className="text-zinc-500 font-light">Đăng nhập vào không gian dành cho giới mộ điệu.</p>
+                        <p className="text-zinc-700 font-light">Đăng nhập vào không gian dành cho giới mộ điệu.</p>
                     </div>
 
                     <LoginForm variant="light" />
 
-                    <div className="mt-12 border-t border-zinc-100 pt-6 text-[10px] text-center  text-zinc-400 font-heading uppercase">
+                    <div className="mt-12 border-t border-zinc-100 pt-6 text-[10px] text-center  text-zinc-600 font-heading uppercase">
                         &copy; MMXXIV Chronos Prestige Group
                     </div>
                 </div>

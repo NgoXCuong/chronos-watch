@@ -69,8 +69,8 @@ const RegisterForm = ({ variant = 'dark' }) => {
             {errors.general && (
                 <div className={cn(
                     "p-3 rounded-none flex items-start gap-2 text-sm border",
-                    isLight 
-                        ? "bg-red-50 text-red-600 border-red-200" 
+                    isLight
+                        ? "bg-red-50 text-red-600 border-red-200"
                         : "bg-red-950/20 text-red-500 border-red-500/30"
                 )}>
                     <AlertCircle size={18} className="shrink-0" />
@@ -81,7 +81,7 @@ const RegisterForm = ({ variant = 'dark' }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 group">
                     <Label className={cn(
-                        "text-xs tracking-widest transition-colors duration-300",
+                        "text-xs transition-colors duration-300",
                         isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                     )}>
                         Tên tài khoản
@@ -102,7 +102,7 @@ const RegisterForm = ({ variant = 'dark' }) => {
 
                 <div className="space-y-2 group">
                     <Label className={cn(
-                        "text-xs tracking-widest transition-colors duration-300",
+                        "text-xs transition-colors duration-300",
                         isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                     )}>
                         Email
@@ -124,7 +124,7 @@ const RegisterForm = ({ variant = 'dark' }) => {
 
             <div className="space-y-2 group">
                 <Label className={cn(
-                    "text-xs tracking-widest transition-colors duration-300",
+                    "text-xs transition-colors duration-300",
                     isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                 )}>
                     Họ và tên
@@ -145,7 +145,7 @@ const RegisterForm = ({ variant = 'dark' }) => {
 
             <div className="space-y-2 group">
                 <Label className={cn(
-                    "text-xs tracking-widest transition-colors duration-300",
+                    "text-xs transition-colors duration-300",
                     isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                 )}>
                     Số điện thoại
@@ -164,7 +164,7 @@ const RegisterForm = ({ variant = 'dark' }) => {
 
             <div className="space-y-2 group">
                 <Label className={cn(
-                    "text-xs tracking-widest transition-colors duration-300",
+                    "text-xs transition-colors duration-300",
                     isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
                 )}>
                     Mật khẩu

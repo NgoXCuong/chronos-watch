@@ -20,7 +20,7 @@ const HomePage = () => {
 
             {/* Categories & Products */}
             <div className={`transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a]' : 'bg-zinc-50/50'}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-24">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
                     <CategorySection />
                     <FeaturedProducts />
                 </div>

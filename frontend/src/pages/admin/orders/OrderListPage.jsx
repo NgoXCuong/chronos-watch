@@ -103,7 +103,7 @@ const OrderListPage = () => {
                             onClick={handleExportExcel}
                             className="gap-2 h-11 px-5 rounded-2xl 
                            bg-emerald-500 text-white 
-                           font-bold text-xs uppercase tracking-widest
+                           font-bold text-xs uppercase 
                            shadow-md shadow-emerald-500/20
                            hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-500/30
                            active:scale-95 transition-all"
@@ -111,35 +111,8 @@ const OrderListPage = () => {
                             <FileSpreadsheet className="h-4 w-4" />
                             Xuất Excel
                         </Button>
-
-                        {/* REFRESH */}
-                        <Button
-                            onClick={fetchOrders}
-                            className="gap-2 h-11 px-5 rounded-2xl 
-                           bg-blue-500 text-white 
-                           font-bold text-xs uppercase tracking-widest
-                           shadow-md shadow-blue-500/20
-                           hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30
-                           active:scale-95 transition-all"
-                        >
-                            <RefreshCw
-                                className={cn(
-                                    "h-4 w-4 transition-all",
-                                    loading && "animate-spin"
-                                )}
-                            />
-                            Làm mới
-                        </Button>
                     </>
                 }
-            />
-
-            <OrderStatusFilter
-                activeStatus={filterStatus}
-                onStatusChange={setFilterStatus}
-                totalCount={orders.length}
-                counts={counts}
-                statuses={STATUSES}
             />
 
             <SearchBanner
@@ -148,9 +121,16 @@ const OrderListPage = () => {
                 placeholder="Tìm theo mã đơn, khách hàng, email..."
                 onRefresh={fetchOrders}
                 loading={loading}
-                count={filtered.length}
-                countLabel="đơn hàng"
-            />
+            >
+                <div className="h-8 w-px bg-slate-100 mx-2 hidden lg:block" />
+                <OrderStatusFilter
+                    activeStatus={filterStatus}
+                    onStatusChange={setFilterStatus}
+                    totalCount={orders.length}
+                    counts={counts}
+                    statuses={STATUSES}
+                />
+            </SearchBanner>
 
             <OrderTable
                 orders={filtered}

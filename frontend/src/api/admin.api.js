@@ -91,6 +91,22 @@ const adminApi = {
         } catch (error) {
             throw error.response?.data || error.message;
         }
+    },
+    updateUserStatus: async (id, status) => {
+        try {
+            const response = await axios.patch(`/admin/users/${id}/status`, { status });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
+    },
+    updateUserRole: async (id, role) => {
+        try {
+            const response = await axios.patch(`/admin/users/${id}/role`, { role });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
     }
 };
 

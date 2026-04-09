@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import userAddressApi from '../../../api/user_address.api';
+import { cn } from '../../../lib/utils';
 
 const AddressTab = () => {
     const [addresses, setAddresses] = useState([]);
@@ -135,115 +136,123 @@ const AddressTab = () => {
     };
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h2 className="text-2xl font-serif font-medium text-zinc-900 dark:text-white mb-1 tracking-tight">Sổ địa chỉ</h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm font-light">Quản lý các địa chỉ giao hàng của bạn để thanh toán nhanh hơn.</p>
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Header Section - Refined Spacing */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-zinc-300 dark:border-zinc-800/60">
+                <div className="space-y-2">
+                    <span className="text-[12px] font-black  text-amber-600 dark:text-amber-500 uppercase">
+                        Logistics & Destinations
+                    </span>
+                    <h2 className="text-2xl md:text-3xl font-light text-zinc-900 dark:text-white ">
+                        Sổ Địa Chỉ <span className="italic text-zinc-600 dark:text-zinc-700">Giao Nhận</span>
+                    </h2>
                 </div>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-amber-600/20 active:scale-95"
+                    className="group h-11 px-8 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm font-black uppercase text-[12px]  hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all shadow-xl flex items-center justify-center gap-2"
                 >
-                    <Plus className="w-4 h-4" />
-                    Thêm địa chỉ mới
+                    <Plus className="w-3.5 h-3.5 transition-transform group-hover:rotate-90" />
+                    Thêm địa chỉ
                 </button>
             </div>
 
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                    <div className="w-12 h-12 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-zinc-500 dark:text-zinc-400 animate-pulse">Đang tải địa chỉ...</p>
+                <div className="flex flex-col items-center justify-center py-20 space-y-6">
+                    <div className="w-10 h-10 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[10px] font-black text-zinc-600 uppercase  animate-pulse">Đang định vị sổ địa chỉ...</p>
                 </div>
             ) : addresses.length === 0 ? (
-                <div className="text-center py-20 bg-zinc-100/50 dark:bg-zinc-900/30 rounded-3xl border border-zinc-200 dark:border-zinc-800/50 border-dashed">
-                    <MapPin className="w-16 h-16 text-zinc-300 dark:text-zinc-700 mx-auto mb-4" />
-                    <h3 className="text-xl font-serif text-zinc-900 dark:text-white mb-2 font-medium">Bạn chưa lưu địa chỉ nào</h3>
-                    <p className="text-zinc-500 font-light max-w-xs mx-auto mb-8">Hãy thêm địa chỉ nhận hàng đầu tiên để dễ dàng đặt mua những chiếc đồng hồ Chronos.</p>
+                <div className="text-center py-24 bg-zinc-50/50 dark:bg-zinc-950/30 rounded-sm border border-dashed border-zinc-200 dark:border-zinc-800">
+                    <MapPin className="w-16 h-16 text-zinc-200 dark:text-zinc-800 mx-auto mb-6" />
+                    <h3 className="text-xl font-serif text-zinc-900 dark:text-white mb-3">Chưa có điểm đến</h3>
+                    <p className="text-zinc-600 font-light max-w-xs mx-auto mb-10 text-sm italic">Hãy thiết lập địa chỉ để hành trình bàn giao sản phẩm được khởi đầu thuận lợi.</p>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="px-8 py-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-all font-medium text-sm"
+                        className="px-12 py-4 border border-zinc-900 dark:border-white text-zinc-900 dark:text-white rounded-sm hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-900 transition-all font-black text-[10px] uppercase "
                     >
-                        Bắt đầu ngay
+                        Khởi tạo địa chỉ đầu tiên
                     </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {addresses.map((addr) => (
                         <div
                             key={addr.id}
-                            className={`group relative bg-white dark:bg-zinc-900/60 border rounded-2xl p-6 transition-all shadow-sm hover:shadow-md dark:shadow-none ${addr.is_default
-                                    ? 'border-amber-500/50 ring-1 ring-amber-500/20'
-                                    : 'border-zinc-100 dark:border-zinc-800 hover:border-amber-500/30'
-                                }`}
-                        >
-                            {addr.is_default && (
-                                <div className="absolute top-5 right-5 flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-500 bg-amber-500/10 px-2 py-1 rounded-lg">
-                                    <CheckCircle2 className="w-3 h-3" />
-                                    Mặc định
-                                </div>
+                            className={cn(
+                                "group relative bg-white dark:bg-zinc-900 border rounded-sm p-6 transition-all duration-500",
+                                addr.is_default
+                                    ? "border-amber-500/50 shadow-lg shadow-amber-500/5"
+                                    : "border-zinc-100 dark:border-zinc-800 hover:border-amber-500/30 shadow-sm"
                             )}
+                        >
+                            {/* Certificate Style Badge */}
+                            <div className="flex justify-between items-start mb-6">
+                                <div className={cn(
+                                    "p-2.5 rounded-sm transition-colors duration-500",
+                                    addr.is_default ? "bg-amber-500 text-white" : "bg-zinc-50 dark:bg-zinc-950 text-zinc-600 group-hover:bg-amber-500/10 group-hover:text-amber-500"
+                                )}>
+                                    <MapPin className="w-4 h-4" />
+                                </div>
+                                {addr.is_default && (
+                                    <span className="text-[10px] font-black uppercase  text-amber-600 bg-amber-500/10 px-2 py-1 rounded-sm">
+                                        Mặc định
+                                    </span>
+                                )}
+                            </div>
 
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl group-hover:bg-amber-500/10 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
-                                        <User className="w-4 h-4 text-zinc-400 dark:text-zinc-500 group-hover:text-amber-600 dark:group-hover:text-amber-500" />
-                                    </div>
-                                    <div>
-                                        <p className="text-zinc-400 dark:text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Người nhận</p>
-                                        <p className="text-zinc-900 dark:text-white font-medium">{addr.recipient_name}</p>
-                                    </div>
+                            <div className="space-y-2">
+                                {/* Người nhận */}
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-[10px] text-zinc-600 uppercase font-black min-w-[70px] shrink-0">
+                                        Người nhận:
+                                    </p>
+                                    <h4 className="text-md font-serif font-medium text-zinc-900 dark:text-white">
+                                        {addr.recipient_name}
+                                    </h4>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
-                                        <Phone className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-                                    </div>
-                                    <div>
-                                        <p className="text-zinc-400 dark:text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Liên hệ</p>
-                                        <p className="text-zinc-900 dark:text-white font-medium">{addr.recipient_phone}</p>
-                                    </div>
+                                {/* Liên hệ */}
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-[10px] text-zinc-600 uppercase font-black min-w-[70px] shrink-0">
+                                        Liên hệ:
+                                    </p>
+                                    <p className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                                        {addr.recipient_phone}
+                                    </p>
                                 </div>
 
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl">
-                                        <MapPin className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-                                    </div>
-                                    <div>
-                                        <p className="text-zinc-400 dark:text-zinc-500 text-[10px] uppercase tracking-widest font-bold">Địa chỉ</p>
-                                        <p className="text-zinc-900 dark:text-white font-medium text-sm leading-relaxed">
-                                            {addr.address_line}
-                                            {addr.ward && `, ${addr.ward}`}
-                                            {addr.district && `, ${addr.district}`}
-                                            {addr.city && `, ${addr.city}`}
-                                        </p>
-                                    </div>
+                                {/* Địa chỉ */}
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-[10px] text-zinc-600 uppercase font-black min-w-[70px] shrink-0">
+                                        Địa chỉ:
+                                    </p>
+                                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed line-clamp-1">
+                                        {addr.address_line}{addr.ward && `, ${addr.ward}`}{addr.district && `, ${addr.district}`}{addr.city && `, ${addr.city}`}
+                                    </p>
                                 </div>
                             </div>
 
-                            <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800/50 flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-1">
+                            <div className="pt-4 border-t border-zinc-50 dark:border-zinc-800/60 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
                                     {!addr.is_default && (
                                         <button
                                             onClick={() => handleSetDefault(addr.id)}
-                                            className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-500 transition-colors"
+                                            className="text-[12px] font-black uppercase  text-zinc-600 hover:text-amber-600 transition-colors"
                                         >
-                                            Đặt làm mặc định
+                                            Ưu tiên
                                         </button>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-4">
                                     <button
                                         onClick={() => handleOpenModal(addr)}
-                                        className="p-2 text-zinc-400 dark:text-zinc-600 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-500/5 rounded-lg transition-all"
-                                        title="Chỉnh sửa"
+                                        className="p-2 text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-all transform hover:scale-110"
                                     >
                                         <Edit2 className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(addr.id)}
-                                        className="p-2 text-zinc-400 dark:text-zinc-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/5 rounded-lg transition-all"
-                                        title="Xóa"
+                                        className="p-2 text-zinc-300 hover:text-rose-500 transition-all transform hover:scale-110"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -254,101 +263,104 @@ const AddressTab = () => {
                 </div>
             )}
 
-            {/* Modal Form */}
+            {/* Modal Form - Redesigned for Premium Luxury */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
-                        <header className="px-8 py-6 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                            <h3 className="text-xl font-serif font-medium text-zinc-900 dark:text-white">
-                                {editingAddress ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới'}
-                            </h3>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-950/90 backdrop-blur-md animate-in fade-in duration-500">
+                    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 w-full max-w-xl rounded-sm shadow-[0_0_100px_rgba(0,0,0,0.3)] overflow-hidden animate-in zoom-in-95 duration-500">
+                        <header className="px-8 py-6 border-b border-zinc-50 dark:border-zinc-800/60 flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <span className="text-[10px] font-black  text-amber-600 dark:text-amber-500 uppercase">Registry</span>
+                                <h3 className="text-xl font-serif font-light text-zinc-900 dark:text-white">
+                                    {editingAddress ? 'Hiệu Chỉnh' : 'Thêm'} <span className="italic text-zinc-600">Địa Chỉ</span>
+                                </h3>
+                            </div>
                             <button
                                 onClick={handleCloseModal}
-                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full text-zinc-500 transition-all"
+                                className="p-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 rounded-full text-zinc-600 transition-all transform hover:rotate-90"
                             >
                                 <X className="w-5 h-5" />
                             </button>
                         </header>
 
-                        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Người nhận</label>
+                        <form onSubmit={handleSubmit} className="p-8 space-y-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                                <div className="space-y-1.5">
+                                    <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700 ml-0.5">Họ và tên</label>
                                     <input
                                         type="text"
                                         name="recipient_name"
                                         value={formData.recipient_name}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all"
-                                        placeholder="Họ và tên"
+                                        className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-200"
+                                        placeholder="Tên người nhận"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Số điện thoại</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700 ml-0.5">Số điện thoại</label>
                                     <input
                                         type="text"
                                         name="recipient_phone"
                                         value={formData.recipient_phone}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all"
-                                        placeholder="Số điện thoại"
+                                        className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-200"
+                                        placeholder="0123..."
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Địa chỉ cụ thể (Số nhà, tên đường)</label>
+                            <div className="space-y-1.5">
+                                <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700 ml-0.5">Địa chỉ chi tiết</label>
                                 <input
                                     type="text"
                                     name="address_line"
                                     value={formData.address_line}
                                     onChange={handleInputChange}
                                     required
-                                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all"
-                                    placeholder="Ví dụ: 123 Đường Láng"
+                                    className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-200"
+                                    placeholder="Số nhà, tên đường..."
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Phường/Xã</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-6">
+                                <div className="space-y-1.5">
+                                    <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700 ml-0.5">Phường/Xã</label>
                                     <input
                                         type="text"
                                         name="ward"
                                         value={formData.ward}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all"
+                                        className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-200"
                                         placeholder="Phường/Xã"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Quận/Huyện</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700 ml-0.5">Quận/Huyện</label>
                                     <input
                                         type="text"
                                         name="district"
                                         value={formData.district}
                                         onChange={handleInputChange}
-                                        className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all"
+                                        className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-200"
                                         placeholder="Quận/Huyện"
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Tỉnh/Thành phố</label>
+                                <div className="space-y-1.5">
+                                    <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700 ml-0.5">Tỉnh/Thành</label>
                                     <input
                                         type="text"
                                         name="city"
                                         value={formData.city}
                                         onChange={handleInputChange}
                                         required
-                                        className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all"
-                                        placeholder="Tỉnh/Thành phố"
+                                        className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-200"
+                                        placeholder="Tỉnh/Thành"
                                     />
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 py-2">
+                            <div className="flex items-center gap-4 py-2 border-t border-zinc-50 dark:border-zinc-800/40">
                                 <label className="relative flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -357,30 +369,30 @@ const AddressTab = () => {
                                         onChange={handleInputChange}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-10 h-5 bg-zinc-200 dark:bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600"></div>
+                                    <div className="w-8 h-4 bg-zinc-200 dark:bg-zinc-800 rounded-full peer peer-checked:bg-amber-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-[16px]"></div>
                                 </label>
-                                <span className="text-sm text-zinc-600 dark:text-zinc-400">Đặt làm địa chỉ mặc định</span>
+                                <span className="text-[12px] font-black uppercase  text-zinc-700 dark:text-zinc-600">Đặt làm mặc định</span>
                             </div>
 
                             <div className="pt-4 flex gap-3">
                                 <button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="flex-1 px-6 py-3 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
+                                    className="flex-1 h-11 border border-zinc-200 dark:border-zinc-800 text-zinc-600 rounded-sm font-black uppercase text-[12px]  hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all"
                                 >
                                     Hủy
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={submitting}
-                                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-800 text-white rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-amber-600/20"
+                                    className="flex-1 flex items-center justify-center gap-2 h-11 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm font-black uppercase text-[12px]  hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all shadow-xl disabled:opacity-50"
                                 >
                                     {submitting ? (
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <>
-                                            <Check className="w-4 h-4" />
-                                            {editingAddress ? 'Lưu thay đổi' : 'Thêm địa chỉ'}
+                                            <Check className="w-3.5 h-3.5" />
+                                            {editingAddress ? 'Cập nhật' : 'Xác nhận'}
                                         </>
                                     )}
                                 </button>

@@ -15,5 +15,7 @@ router.get("/reviews", verifyToken, isAdmin, adminController.getAllReviews);
 router.patch("/reviews/:id/status", verifyToken, isAdmin, adminController.updateReviewStatus);
 router.post("/reviews/:id/reply", verifyToken, isAdmin, adminController.replyToReview);
 router.get("/revenue-stats", verifyToken, isAdmin, adminController.getRevenueStats);
+router.patch("/users/:id/status", verifyToken, isAdmin, adminController.updateUserStatus);
+router.patch("/users/:id/role", verifyToken, isAdmin, adminController.updateUserRole);
 
 export default router;

@@ -33,7 +33,7 @@ const ProductPricing = ({ form, setForm }) => {
                 <div>
                     <Label>Tồn kho</Label>
                     <div className="relative">
-                        <Box className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                        <Box className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                         <Input
                             type="number"
                             value={form.stock}

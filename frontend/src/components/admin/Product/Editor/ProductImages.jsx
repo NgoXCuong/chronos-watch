@@ -31,7 +31,7 @@ const ProductImages = ({
                         </>
                     ) : (
                         <>
-                            <Upload className="h-8 w-8 text-slate-300 mb-2" />
+                            <Upload className="h-8 w-8 text-slate-600 mb-2" />
                             <span className="text-xs text-slate-400 font-medium ">Tải lên ảnh 1x1</span>
                         </>
                     )}
@@ -60,7 +60,7 @@ const ProductImages = ({
                     ))}
                     <div
                         onClick={() => galleryRef.current.click()}
-                        className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 hover:text-amber-500 hover:border-amber-300 cursor-pointer transition-all"
+                        className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-500 hover:border-amber-300 cursor-pointer transition-all"
                     >
                         <Plus className="h-5 w-5" />
                     </div>

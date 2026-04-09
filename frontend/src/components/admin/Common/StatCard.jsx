@@ -1,4 +1,5 @@
 import React from "react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "../../../lib/utils";
 
 const StatCard = ({
@@ -46,17 +47,22 @@ const StatCard = ({
 
         {trend && (
           <div className="flex flex-col items-end">
-            <span
+            <div
               className={cn(
-                "text-[14px] font-bold px-2.5 py-1 rounded-lg border shadow-sm transition-all duration-500 group-hover:scale-105 tracking-tight",
+                "flex items-center gap-1 text-[13px] font-bold px-2.5 py-1 rounded-lg border transition-all duration-500 group-hover:scale-105 shadow-sm",
                 trendColor ||
                 (trend.startsWith("+")
-                  ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                  : "bg-rose-50 text-rose-600 border-rose-100"),
+                  ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/20"
+                  : "bg-rose-500/15 text-rose-600 border-rose-500/20")
               )}
             >
-              {trend}
-            </span>
+              {trend.startsWith("+") ? (
+                <TrendingUp size={14} strokeWidth={3} className="text-emerald-600" />
+              ) : (
+                <TrendingDown size={14} strokeWidth={3} className="text-rose-600" />
+              )}
+              <span className="tabular-nums text-emerald-600">{trend}</span>
+            </div>
           </div>
         )}
       </div>
@@ -74,7 +80,7 @@ const StatCard = ({
           )}
           <p
             className={cn(
-              "text-[12px] font-bold tracking-wider whitespace-nowrap",
+              "text-[12px] font-bold whitespace-nowrap",
               bg && bg !== "bg-white" ? "text-white/70" : "text-slate-500",
             )}
           >
@@ -83,11 +89,11 @@ const StatCard = ({
         </div>
 
         {loading ? (
-          <div className="h-8 w-24 bg-slate-100/20 animate-pulse rounded-lg mt-2"></div>
+          <div className="h-8 w-24 animate-pulse rounded-lg mt-2"></div>
         ) : (
           <h3
             className={cn(
-              "text-3xl font-bold tracking-tight mt-1",
+              "text-3xl font-bold mt-1",
               bg && bg !== "bg-white" ? "text-white" : "text-slate-900",
             )}
           >
@@ -97,7 +103,7 @@ const StatCard = ({
       </div>
 
       {hist && hist.length > 1 && (
-        <div className="absolute bottom-0 left-0 w-full h-12 opacity-30 pointer-events-none group-hover:opacity-60 transition-opacity duration-700">
+        <div className="absolute bottom-0 left-0 w-full h-14 opacity-40 pointer-events-none group-hover:opacity-100 transition-opacity duration-700">
           <svg
             className="w-full h-full"
             preserveAspectRatio="none"

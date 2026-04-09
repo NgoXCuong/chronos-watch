@@ -4,6 +4,7 @@ import User from "../models/user.model.js";
 import Review from "../models/review.model.js";
 import OrderDetail from "../models/order_detail.model.js";
 import OrderHistory from "../models/order_history.model.js";
+import Voucher from "../models/voucher.model.js";
 import { Op, fn, col } from "sequelize";
 
 const adminService = {
@@ -14,26 +15,40 @@ const adminService = {
         const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
         // 1. Doanh thu & Chỉ số cơ bản (tháng này và tháng trước)
-        const [revenueResult, lastMonthRevResult, totalUsers, lastMonthUsers, totalOrders, lastMonthOrders, totalProducts] = await Promise.all([
-            Order.findAll({
-                attributes: [[fn('SUM', col('total_amount')), 'total_revenue']],
-                where: { created_at: { [Op.gte]: startOfMonth }, status: { [Op.notIn]: ['cancelled', 'returned'] } },
-                raw: true
+        const results = await Promise.all([
+            Order.sum('total_amount', {
+                where: { created_at: { [Op.gte]: startOfMonth }, status: { [Op.notIn]: ['cancelled', 'returned'] } }
             }),
-            Order.findAll({
-                attributes: [[fn('SUM', col('total_amount')), 'total_revenue']],
-                where: { created_at: { [Op.between]: [startOfLastMonth, endOfLastMonth] }, status: { [Op.notIn]: ['cancelled', 'returned'] } },
-                raw: true
+            Order.sum('total_amount', {
+                where: { created_at: { [Op.between]: [startOfLastMonth, endOfLastMonth] }, status: { [Op.notIn]: ['cancelled', 'returned'] } }
             }),
             User.count({ where: { role: 'customer' } }),
             User.count({ where: { role: 'customer', created_at: { [Op.lt]: startOfMonth } } }),
+            User.count({ where: { role: 'customer', created_at: { [Op.between]: [startOfLastMonth, endOfLastMonth] } } }),
             Order.count({ where: { status: { [Op.notIn]: ['cancelled', 'returned'] } } }),
             Order.count({ where: { created_at: { [Op.between]: [startOfLastMonth, endOfLastMonth] }, status: { [Op.notIn]: ['cancelled', 'returned'] } } }),
-            Product.count()
+            Product.count(),
+            Voucher.count(),
+            Voucher.count({ where: { created_at: { [Op.lt]: startOfMonth } } }),
+            Voucher.count({ where: { created_at: { [Op.between]: [startOfLastMonth, endOfLastMonth] } } })
         ]);
 
-        const monthlyRevenue = parseFloat(revenueResult[0].total_revenue || 0);
-        const lastMonthRevenue = parseFloat(lastMonthRevResult[0].total_revenue || 0);
+        const monthlyRevenue = parseFloat(results[0] || 0);
+        const lastMonthRevenue = parseFloat(results[1] || 0);
+
+        const totalUsersCount = results[2];
+        const usersBeforeThisMonth = results[3];
+        const usersCreatedLastMonth = results[4];
+        const totalOrdersCount = results[5];
+        const lastMonthOrders = results[6];
+        const totalProductsCount = results[7];
+        const totalVouchersCount = results[8];
+        const vouchersBeforeThisMonth = results[9];
+        const vouchersCreatedLastMonth = results[10];
+
+        // Monthly Growth Calculations
+        const usersThisMonth = totalUsersCount - usersBeforeThisMonth;
+        const vouchersThisMonth = totalVouchersCount - vouchersBeforeThisMonth;
 
         // Tính AOV tháng này và tháng trước
         const thisMonthOrders = await Order.count({ where: { created_at: { [Op.gte]: startOfMonth }, status: { [Op.notIn]: ['cancelled', 'returned'] } } });
@@ -41,10 +56,8 @@ const adminService = {
         const lastMonthAov = lastMonthOrders > 0 ? (lastMonthRevenue / lastMonthOrders) : 0;
 
         // 2. Thống kê trạng thái đơn hàng (Pie Chart)
-        const orderStatusStats = await Order.findAll({
-            attributes: ['status', [fn('COUNT', col('id')), 'count']],
-            group: ['status'],
-            raw: true
+        const orderStatusStats = await Order.count({
+            group: ['status']
         });
 
         // 3. Lịch sử doanh thu 6 tháng
@@ -53,7 +66,8 @@ const adminService = {
             attributes: [
                 [fn('MONTH', col('created_at')), 'month'],
                 [fn('YEAR', col('created_at')), 'year'],
-                [fn('SUM', col('total_amount')), 'revenue']
+                [fn('SUM', col('total_amount')), 'revenue'],
+                [fn('COUNT', col('id')), 'orders']
             ],
             where: {
                 created_at: { [Op.gte]: sixMonthsAgo },
@@ -81,19 +95,32 @@ const adminService = {
 
         // 5. Đơn hàng gần đây nhất
         const recentOrders = await Order.findAll({
-            limit: 5,
+            limit: 3,
             order: [['created_at', 'DESC']],
-            include: [{ model: User, as: 'user', attributes: ['username'] }]
+            include: [
+                { model: User, as: 'user', attributes: ['username', 'full_name'] },
+                {
+                    model: OrderDetail,
+                    as: 'details',
+                    include: [{ model: Product, as: 'product', attributes: ['name', 'image_url'] }]
+                }
+            ]
         });
 
         return {
             monthly_revenue: monthlyRevenue,
             last_month_revenue: lastMonthRevenue,
-            total_users: totalUsers,
-            last_month_users: lastMonthUsers,
-            total_orders: totalOrders,
+            total_users: totalUsersCount,
+            last_month_users: usersBeforeThisMonth,
+            users_last_month: usersCreatedLastMonth,
+            users_this_month: usersThisMonth,
+            total_orders: totalOrdersCount,
             last_month_orders: lastMonthOrders,
-            total_products: totalProducts,
+            total_products: totalProductsCount,
+            total_vouchers: totalVouchersCount,
+            last_month_vouchers: vouchersBeforeThisMonth,
+            vouchers_last_month: vouchersCreatedLastMonth,
+            vouchers_this_month: vouchersThisMonth,
             aov: parseFloat(aov.toFixed(0)),
             last_month_aov: parseFloat(lastMonthAov.toFixed(0)),
             order_status_distribution: orderStatusStats,
@@ -106,7 +133,7 @@ const adminService = {
 
     getAllUsers: async () => {
         return await User.findAll({
-            attributes: ['id', 'username', 'email', 'role', 'status', 'created_at'],
+            attributes: ['id', 'username', 'email', 'full_name', 'avatar_url', 'role', 'status', 'created_at'],
             order: [['created_at', 'DESC']]
         });
     },
@@ -132,8 +159,8 @@ const adminService = {
                     as: 'user',
                     attributes: ['username', 'email']
                 },
-                { 
-                    model: OrderDetail, 
+                {
+                    model: OrderDetail,
                     as: 'details',
                     include: [{ model: Product, as: 'product', attributes: ['name', 'image_url'] }]
                 },
@@ -212,26 +239,56 @@ const adminService = {
     getRevenueStats: async (startDate, endDate) => {
         const start = startDate ? new Date(startDate) : new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1);
         const end = endDate ? new Date(endDate) : new Date();
-        // Set end of day for end date
         end.setHours(23, 59, 59, 999);
 
+        // Calculate diff in days
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const isDaily = diffDays <= 31;
+
+        const attributes = [
+            [fn('YEAR', col('created_at')), 'year'],
+            [fn('MONTH', col('created_at')), 'month'],
+            [fn('SUM', col('total_amount')), 'revenue'],
+            [fn('COUNT', col('id')), 'orders']
+        ];
+        const group = [fn('YEAR', col('created_at')), fn('MONTH', col('created_at'))];
+        const order = [[fn('YEAR', col('created_at')), 'ASC'], [fn('MONTH', col('created_at')), 'ASC']];
+
+        if (isDaily) {
+            attributes.push([fn('DAY', col('created_at')), 'day']);
+            group.push(fn('DAY', col('created_at')));
+            order.push([fn('DAY', col('created_at')), 'ASC']);
+        }
+
         const revenueHistory = await Order.findAll({
-            attributes: [
-                [fn('MONTH', col('created_at')), 'month'],
-                [fn('YEAR', col('created_at')), 'year'],
-                [fn('SUM', col('total_amount')), 'revenue'],
-                [fn('COUNT', col('id')), 'orders']
-            ],
+            attributes,
             where: {
                 created_at: { [Op.between]: [start, end] },
                 status: { [Op.notIn]: ['cancelled', 'returned'] }
             },
-            group: [fn('YEAR', col('created_at')), fn('MONTH', col('created_at'))],
-            order: [[fn('YEAR', col('created_at')), 'ASC'], [fn('MONTH', col('created_at')), 'ASC']],
+            group,
+            order,
             raw: true
         });
 
-        return { revenue_history: revenueHistory, start_date: start, end_date: end };
+        return { revenue_history: revenueHistory, start_date: start, end_date: end, is_daily: isDaily };
+    },
+
+    updateUserStatus: async (userId, status) => {
+        const user = await User.findByPk(userId);
+        if (!user) throw new Error('Thành viên không tồn tại');
+        user.status = status;
+        await user.save();
+        return user;
+    },
+
+    updateUserRole: async (userId, role) => {
+        const user = await User.findByPk(userId);
+        if (!user) throw new Error('Thành viên không tồn tại');
+        user.role = role;
+        await user.save();
+        return user;
     }
 };
 

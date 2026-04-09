@@ -1,10 +1,10 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import { ShoppingBag } from "lucide-react";
+import { PieChart as PieIcon, ShoppingBag } from "lucide-react";
 
 const COLORS = [
-  "#F59E0B",
   "#10B981",
+  "#F59E0B",
   "#3B82F6",
   "#8B5CF6",
   "#F43F5E",
@@ -15,14 +15,20 @@ const OrderStatusPie = ({ data, totalOrders }) => {
   return (
     <div className="bg-white p-8 border border-slate-100 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-lg font-bold text-slate-900">
-          Trạng thái đơn hàng
-        </h3>
-        <p className="text-md text-slate-400 font-medium mt-1">
-          Cơ cấu vận hành hiện tại
+        <div className="flex items-center gap-2">
+          <PieIcon size={18} className="text-blue-500" />
+          <h3 className="text-base font-bold text-slate-900 uppercase">
+            Trạng thái đơn hàng
+          </h3>
+        </div>
+        <p className="text-[10px] text-slate-500 font-black uppercase mt-1 pl-6">
+          Phân bổ vận hành
         </p>
       </div>
-      <div style={{ width: '100%', height: 256, overflow: 'hidden' }} className="relative">
+      <div
+        style={{ width: "100%", height: 256, overflow: "hidden" }}
+        className="relative"
+      >
         {data && data.length > 0 ? (
           <>
             <ResponsiveContainer width="100%" height="100%">
@@ -51,7 +57,7 @@ const OrderStatusPie = ({ data, totalOrders }) => {
               <span className="text-2xl font-bold text-slate-900">
                 {totalOrders}
               </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-slate-400 uppercase">
                 Đơn hàng
               </span>
             </div>
@@ -59,9 +65,7 @@ const OrderStatusPie = ({ data, totalOrders }) => {
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/50 rounded-full border-2 border-dashed border-slate-100 mx-auto w-48 h-48">
             <ShoppingBag className="h-8 w-8 text-slate-500 mb-1" />
-            <p className="text-md font-bold text-slate-400">
-              Trống
-            </p>
+            <p className="text-md font-bold text-slate-400">Trống</p>
           </div>
         )}
       </div>
@@ -73,7 +77,7 @@ const OrderStatusPie = ({ data, totalOrders }) => {
                 className="w-2 h-2 rounded-full"
                 style={{ backgroundColor: COLORS[index % COLORS.length] }}
               />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+              <span className="text-[10px] font-bold text-slate-500 uppercase">
                 {entry.name}
               </span>
               <span className="text-[10px] font-bold text-slate-900 ml-auto">

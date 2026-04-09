@@ -66,7 +66,7 @@ const ProductDetailPage = () => {
         return (
             <div className={`min-h-screen flex flex-col items-center justify-center p-6 text-center ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
                 <h2 className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-zinc-900'}`} style={{ fontFamily: 'Cinzel, serif' }}>Tuyệt phẩm không tìm thấy</h2>
-                <p className={`mb-8 ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>Hiện tại chúng tôi không tìm thấy sản phẩm bạn yêu cầu.</p>
+                <p className={`mb-8 ${isDark ? 'text-zinc-700' : 'text-zinc-600'}`}>Hiện tại chúng tôi không tìm thấy sản phẩm bạn yêu cầu.</p>
                 <Link to="/products">
                     <Button className="bg-amber-600 hover:bg-amber-700 text-white rounded-none px-8 py-6 uppercase text-[10px]">
                         Khám phá bộ sưu tập
@@ -89,33 +89,33 @@ const ProductDetailPage = () => {
     const stockStatus = getStockStatus();
 
     return (
-        <div className={`min-h-screen transition-colors duration-500 pb-20 ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
+        <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
             <ProductBreadcrumbs product={product} isDark={isDark} />
 
-            <div className="max-w-[1360px] mx-auto px-4 md:px-8 py-8 md:py-12">
+            <div className="max-w-[1360px] mx-auto px-4 md:px-8 py-4 md:py-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
-                    <ProductGallery 
-                        product={product} 
-                        images={images} 
-                        discount={discount} 
-                        isDark={isDark} 
+                    <ProductGallery
+                        product={product}
+                        images={images}
+                        discount={discount}
+                        isDark={isDark}
                         thumbsSwiper={thumbsSwiper}
                         setThumbsSwiper={setThumbsSwiper}
                     />
 
                     <div className="flex flex-col pt-2">
-                        <ProductInfo 
-                            product={product} 
-                            stockStatus={stockStatus} 
-                            isDark={isDark} 
-                            formatCurrency={formatCurrency} 
+                        <ProductInfo
+                            product={product}
+                            stockStatus={stockStatus}
+                            isDark={isDark}
+                            formatCurrency={formatCurrency}
                         />
-                        
-                        <ProductActions 
-                            product={product} 
-                            quantity={quantity} 
-                            setQuantity={setQuantity} 
-                            isDark={isDark} 
+
+                        <ProductActions
+                            product={product}
+                            quantity={quantity}
+                            setQuantity={setQuantity}
+                            isDark={isDark}
                         />
 
                         <ProductTrustFeatures isDark={isDark} />
@@ -123,8 +123,6 @@ const ProductDetailPage = () => {
                 </div>
 
                 <ProductDetailsTabs product={product} isDark={isDark} />
-
-                <ProductEditorial product={product} isDark={isDark} />
 
                 <RelatedProducts relatedProducts={relatedProducts} isDark={isDark} />
             </div>

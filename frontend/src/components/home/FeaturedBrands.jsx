@@ -52,12 +52,12 @@ const FeaturedBrands = () => {
                                         <img src={brand.logo_url} alt={brand.name}
                                             className={`h-5 md:h-6 object-contain transition-transform duration-700 transform group-hover:scale-110 ${isDark ? 'drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]' : ''}`} />
                                     )}
-                                    <span className={`text-[11px] md:text-xs font-bold tracking-[0.15em] uppercase transition-transform duration-700 group-hover:scale-105 ${isDark ? 'text-amber-500' : 'text-amber-600'}`}>
+                                    <span className={`text-[14px] md:text-md font-bold uppercase transition-transform duration-700 group-hover:scale-105 ${isDark ? 'text-amber-500' : 'text-amber-600'}`}>
                                         {brand.name}
                                     </span>
                                 </div>
                                 {/* Dấu chấm phân cách */}
-                                <span className={`text-sm select-none ${isDark ? 'text-white/10' : 'text-zinc-200'}`}>·</span>
+                                <span className="h-6 w-[2px] bg-amber-500 mx-2"></span>
                             </Link>
                         ))}
                     </div>

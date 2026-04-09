@@ -82,7 +82,7 @@ const OrderDetailPage = () => {
         return (
             <div className="flex flex-col items-center justify-center min-h-[600px] space-y-4">
                 <div className="w-10 h-10 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Đang tải dữ liệu...</p>
+                <p className="text-[10px] font-bold text-slate-600 uppercase animate-pulse">Đang tải dữ liệu...</p>
             </div>
         );
     }
@@ -90,7 +90,7 @@ const OrderDetailPage = () => {
     if (!order) return (
         <div className="flex flex-col items-center justify-center min-h-[500px] text-center space-y-6">
             <div className="h-16 w-16 rounded-3xl bg-slate-50 flex items-center justify-center border border-slate-100">
-                <AlertCircle className="h-8 w-8 text-slate-300" />
+                <AlertCircle className="h-8 w-8 text-slate-600" />
             </div>
             <h3 className="text-lg font-bold text-slate-900">Không tìm thấy đơn hàng</h3>
             <Button onClick={() => navigate('/admin/orders')} variant="outline" className="rounded-2xl px-8 border-slate-200">Quay lại</Button>
@@ -108,13 +108,13 @@ const OrderDetailPage = () => {
                         onClick={() => navigate('/admin/orders')}
                         className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center hover:bg-slate-50 hover:border-slate-300 transition-all group"
                     >
-                        <ArrowLeft className="h-5 w-5 text-slate-400 group-hover:text-slate-900" />
+                        <ArrowLeft className="h-5 w-5 text-slate-600 group-hover:text-slate-900" />
                     </button>
                     <div>
-                        <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                        <h2 className="text-2xl font-black text-slate-900  flex items-center gap-3">
                             Đơn hàng #{order.id}
                         </h2>
-                        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 mt-1">
+                        <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mt-1">
                             <span>Quản trị đơn hàng</span>
                             <ChevronRight size={12} />
                             <span className="text-slate-900 font-bold">{getStatusLabel(order.status)}</span>
@@ -135,15 +135,15 @@ const OrderDetailPage = () => {
                 {/* 2.1 Top Metadata Bar (Seamless) */}
                 <div className="grid grid-cols-2 md:grid-cols-4 border-b border-slate-100">
                     <div className="p-6 border-r border-slate-100 flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Thời gian đặt</span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase ">Thời gian đặt</span>
                         <span className="text-sm font-bold text-slate-900">{new Date(order.created_at).toLocaleString('vi-VN')}</span>
                     </div>
                     <div className="p-6 border-r border-slate-100 flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Phương thức thanh toán</span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase ">Phương thức thanh toán</span>
                         <span className="text-sm font-bold text-slate-900 uppercase">{order.payment_method || 'N/A'}</span>
                     </div>
                     <div className="p-6 border-r border-slate-100 flex flex-col gap-1">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trạng thái thanh toán</span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase ">Trạng thái thanh toán</span>
                         <span className={cn(
                             "text-xs font-black uppercase px-3 py-1 rounded-full inline-block w-fit mt-1",
                             order.payment_status === 'paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
@@ -152,7 +152,7 @@ const OrderDetailPage = () => {
                         </span>
                     </div>
                     <div className="p-6 flex flex-col gap-1 bg-slate-50/30">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng giá trị đơn</span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase ">Tổng giá trị đơn</span>
                         <span className="text-xl font-price font-black text-amber-600 leading-none">{formatCurrency(order.total_amount)}</span>
                     </div>
                 </div>
@@ -178,13 +178,13 @@ const OrderDetailPage = () => {
                                         "h-10 w-10 rounded-2xl flex items-center justify-center border-4 border-white shadow-xl transition-all duration-500",
                                         isCompleted ? "bg-amber-500 text-white" :
                                             isActive ? "bg-slate-900 text-white scale-110" :
-                                                "bg-slate-100 text-slate-400"
+                                                "bg-slate-100 text-slate-600"
                                     )}>
                                         {isCompleted ? <CheckCircle2 size={18} /> : <StepIcon size={18} />}
                                     </div>
                                     <span className={cn(
-                                        "text-[11px] font-black uppercase tracking-tighter",
-                                        isActive ? "text-slate-900" : "text-slate-400"
+                                        "text-[11px] font-black uppercase er",
+                                        isActive ? "text-slate-900" : "text-slate-600"
                                     )}>
                                         {step.label}
                                     </span>
@@ -200,7 +200,7 @@ const OrderDetailPage = () => {
                     {/* LEFT SECTION (Main Items) */}
                     <div className="flex-1 overflow-hidden">
                         <div className="px-10 py-8">
-                            <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 mb-6">
+                            <h3 className="text-lg font-black text-slate-900 uppercase  flex items-center gap-2 mb-6">
                                 <Package size={18} className="text-amber-500" />
                                 Sản phẩm đặt mua
                             </h3>
@@ -209,10 +209,10 @@ const OrderDetailPage = () => {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b border-slate-50">
-                                            <th className="pb-4 text-left text-[10px] font-black text-slate-300 uppercase tracking-widest">Chi tiết sản phẩm</th>
-                                            <th className="pb-4 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">Đơn giá</th>
-                                            <th className="pb-4 text-center text-[10px] font-black text-slate-300 uppercase tracking-widest">S.Lượng</th>
-                                            <th className="pb-4 text-right text-[10px] font-black text-slate-300 uppercase tracking-widest">Thành tiền</th>
+                                            <th className="pb-4 text-left text-[10px] font-black text-slate-600 uppercase ">Chi tiết sản phẩm</th>
+                                            <th className="pb-4 text-center text-[10px] font-black text-slate-600 uppercase ">Đơn giá</th>
+                                            <th className="pb-4 text-center text-[10px] font-black text-slate-600 uppercase ">S.Lượng</th>
+                                            <th className="pb-4 text-right text-[10px] font-black text-slate-600 uppercase ">Thành tiền</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
@@ -225,7 +225,7 @@ const OrderDetailPage = () => {
                                                         </div>
                                                         <div>
                                                             <p className="text-sm font-bold text-slate-900 leading-tight group-hover:text-amber-600 transition-colors uppercase">{item.product?.name}</p>
-                                                            <p className="text-[10px] text-slate-400 mt-1 font-bold">MÃ SP: #{item.product?.id}</p>
+                                                            <p className="text-[10px] text-slate-600 mt-1 font-bold">MÃ SP: #{item.product?.id}</p>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -243,24 +243,24 @@ const OrderDetailPage = () => {
                             {/* Internal Calculation Summary */}
                             <div className="mt-8 flex flex-col items-end pt-8 border-t border-slate-100 space-y-4 pr-4">
                                 <div className="w-full md:w-[300px] flex justify-between items-center text-xs font-bold">
-                                    <span className="text-slate-400 uppercase tracking-widest">Tổng tiền hàng:</span>
+                                    <span className="text-slate-600 uppercase ">Tổng tiền hàng:</span>
                                     <span className="text-slate-900">{formatCurrency(order.subtotal)}</span>
                                 </div>
                                 <div className="w-full md:w-[300px] flex justify-between items-center text-xs font-bold">
-                                    <span className="text-slate-400 uppercase tracking-widest">Phí vận chuyển:</span>
+                                    <span className="text-slate-600 uppercase ">Phí vận chuyển:</span>
                                     <span className="text-emerald-600 uppercase">
                                         {parseInt(order.shipping_fee) === 0 ? "MIỄN PHÍ" : formatCurrency(order.shipping_fee)}
                                     </span>
                                 </div>
                                 {parseFloat(order.discount_amount) > 0 && (
                                     <div className="w-full md:w-[300px] flex justify-between items-center text-xs font-bold">
-                                        <span className="text-rose-400 uppercase tracking-widest">Giảm giá:</span>
+                                        <span className="text-rose-400 uppercase ">Giảm giá:</span>
                                         <span className="text-rose-600">-{formatCurrency(order.discount_amount)}</span>
                                     </div>
                                 )}
                                 <div className="w-full md:w-[300px] flex justify-between items-end pt-4 border-t border-slate-900 transition-all">
-                                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">Thanh toán:</span>
-                                    <span className="text-3xl font-black text-slate-900 font-price leading-none tracking-tighter">
+                                    <span className="text-[10px] font-black text-slate-900 uppercase ">Thanh toán:</span>
+                                    <span className="text-3xl font-black text-slate-900 font-price leading-none er">
                                         {formatCurrency(order.total_amount)}
                                     </span>
                                 </div>
@@ -269,8 +269,8 @@ const OrderDetailPage = () => {
 
                         {/* Order Timeline (Bottom Part of Main Area) */}
                         <div className="px-10 py-12 bg-slate-50/20 border-t border-slate-100">
-                            <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest flex items-center gap-2 mb-8 text-sm">
-                                <Clock size={16} className="text-slate-400" />
+                            <h3 className="text-lg font-black text-slate-900 uppercase  flex items-center gap-2 mb-8 text-sm">
+                                <Clock size={16} className="text-slate-600" />
                                 Lịch sử điều phối đơn
                             </h3>
                             <div className="space-y-6 relative ml-4">
@@ -284,8 +284,8 @@ const OrderDetailPage = () => {
                                         )} />
                                         <div className="flex-1 space-y-1">
                                             <div className="flex items-center gap-3">
-                                                <span className="text-[10px] font-black uppercase text-slate-900 tracking-widest">{getStatusLabel(h.status)}</span>
-                                                <span className="text-[10px] font-bold text-slate-300">{new Date(h.created_at).toLocaleString('vi-VN')}</span>
+                                                <span className="text-[10px] font-black uppercase text-slate-900 ">{getStatusLabel(h.status)}</span>
+                                                <span className="text-[10px] font-bold text-slate-600">{new Date(h.created_at).toLocaleString('vi-VN')}</span>
                                             </div>
                                             <p className="text-xs text-slate-500 italic font-medium leading-relaxed">{h.note || "Hệ thống ghi nhận."}</p>
                                         </div>
@@ -300,35 +300,35 @@ const OrderDetailPage = () => {
 
                         {/* Customer Overview */}
                         <div className="space-y-8">
-                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3 flex items-center gap-2">
+                            <h3 className="text-xs font-black text-slate-900 uppercase  border-b border-slate-200 pb-3 flex items-center gap-2">
                                 <User size={14} className="text-amber-500" />
                                 Khách hàng
                             </h3>
                             <div className="space-y-6">
                                 <div className="flex gap-4">
-                                    <div className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
+                                    <div className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-600 shrink-0 shadow-sm">
                                         <User size={18} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Họ & Tên</span>
+                                        <span className="text-[10px] font-black text-slate-600 uppercase ">Họ & Tên</span>
                                         <span className="text-sm font-bold text-slate-900 uppercase mt-0.5">{order.full_name}</span>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
+                                    <div className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-600 shrink-0 shadow-sm">
                                         <Phone size={18} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Liên hệ</span>
+                                        <span className="text-[10px] font-black text-slate-600 uppercase ">Liên hệ</span>
                                         <span className="text-sm font-bold text-slate-900 mt-0.5">{order.phone_number}</span>
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
-                                    <div className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-400 shrink-0 shadow-sm">
+                                    <div className="h-10 w-10 bg-white border border-slate-200 rounded-2xl flex items-center justify-center text-slate-600 shrink-0 shadow-sm">
                                         <MapPin size={18} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Giao nhận tại</span>
+                                        <span className="text-[10px] font-black text-slate-600 uppercase ">Giao nhận tại</span>
                                         <span className="text-xs font-bold text-slate-600 leading-relaxed mt-1">
                                             {order.address_line}{order.ward ? `, ${order.ward}` : ''}{order.district ? `, ${order.district}` : ''}{order.city ? `, ${order.city}` : ''}
                                         </span>
@@ -339,8 +339,8 @@ const OrderDetailPage = () => {
 
                         {/* New Smart Operational Control Area */}
                         <div className="space-y-8 pt-4">
-                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3 flex items-center gap-2">
-                                <Info size={14} className="text-slate-400" />
+                            <h3 className="text-xs font-black text-slate-900 uppercase  border-b border-slate-200 pb-3 flex items-center gap-2">
+                                <Info size={14} className="text-slate-600" />
                                 Điều phối thông minh
                             </h3>
 
@@ -352,9 +352,9 @@ const OrderDetailPage = () => {
                                             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
                                                 <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
                                             </div>
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/50">Hành động tiếp theo</span>
+                                            <span className="text-[10px] font-black uppercase  text-white/50">Hành động tiếp theo</span>
                                         </div>
-                                        
+
                                         <div>
                                             <h4 className="text-sm font-bold">
                                                 {order.status === 'pending' && "Xác nhận tính hợp lệ của đơn hàng"}
@@ -370,7 +370,7 @@ const OrderDetailPage = () => {
                                             </p>
                                         </div>
 
-                                        <Button 
+                                        <Button
                                             onClick={() => {
                                                 const next = {
                                                     pending: 'confirmed',
@@ -379,15 +379,15 @@ const OrderDetailPage = () => {
                                                     shipping: 'delivered'
                                                 };
                                                 handleUpdateStatus(next[order.status]);
-                                            }} 
-                                            disabled={updating} 
-                                            className="w-full h-12 bg-white hover:bg-slate-100 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all"
+                                            }}
+                                            disabled={updating}
+                                            className="w-full h-12 bg-white hover:bg-slate-100 text-slate-900 rounded-2xl font-black text-[10px] uppercase  transition-all"
                                         >
                                             {updating ? "Đang xử lý..." : (
                                                 order.status === 'pending' ? "Chấp nhận đơn hàng" :
-                                                order.status === 'confirmed' ? "Bắt đầu xử lý kho" :
-                                                order.status === 'processing' ? "Giao cho vận chuyển" :
-                                                "Hoàn tất giao dịch"
+                                                    order.status === 'confirmed' ? "Bắt đầu xử lý kho" :
+                                                        order.status === 'processing' ? "Giao cho vận chuyển" :
+                                                            "Hoàn tất giao dịch"
                                             )}
                                         </Button>
                                     </div>
@@ -398,8 +398,8 @@ const OrderDetailPage = () => {
                                         <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                                             <CheckCircle2 size={24} />
                                         </div>
-                                        <h4 className="text-sm font-bold text-emerald-900 uppercase tracking-tighter">Giao dịch thành công</h4>
-                                        <p className="text-[10px] text-emerald-600/70">Đơn hàng này đã được khép lại và ghi nhận doanh thu.</p>
+                                        <h4 className="text-md font-bold text-emerald-900 uppercase">Giao dịch thành công</h4>
+                                        <p className="text-[12px] text-emerald-600/70">Đơn hàng này đã được khép lại và ghi nhận doanh thu.</p>
                                     </div>
                                 )}
 
@@ -411,11 +411,11 @@ const OrderDetailPage = () => {
                                                 <CreditCard size={16} className="text-amber-600" />
                                             </div>
                                             <div>
-                                                <p className="text-[11px] font-black text-amber-900 uppercase tracking-widest">
+                                                <p className="text-[11px] font-black text-amber-900 uppercase ">
                                                     {order.payment_method === 'cod' ? 'Chờ thu tiền COD' : 'Chờ xác nhận chuyển khoản'}
                                                 </p>
                                                 <p className="text-[10px] text-amber-600/70 mt-0.5">
-                                                    {order.payment_method === 'cod' 
+                                                    {order.payment_method === 'cod'
                                                         ? 'Xác nhận khi nhân viên giao hàng đã thu tiền mặt từ khách.'
                                                         : 'Xác nhận khi bạn nhận được tiền chuyển khoản từ khách.'}
                                                 </p>
@@ -424,7 +424,7 @@ const OrderDetailPage = () => {
                                         <Button
                                             onClick={handleMarkAsPaid}
                                             disabled={updating}
-                                            className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm shadow-amber-500/30"
+                                            className="w-full h-11 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black text-[10px] uppercase  transition-all shadow-sm shadow-amber-500/30"
                                         >
                                             {updating ? "Đang xử lý..." : (order.payment_method === 'cod' ? "✓ Đã thu tiền COD" : "✓ Đã nhận chuyển khoản")}
                                         </Button>
@@ -443,11 +443,11 @@ const OrderDetailPage = () => {
                                 <div className="space-y-4">
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-center px-1">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lưu ý nội bộ</span>
-                                            <span className="text-[9px] font-bold text-slate-300 italic">Chỉ quản trị viên thấy</span>
+                                            <span className="text-[10px] font-black text-slate-600 uppercase ">Lưu ý nội bộ</span>
+                                            <span className="text-[12px] font-bold text-slate-600 italic">Chỉ quản trị viên thấy</span>
                                         </div>
                                         <textarea
-                                            className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-600 focus:border-slate-900/30 focus:bg-slate-50/30 outline-none transition-all placeholder:text-slate-300 min-h-[100px] shadow-sm leading-relaxed"
+                                            className="w-full bg-white border border-slate-200 rounded-2xl p-4 text-xs font-bold text-slate-600 focus:border-slate-900/30 focus:bg-slate-50/30 outline-none transition-all placeholder:text-slate-600 min-h-[100px] shadow-sm leading-relaxed"
                                             placeholder="Ghi chú về tình trạng đóng gói, mã vận đơn hoặc lý do thay đổi..."
                                             value={note}
                                             onChange={(e) => setNote(e.target.value)}
@@ -459,7 +459,7 @@ const OrderDetailPage = () => {
                                             variant="ghost"
                                             onClick={() => handleUpdateStatus('cancelled')}
                                             disabled={updating}
-                                            className="w-full h-10 text-rose-500 hover:bg-rose-50 rounded-2xl font-bold text-[10px] uppercase tracking-widest group"
+                                            className="w-full h-10 text-rose-500 hover:bg-rose-50 rounded-2xl font-bold text-[10px] uppercase  group"
                                         >
                                             <XCircle size={14} className="mr-2 transition-transform group-hover:scale-110" /> Hủy giao dịch này
                                         </Button>

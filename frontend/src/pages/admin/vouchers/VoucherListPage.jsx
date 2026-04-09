@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Tag, RefreshCw, Activity, CheckCircle2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import AdminHeader from '../../../components/admin/Common/AdminHeader';
-import StatsGrid from '../../../components/admin/Common/StatsGrid';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import VoucherTable from '../../../components/admin/Voucher/VoucherTable';
 import VoucherFormModal from '../../../components/admin/Voucher/VoucherFormModal';
@@ -99,28 +98,6 @@ const VoucherListPage = () => {
 
     const isExpired = (endDate) => endDate && new Date(endDate) < new Date();
 
-    const statCards = [
-        {
-            label: 'Tổng voucher', icon: Tag, value: vouchers.length,
-            color: 'text-white', bg: 'bg-amber-600',
-            dot: 'bg-white', trend: '↑ 2 mã mới', trendColor: 'text-amber-100',
-            hist: [10, 12, 11, 14, 15, 18, vouchers.length], chartColor: '#FEF3C7'
-        },
-        {
-            label: 'Đang hiệu lực', icon: Activity, value: vouchers.filter(v => !isExpired(v.end_date)).length,
-            color: 'text-slate-900', bg: 'bg-white',
-            dot: 'bg-emerald-500', trend: '↑ 5.2%', trendColor: 'text-emerald-600',
-            hist: [5, 8, 7, 10, 9, 12, vouchers.filter(v => !isExpired(v.end_date)).length], chartColor: '#10B981',
-            pulse: true
-        },
-        {
-            label: 'Đã hết hạn', icon: CheckCircle2, value: vouchers.filter(v => isExpired(v.end_date)).length,
-            color: 'text-slate-900', bg: 'bg-white',
-            dot: 'bg-rose-500', trend: '↓ 12% so với tuần trước', trendColor: 'text-rose-600',
-            hist: [2, 4, 3, 5, 4, 6, vouchers.filter(v => isExpired(v.end_date)).length], chartColor: '#F43F5E'
-        }
-    ];
-
     return (
         <div className="space-y-6 pb-10 font-roboto">
             <AdminHeader
@@ -132,8 +109,6 @@ const VoucherListPage = () => {
                     </Button>
                 }
             />
-
-            <StatsGrid stats={statCards} />
 
             <SearchBanner
                 searchTerm={searchTerm}

@@ -27,7 +27,7 @@ const ChangePasswordTab = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         if (formData.newPassword !== formData.confirmPassword) {
             toast.error('Mật khẩu mới không khớp');
             return;
@@ -59,97 +59,115 @@ const ChangePasswordTab = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="text-center mb-10">
-                <div className="w-16 h-16 bg-amber-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-amber-500/20">
-                    <ShieldCheck className="w-8 h-8 text-amber-600 dark:text-amber-500" />
+        <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
+            {/* Security Narrative Header */}
+            <div className="text-center space-y-2 mb-10">
+                <div className="w-16 h-16 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <ShieldCheck className="w-8 h-8" />
                 </div>
-                <h2 className="text-2xl font-serif font-medium text-zinc-900 dark:text-white mb-2">Bảo mật tài khoản</h2>
-                <p className="text-zinc-500 dark:text-zinc-400 font-light text-sm">Cập nhật mật khẩu thường xuyên giúp bảo vệ tài khoản của bạn tốt hơn.</p>
+                <span className="text-[12px] font-black  text-amber-600 dark:text-amber-500 uppercase">Vault Security</span>
+                <h2 className="text-2xl md:text-3xl font-serif font-light text-zinc-900 dark:text-white ">Bảo Mật <span className="italic text-zinc-600">Tài Khoản</span></h2>
+                <div className="h-px w-12 bg-zinc-100 dark:bg-zinc-800 mx-auto mt-2"></div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Mật khẩu hiện tại</label>
-                    <div className="relative">
-                        <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-                        <input
-                            type={showPasswords.old ? 'text' : 'password'}
-                            name="oldPassword"
-                            value={formData.oldPassword}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl py-3 pl-12 pr-12 text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all shadow-sm dark:shadow-none"
-                            placeholder="Nhập mật khẩu hiện tại"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => togglePasswordVisibility('old')}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-600 dark:hover:text-zinc-400 p-1"
-                        >
-                            {showPasswords.old ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
+            <form onSubmit={handleSubmit} className="space-y-8">
+                <div className="space-y-6">
+                    {/* Old Password */}
+                    <div className="space-y-2">
+                        <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700">
+                            Mật khẩu hiện tại
+                        </label>
+                        <div className="relative group">
+                            <KeyRound className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 dark:text-zinc-700 group-focus-within:text-amber-500 transition-colors" />
+                            <input
+                                type={showPasswords.old ? 'text' : 'password'}
+                                name="oldPassword"
+                                value={formData.oldPassword}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 pl-7 pr-12 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-400"
+                                placeholder="Nhập mật khẩu hiện tại"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => togglePasswordVisibility('old')}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-700 dark:hover:text-white p-2 transition-colors"
+                            >
+                                {showPasswords.old ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
+                        {/* New Password */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-black uppercase  text-zinc-600 dark:text-zinc-700">
+                                Mật khẩu mới
+                            </label>
+                            <div className="relative group">
+                                <KeyRound className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 dark:text-zinc-700 group-focus-within:text-amber-500 transition-colors" />
+                                <input
+                                    type={showPasswords.new ? 'text' : 'password'}
+                                    name="newPassword"
+                                    value={formData.newPassword}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 pl-7 pr-12 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-400"
+                                    placeholder="Nhập mật khẩu mới"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => togglePasswordVisibility('new')}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-700 dark:hover:text-white p-2 transition-colors"
+                                >
+                                    {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Confirm Password */}
+                        <div className="space-y-2">
+                            <label className="text-[12px] font-black uppercase  text-zinc-800 dark:text-zinc-700">
+                                Xác nhận mật khẩu mới
+                            </label>
+                            <div className="relative group">
+                                <KeyRound className="absolute left-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 dark:text-zinc-700 group-focus-within:text-amber-500 transition-colors" />
+                                <input
+                                    type={showPasswords.confirm ? 'text' : 'password'}
+                                    name="confirmPassword"
+                                    value={formData.confirmPassword}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full bg-transparent border-b border-zinc-200 dark:border-zinc-800 py-3 pl-7 pr-12 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500 transition-all placeholder:text-zinc-400"
+                                    placeholder="Nhập lại mật khẩu mới"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => togglePasswordVisibility('confirm')}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-900 dark:text-zinc-700 dark:hover:text-white p-2 transition-colors"
+                                >
+                                    {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Mật khẩu mới</label>
-                    <div className="relative">
-                        <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-                        <input
-                            type={showPasswords.new ? 'text' : 'password'}
-                            name="newPassword"
-                            value={formData.newPassword}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl py-3 pl-12 pr-12 text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all shadow-sm dark:shadow-none"
-                            placeholder="Nhập mật khẩu mới"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => togglePasswordVisibility('new')}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-600 dark:hover:text-zinc-400 p-1"
-                        >
-                            {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                    </div>
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 ml-1">Xác nhận mật khẩu mới</label>
-                    <div className="relative">
-                        <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400 dark:text-zinc-500" />
-                        <input
-                            type={showPasswords.confirm ? 'text' : 'password'}
-                            name="confirmPassword"
-                            value={formData.confirmPassword}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl py-3 pl-12 pr-12 text-zinc-900 dark:text-white focus:outline-none focus:border-amber-500/50 transition-all shadow-sm dark:shadow-none"
-                            placeholder="Xác nhận mật khẩu mới"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => togglePasswordVisibility('confirm')}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:text-zinc-600 dark:hover:text-zinc-400 p-1"
-                        >
-                            {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                    </div>
-                </div>
-
-                <div className="pt-4">
+                <div className="pt-6 border-t border-zinc-50 dark:border-zinc-800/60 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <p className="text-[12px] text-zinc-600 font-light italic text-center md:text-left">
+                        Mật khẩu phức tạp nâng cao tính bảo mật.
+                    </p>
                     <button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center justify-center gap-2 w-full px-10 py-3.5 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-800 disabled:cursor-not-allowed text-white rounded-xl font-bold uppercase text-xs tracking-widest transition-all shadow-lg shadow-amber-600/20 active:scale-[0.98]"
+                        className="w-full md:w-auto px-10 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-sm hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white transition-all font-black text-[12px] uppercase  shadow-xl disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         {loading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                         ) : (
                             <>
-                                <Save className="w-4 h-4" />
-                                Cập nhật mật khẩu
+                                <Save className="w-3.5 h-3.5" />
+                                Đổi mật khẩu
                             </>
                         )}
                     </button>

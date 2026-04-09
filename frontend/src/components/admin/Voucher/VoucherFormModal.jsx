@@ -52,7 +52,7 @@ const VoucherFormModal = ({
                             <Input
                                 value={form.code}
                                 onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
-                                placeholder="VD: SUMMER2025"
+                                placeholder="VD: CHRONOS"
                                 className="h-12 rounded-xl bg-white border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 text-slate-800 shadow-sm transition-all duration-300"
                                 required
                             />

@@ -7,8 +7,8 @@ const Dialog = ({ open, onOpenChange, children }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div 
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
+      <div
+        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
         onClick={() => onOpenChange?.(false)}
       />
       <div className="relative z-50 w-full animate-in fade-in zoom-in duration-200">
@@ -21,7 +21,7 @@ const Dialog = ({ open, onOpenChange, children }) => {
 const DialogContent = ({ className, children, ...props }) => (
   <div
     className={cn(
-      "mx-auto max-w-lg bg-white shadow-2xl rounded-[2.5rem] overflow-hidden border border-slate-100",
+      "mx-auto max-w-lg bg-white shadow-2xl overflow-hidden border border-slate-100",
       className
     )}
     {...props}
@@ -47,7 +47,7 @@ const DialogFooter = ({ className, ...props }) => (
 const DialogTitle = React.forwardRef(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("text-lg font-semibold leading-none", className)}
     {...props}
   />
 ))

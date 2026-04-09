@@ -58,10 +58,12 @@ const DashboardPage = () => {
     return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
   };
   const trendColor = (current, previous, reverse = false) => {
-    if (!previous || previous === 0) return 'text-slate-400';
+    if (!previous || previous === 0) return "bg-slate-100 text-slate-400 border-slate-200/50";
     const up = current >= previous;
-    if (reverse) return up ? 'text-rose-500' : 'text-emerald-500';
-    return up ? 'text-emerald-500' : 'text-rose-500';
+    const isPositive = reverse ? !up : up;
+    return isPositive
+      ? "bg-emerald-500 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+      : "bg-rose-500 text-white border-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.4)]";
   };
 
   const statCards = [
@@ -111,15 +113,15 @@ const DashboardPage = () => {
       chartColor: "#10B981",
     },
     {
-      label: "Tổng khách hàng",
-      value: stats?.total_users || 0,
+      label: "Khách hàng mới",
+      value: stats?.users_this_month || 0,
       icon: Users,
-      trend: computeTrend(stats?.total_users, stats?.last_month_users),
-      trendColor: trendColor(stats?.total_users, stats?.last_month_users),
+      trend: computeTrend(stats?.users_this_month, stats?.users_last_month),
+      trendColor: trendColor(stats?.users_this_month, stats?.users_last_month),
       color: "text-white",
       bg: "bg-amber-600",
       dot: "bg-white",
-      hist: [stats?.last_month_users * 0.7, stats?.last_month_users * 0.85, stats?.last_month_users, stats?.total_users * 0.8, stats?.total_users * 0.95, stats?.total_users || 0],
+      hist: [stats?.users_last_month * 0.7, stats?.users_last_month * 0.85, stats?.users_last_month, stats?.users_this_month * 0.8, stats?.users_this_month * 0.95, stats?.users_this_month || 0],
       chartColor: "#FEF3C7",
     },
   ];

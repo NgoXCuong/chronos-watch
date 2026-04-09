@@ -86,6 +86,28 @@ const adminController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+
+    updateUserStatus: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const user = await adminService.updateUserStatus(id, status);
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    },
+
+    updateUserRole: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const { role } = req.body;
+            const user = await adminService.updateUserRole(id, role);
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 

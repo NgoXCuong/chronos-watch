@@ -28,6 +28,14 @@ const authApi = {
     changePassword: async (passwordData) => {
         const { data } = await api.put("/auth/change-password", passwordData);
         return data;
+    },
+    forgotPassword: async (email) => {
+        const { data } = await api.post("/auth/forgot-password", { email });
+        return data;
+    },
+    resetPassword: async (token, newPassword) => {
+        const { data } = await api.post("/auth/reset-password", { token, newPassword });
+        return data;
     }
 };
 
