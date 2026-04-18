@@ -1,10 +1,25 @@
+import { Op } from "sequelize";
 import Brand from "../models/brand.model.js";
 
 const brandService = {
     getAll: async (query = {}) => {
+        const { search, all } = query;
         const where = {};
-        if (!query.all) where.is_active = true;
-        return await Brand.findAll({ where });
+        if (!all) where.is_active = true;
+        if (search) {
+            where.name = { [Op.like]: `%${search}%` };
+        }
+        
+        const page = parseInt(query.page) || 1;
+        const limit = parseInt(query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        return await Brand.findAndCountAll({ 
+            where,
+            limit,
+            offset,
+            order: [['name', 'ASC']]
+        });
     },
 
     getDetail: async (id_or_slug) => {

@@ -4,6 +4,7 @@ import { Button } from '../../../components/ui/button';
 import AdminHeader from '../../../components/admin/Common/AdminHeader';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import VoucherTable from '../../../components/admin/Voucher/VoucherTable';
+import AdminPagination from '../../../components/admin/Common/AdminPagination';
 import VoucherFormModal from '../../../components/admin/Voucher/VoucherFormModal';
 import voucherApi from '../../../api/voucher.api';
 import { toast } from 'sonner';
@@ -21,14 +22,22 @@ const VoucherListPage = () => {
     const [form, setForm] = useState(EMPTY_FORM);
     const [saving, setSaving] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const limit = 10;
 
     const formatCurrency = (amt) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amt || 0);
 
     const fetchVouchers = async () => {
         setLoading(true);
         try {
-            const data = await voucherApi.getAll();
-            setVouchers(Array.isArray(data) ? data : []);
+            const data = await voucherApi.getAll({ 
+                search: searchTerm, 
+                page: currentPage, 
+                limit: limit 
+            });
+            setVouchers(data.rows || []);
+            setTotalCount(data.count || 0);
         } catch {
             toast.error('Không thể tải mã giảm giá');
         } finally {
@@ -36,7 +45,14 @@ const VoucherListPage = () => {
         }
     };
 
-    useEffect(() => { fetchVouchers(); }, []);
+    useEffect(() => { 
+        setCurrentPage(1); 
+        fetchVouchers(); 
+    }, [searchTerm]);
+
+    useEffect(() => { 
+        fetchVouchers(); 
+    }, [currentPage]);
 
     const openCreate = () => { setEditingVoucher(null); setForm(EMPTY_FORM); setModalOpen(true); };
     const openEdit = (v) => {
@@ -116,7 +132,7 @@ const VoucherListPage = () => {
                 placeholder="Tìm kiếm mã voucher..."
                 onRefresh={fetchVouchers}
                 loading={loading}
-                count={vouchers.length}
+                count={totalCount}
                 countLabel="Hiện có"
             />
 
@@ -128,6 +144,13 @@ const VoucherListPage = () => {
                 isExpired={isExpired}
                 onEdit={openEdit}
                 onDelete={handleDelete}
+                pagination={{
+                    currentPage: currentPage,
+                    totalPages: Math.ceil(totalCount / limit),
+                    totalCount: totalCount,
+                    countLabel: "voucher",
+                    onPageChange: (page) => setCurrentPage(page)
+                }}
             />
 
             <VoucherFormModal

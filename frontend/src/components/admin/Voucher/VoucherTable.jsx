@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tag, Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../ui/button';
+import AdminPagination from '../Common/AdminPagination';
 
 const VoucherTable = ({
     vouchers,
@@ -9,11 +10,9 @@ const VoucherTable = ({
     formatCurrency,
     isExpired,
     onEdit,
-    onDelete
+    onDelete,
+    pagination
 }) => {
-    const filteredVouchers = vouchers.filter(v =>
-        v.code.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
@@ -38,14 +37,14 @@ const VoucherTable = ({
                                 </td>
                             </tr>
                         )}
-                        {!loading && filteredVouchers.length === 0 && (
+                        {!loading && vouchers.length === 0 && (
                             <tr>
                                 <td colSpan={7} className="py-8 text-center text-slate-400 text-sm">
                                     {searchTerm ? "Không tìm thấy mã giảm giá nào phù hợp" : "Chưa có mã giảm giá nào"}
                                 </td>
                             </tr>
                         )}
-                        {filteredVouchers.map(v => {
+                        {vouchers.map(v => {
                             const expired = isExpired(v.end_date);
                             return (
                                 <tr key={v.id} className={`hover:bg-slate-50/50 transition-colors ${expired ? 'opacity-60' : ''}`}>
@@ -89,6 +88,9 @@ const VoucherTable = ({
                     </tbody>
                 </table>
             </div>
+            {pagination && (
+                <AdminPagination {...pagination} />
+            )}
         </div>
     );
 };

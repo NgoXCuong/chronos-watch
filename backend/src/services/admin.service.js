@@ -79,17 +79,20 @@ const adminService = {
         });
 
         // 4. Sản phẩm bán chạy & Sắp hết hàng
-        const [topProducts, lowStockProducts] = await Promise.all([
+        const [topProducts, lowStockProducts, lowStockCount] = await Promise.all([
             Product.findAll({
                 where: { status: 'active' },
                 order: [['sold_count', 'DESC']],
-                limit: 5,
+                limit: 3,
                 attributes: ['id', 'name', 'image_url', 'sold_count', 'stock']
             }),
             Product.findAll({
                 where: { stock: { [Op.lte]: 10 } },
-                limit: 5,
+                limit: 3,
                 attributes: ['id', 'name', 'stock', 'image_url']
+            }),
+            Product.count({
+                where: { stock: { [Op.lte]: 10 } }
             })
         ]);
 
@@ -127,19 +130,51 @@ const adminService = {
             revenue_history: revenueHistory,
             top_selling_products: topProducts,
             low_stock_products: lowStockProducts,
+            low_stock_count: lowStockCount,
             recent_orders: recentOrders
         };
     },
 
-    getAllUsers: async () => {
-        return await User.findAll({
+    getAllUsers: async (query = {}) => {
+        const { search } = query;
+        const where = {};
+        if (search) {
+            where[Op.or] = [
+                { username: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+                { full_name: { [Op.like]: `%${search}%` } }
+            ];
+        }
+
+        const page = parseInt(query.page) || 1;
+        const limit = parseInt(query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        return await User.findAndCountAll({
+            where,
             attributes: ['id', 'username', 'email', 'full_name', 'avatar_url', 'role', 'status', 'created_at'],
-            order: [['created_at', 'DESC']]
+            order: [['created_at', 'DESC']],
+            limit,
+            offset
         });
     },
 
-    getAllOrders: async () => {
-        return await Order.findAll({
+    getAllOrders: async (query = {}) => {
+        const { search, status } = query;
+        const where = {};
+        if (search) {
+            where.id = { [Op.like]: `%${search}%` };
+        }
+        if (status) {
+            where.status = status;
+        }
+
+        const page = parseInt(query.page) || 1;
+        const limit = parseInt(query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        return await Order.findAndCountAll({
+            where,
             include: [
                 {
                     model: User,
@@ -147,7 +182,9 @@ const adminService = {
                     attributes: ['username', 'email']
                 }
             ],
-            order: [['created_at', 'DESC']]
+            order: [['created_at', 'DESC']],
+            limit,
+            offset
         });
     },
 

@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 
+import { sendResetPasswordEmail } from "../utils/mail.js";
+
 const authService = {
     register: async (userData) => {
         const { username, email, password, full_name, phone } = userData;
@@ -86,6 +88,10 @@ const authService = {
         user.reset_password_token = resetToken;
         user.reset_password_expires = Date.now() + 3600000; // 1h
         await user.save();
+
+        // Gửi email thật
+        await sendResetPasswordEmail(email, resetToken);
+
         return resetToken;
     },
 
@@ -110,7 +116,7 @@ const authService = {
         if (!user) throw new Error('Người dùng không tồn tại');
 
         const { full_name, phone, address, avatar_url } = updateData;
-        
+
         if (full_name) user.full_name = full_name;
         if (phone) user.phone = phone;
         if (avatar_url) user.avatar_url = avatar_url;

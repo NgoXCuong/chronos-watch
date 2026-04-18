@@ -12,7 +12,7 @@ const adminController = {
 
     getAllUsers: async (req, res) => {
         try {
-            const users = await adminService.getAllUsers();
+            const users = await adminService.getAllUsers(req.query);
             res.json(users);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -21,7 +21,7 @@ const adminController = {
 
     getAllOrders: async (req, res) => {
         try {
-            const orders = await adminService.getAllOrders();
+            const orders = await adminService.getAllOrders(req.query);
             res.json(orders);
         } catch (error) {
             res.status(500).json({ message: error.message });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import { Button } from '../../ui/button';
+import AdminPagination from '../Common/AdminPagination';
 
 const ProductTable = ({
     products,
@@ -11,7 +12,8 @@ const ProductTable = ({
     isAllSelected,
     formatCurrency,
     onEdit,
-    onDelete
+    onDelete,
+    pagination
 }) => {
     return (
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
@@ -117,6 +119,9 @@ const ProductTable = ({
                     </tbody>
                 </table>
             </div>
+            {pagination && (
+                <AdminPagination {...pagination} />
+            )}
         </div>
     );
 };

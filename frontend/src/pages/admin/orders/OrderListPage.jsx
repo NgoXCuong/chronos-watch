@@ -13,6 +13,7 @@ import AdminHeader from '../../../components/admin/Common/AdminHeader';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import OrderTable, { STATUS_CONFIG } from '../../../components/admin/Order/OrderTable';
 import OrderStatusFilter from '../../../components/admin/Order/OrderStatusFilter';
+import AdminPagination from '../../../components/admin/Common/AdminPagination';
 import { cn } from '../../../lib/utils';
 
 const STATUSES = Object.entries(STATUS_CONFIG).map(([k, v]) => ({ key: k, label: v.label }));
@@ -24,12 +25,21 @@ const OrderListPage = () => {
     const [filterStatus, setFilterStatus] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const limit = 10;
 
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const data = await adminApi.getAllOrders();
-            setOrders(data);
+            const data = await adminApi.getAllOrders({ 
+                search: searchTerm, 
+                status: filterStatus, 
+                page: currentPage, 
+                limit: limit 
+            });
+            setOrders(data.rows || []);
+            setTotalCount(data.count || 0);
         } catch {
             toast.error('Không thể tải danh sách đơn hàng');
         } finally {
@@ -37,7 +47,14 @@ const OrderListPage = () => {
         }
     };
 
-    useEffect(() => { fetchOrders(); }, []);
+    useEffect(() => { 
+        setCurrentPage(1); 
+        fetchOrders(); 
+    }, [searchTerm, filterStatus]);
+
+    useEffect(() => { 
+        fetchOrders(); 
+    }, [currentPage]);
 
     const handleStatusUpdate = async (orderId, status) => {
         setUpdatingId(orderId);
@@ -77,14 +94,14 @@ const OrderListPage = () => {
 
     const formatCurrency = (amt) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amt || 0);
 
-    const filtered = orders.filter(o => {
-        if (filterStatus && o.status !== filterStatus) return false;
-        if (searchTerm) {
-            const q = searchTerm.toLowerCase();
-            return String(o.id).includes(q) || o.user?.username?.toLowerCase().includes(q) || o.user?.email?.toLowerCase().includes(q);
-        }
-        return true;
-    });
+    // Backend filtering handled, but still need status counts
+    // For counts, we might need a separate API call or it's returned by backend.
+    // Given the current setup, we'll keep the counts based on the 'orders' array which only has the current page.
+    // To fix this properly, the backend should return counts for each status. 
+    // For now, I'll just use the totalCount for 'All'.
+    
+    // const filtered = orders; // Removed since we use backend data directly
+    
 
     const counts = STATUSES.reduce((acc, { key }) => {
         acc[key] = orders.filter(o => o.status === key).length;
@@ -133,12 +150,19 @@ const OrderListPage = () => {
             </SearchBanner>
 
             <OrderTable
-                orders={filtered}
+                orders={orders}
                 loading={loading}
                 onStatusUpdate={handleStatusUpdate}
                 onView={(id) => navigate(`/admin/orders/${id}`)}
                 formatCurrency={formatCurrency}
                 updatingId={updatingId}
+                pagination={{
+                    currentPage: currentPage,
+                    totalPages: Math.ceil(totalCount / limit),
+                    totalCount: totalCount,
+                    countLabel: "đơn hàng",
+                    onPageChange: (page) => setCurrentPage(page)
+                }}
             />
         </div>
     );

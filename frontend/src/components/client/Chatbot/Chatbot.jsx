@@ -66,7 +66,7 @@ const Chatbot = () => {
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
-                <div className={`mb-4 w-[350px] sm:w-[400px] h-[550px] max-h-[80vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300 border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
+                <div className={`mb-4 w-[300px] sm:w-[350px] h-[550px] max-h-[80vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300 border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
 
                     {/* Header */}
                     <div className="h-16 flex items-center justify-between px-5 bg-black text-white shrink-0">
@@ -82,7 +82,7 @@ const Chatbot = () => {
                         </div>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white/80 hover:text-white"
+                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white hover:text-red-500"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -102,7 +102,7 @@ const Chatbot = () => {
                                     </div>
                                 )}
 
-                                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${msg.role === 'user'
+                                <div className={`max-w-[70%] rounded-[15px] px-4 py-3 text-sm ${msg.role === 'user'
                                     ? 'bg-amber-600 text-white rounded-tr-sm'
                                     : `${isDark ? 'bg-zinc-900 text-zinc-300 border border-zinc-800' : 'bg-white text-zinc-700 border border-zinc-200 shadow-sm'} rounded-tl-sm`
                                     }`}>
@@ -155,7 +155,7 @@ const Chatbot = () => {
                     </div>
 
                     {/* Input Area */}
-                    <div className={`p-4 ${isDark ? 'bg-zinc-900 border-t border-zinc-800' : 'bg-white border-t border-zinc-200'}`}>
+                    <div className={`p-2 ${isDark ? 'bg-zinc-900 border-t border-zinc-800' : 'bg-white border-t border-zinc-200'}`}>
                         <form onSubmit={handleSend} className="relative flex items-end gap-2">
                             <textarea
                                 value={input}
@@ -173,9 +173,9 @@ const Chatbot = () => {
                                 <Send className="w-5 h-5" />
                             </button>
                         </form>
-                        <p className={`text-[10px] text-center mt-3 font-medium ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                        {/* <p className={`text-[10px] text-center mt-3 font-medium ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
                             Trợ lý AI có thể cung cấp thông tin chưa chính xác.
-                        </p>
+                        </p> */}
                     </div>
                 </div>
             )}

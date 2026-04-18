@@ -18,6 +18,7 @@ import {
 } from "../../ui/dropdown-menu";
 import { Button, buttonVariants } from "../../ui/button";
 import { cn } from "../../../lib/utils";
+import AdminPagination from "../Common/AdminPagination";
 
 const STATUS_CONFIG = {
   pending: {
@@ -97,6 +98,7 @@ const OrderTable = ({
   onView,
   formatCurrency,
   updatingId,
+  pagination,
 }) => {
   return (
     <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
@@ -254,12 +256,8 @@ const OrderTable = ({
           </tbody>
         </table>
       </div>
-      {!loading && orders.length > 0 && (
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-          <p className="text-[10px] font-bold text-slate-400 uppercase">
-            Tổng: <span className="ml-1">{orders.length} đơn hàng</span>
-          </p>
-        </div>
+      {pagination && (
+        <AdminPagination {...pagination} />
       )}
     </div>
   );

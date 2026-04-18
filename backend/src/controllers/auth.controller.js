@@ -80,9 +80,8 @@ const authController = {
 
     forgotPassword: async (req, res) => {
         try {
-            const token = await authService.forgotPassword(req.body.email);
-            // Trong thực tế, bạn sẽ gửi email cho người dùng ở đây
-            res.json({ message: "Link đặt lại mật khẩu đã được gửi qua email!", token });
+            await authService.forgotPassword(req.body.email);
+            res.json({ message: "Link đặt lại mật khẩu đã được gửi qua email!" });
         } catch (error) {
             res.status(400).json({ message: error.message });
         }

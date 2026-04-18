@@ -13,6 +13,7 @@ import AdminHeader from '../../../components/admin/Common/AdminHeader';
 import StatsGrid from '../../../components/admin/Common/StatsGrid';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import UserTable from '../../../components/admin/User/UserTable';
+import AdminPagination from '../../../components/admin/Common/AdminPagination';
 import adminApi from '../../../api/admin.api';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
@@ -21,12 +22,20 @@ const UserListPage = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const limit = 10;
 
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const data = await adminApi.getAllUsers();
-            setUsers(data);
+            const data = await adminApi.getAllUsers({ 
+                search: searchTerm, 
+                page: currentPage, 
+                limit: limit 
+            });
+            setUsers(data.rows || []);
+            setTotalCount(data.count || 0);
         } catch (error) {
             console.error("Lỗi lấy người dùng:", error);
             toast.error("Không thể tải danh sách thành viên");
@@ -35,9 +44,14 @@ const UserListPage = () => {
         }
     };
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    useEffect(() => { 
+        setCurrentPage(1); 
+        fetchUsers(); 
+    }, [searchTerm]);
+
+    useEffect(() => { 
+        fetchUsers(); 
+    }, [currentPage]);
 
     const handleExportExcel = () => {
         if (users.length === 0) {
@@ -62,11 +76,12 @@ const UserListPage = () => {
         toast.success("Đã xuất file Excel thành công!");
     };
 
-    const filteredUsers = users.filter(u =>
-        u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Backend filtering handled
+    // const filteredUsers = users.filter(u =>
+    //     u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     u.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
 
     const handleUpdateStatus = async (id, currentStatus) => {
         const newStatus = currentStatus === 'active' ? 'banned' : 'active';
@@ -189,15 +204,22 @@ const UserListPage = () => {
                 placeholder="Tìm kiếm thành viên..."
                 onRefresh={fetchUsers}
                 loading={loading}
-                count={filteredUsers.length}
+                count={totalCount}
                 countLabel="Hiện có"
             />
 
             <UserTable
-                users={filteredUsers}
+                users={users}
                 loading={loading}
                 onUpdateStatus={handleUpdateStatus}
                 onUpdateRole={handleUpdateRole}
+                pagination={{
+                    currentPage: currentPage,
+                    totalPages: Math.ceil(totalCount / limit),
+                    totalCount: totalCount,
+                    countLabel: "thành viên",
+                    onPageChange: (page) => setCurrentPage(page)
+                }}
             />
         </div>
     );

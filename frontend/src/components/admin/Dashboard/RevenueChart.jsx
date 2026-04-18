@@ -46,7 +46,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const RevenueChart = () => {
   const now = new Date();
-  const defaultStart = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+  const defaultStart = new Date();
+  defaultStart.setDate(now.getDate() - 30);
 
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);

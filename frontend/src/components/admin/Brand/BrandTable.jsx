@@ -1,13 +1,15 @@
 import React from 'react';
 import { Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Button } from '../../ui/button';
+import AdminPagination from '../Common/AdminPagination';
 
 const BrandTable = ({
     brands,
     loading,
     onEdit,
     onDelete,
-    onToggle
+    onToggle,
+    pagination
 }) => {
     return (
         <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
@@ -77,9 +79,9 @@ const BrandTable = ({
                     </tbody>
                 </table>
             </div>
-            <div className="px-4 py-2.5 border-t border-slate-50 bg-slate-50/30">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Tổng: {brands.length} thương hiệu</p>
-            </div>
+            {pagination && (
+                <AdminPagination {...pagination} />
+            )}
         </div>
     );
 };

@@ -6,7 +6,7 @@ import AdminHeader from "../../components/admin/Common/AdminHeader";
 import StatsGrid from "../../components/admin/Common/StatsGrid";
 import RevenueChart from "../../components/admin/Dashboard/RevenueChart";
 import OrderStatusPie from "../../components/admin/Dashboard/OrderStatusPie";
-import RecentOrders from "../../components/admin/Dashboard/RecentOrders";
+import TopSellingProducts from "../../components/admin/Dashboard/TopSellingProducts";
 import OperationBrief from "../../components/admin/Dashboard/OperationBrief";
 import { formatCurrency } from "../../utils/formatCurrency.js";
 
@@ -166,8 +166,8 @@ const DashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RecentOrders
-          orders={stats?.recent_orders}
+        <TopSellingProducts
+          products={stats?.top_selling_products}
           navigate={navigate}
           formatCurrency={formatCurrency}
         />

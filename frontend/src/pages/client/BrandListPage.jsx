@@ -27,7 +27,9 @@ const BrandListPage = () => {
         setLoading(true);
         try {
             const response = await brandApi.getAll();
-            setBrands(Array.isArray(response) ? response : response.data || []);
+            // Handle different response formats: { rows, count }, [ ... ], or { data: [...] }
+            const brandsData = response.rows || (Array.isArray(response) ? response : response.data || []);
+            setBrands(brandsData);
         } catch (error) {
             console.error('Lỗi lấy danh sách thương hiệu:', error);
             toast.error('Không thể tải danh sách thương hiệu');
@@ -38,7 +40,7 @@ const BrandListPage = () => {
 
     const filteredBrands = brands.filter(brand =>
         brand.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        brand.isActive !== false
+        brand.is_active !== false
     );
 
     if (loading) {

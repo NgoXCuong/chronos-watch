@@ -16,8 +16,9 @@ import {
 } from '../../ui/dropdown-menu';
 import { Button, buttonVariants } from '../../ui/button';
 import { cn } from '../../../lib/utils';
+import AdminPagination from '../Common/AdminPagination';
 
-const UserTable = ({ users, loading, onUpdateStatus, onUpdateRole }) => {
+const UserTable = ({ users, loading, onUpdateStatus, onUpdateRole, pagination }) => {
     return (
         <div className="bg-white rounded-md border border-slate-100 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -117,9 +118,9 @@ const UserTable = ({ users, loading, onUpdateStatus, onUpdateRole }) => {
                     </tbody>
                 </table>
             </div>
-            <div className="px-8 py-5 border-t border-slate-50 bg-slate-50/30">
-                <p className="text-[12px] text-slate-600 font-bold">Phân tích hồ sơ: {users.length} thành viên hiển thị</p>
-            </div>
+            {pagination && (
+                <AdminPagination {...pagination} />
+            )}
         </div>
     );
 };

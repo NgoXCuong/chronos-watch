@@ -8,6 +8,7 @@ import AdminHeader from '../../../components/admin/Common/AdminHeader';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import BrandTable from '../../../components/admin/Brand/BrandTable';
 import BrandFormModal from '../../../components/admin/Brand/BrandFormModal';
+import AdminPagination from '../../../components/admin/Common/AdminPagination';
 
 const EMPTY_FORM = { name: '', slug: '', description: '', country: '' };
 
@@ -21,13 +22,22 @@ const BrandListPage = () => {
     const [logoPreview, setLogoPreview] = useState(null);
     const [saving, setSaving] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const limit = 10;
     const fileRef = useRef();
 
     const fetchBrands = async () => {
         setLoading(true);
         try {
-            const data = await brandApi.getAll({ all: true });
-            setBrands(Array.isArray(data) ? data : []);
+            const data = await brandApi.getAll({ 
+                all: true, 
+                search: searchTerm, 
+                page: currentPage, 
+                limit: limit 
+            });
+            setBrands(data.rows || []);
+            setTotalCount(data.count || 0);
         } catch {
             toast.error('Không thể tải danh sách thương hiệu');
         } finally {
@@ -35,7 +45,14 @@ const BrandListPage = () => {
         }
     };
 
-    useEffect(() => { fetchBrands(); }, []);
+    useEffect(() => { 
+        setCurrentPage(1); 
+        fetchBrands(); 
+    }, [searchTerm]);
+
+    useEffect(() => { 
+        fetchBrands(); 
+    }, [currentPage]);
 
     const openCreate = () => {
         setEditingBrand(null);
@@ -98,7 +115,8 @@ const BrandListPage = () => {
         }
     };
 
-    const filtered = brands.filter(b => b.name?.toLowerCase().includes(searchTerm.toLowerCase()));
+    // Remove client-side filter since we use backend search
+    // const filtered = brands.filter(b => b.name?.toLowerCase().includes(searchTerm.toLowerCase()));
 
     return (
         <div className="space-y-6 pb-10 font-roboto">
@@ -118,16 +136,23 @@ const BrandListPage = () => {
                 placeholder="Tìm kiếm thương hiệu..."
                 onRefresh={fetchBrands}
                 loading={loading}
-                count={filtered.length}
+                count={totalCount}
                 countLabel="Thương hiệu"
             />
 
             <BrandTable
-                brands={filtered}
+                brands={brands}
                 loading={loading}
                 onEdit={openEdit}
                 onDelete={handleDelete}
                 onToggle={handleToggle}
+                pagination={{
+                    currentPage: currentPage,
+                    totalPages: Math.ceil(totalCount / limit),
+                    totalCount: totalCount,
+                    countLabel: "thương hiệu",
+                    onPageChange: (page) => setCurrentPage(page)
+                }}
             />
 
             <BrandFormModal

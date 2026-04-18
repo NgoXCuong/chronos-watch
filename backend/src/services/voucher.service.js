@@ -3,8 +3,23 @@ import { Op } from 'sequelize';
 
 const voucherService = {
     // Admin CRUD
-    getAll: async () => {
-        return await Voucher.findAll({ order: [['created_at', 'DESC']] });
+    getAll: async (query = {}) => {
+        const { search } = query;
+        const where = {};
+        if (search) {
+            where.code = { [Op.like]: `%${search}%` };
+        }
+
+        const page = parseInt(query.page) || 1;
+        const limit = parseInt(query.limit) || 10;
+        const offset = (page - 1) * limit;
+
+        return await Voucher.findAndCountAll({ 
+            where,
+            order: [['created_at', 'DESC']],
+            limit,
+            offset
+        });
     },
 
     getDetail: async (id) => {

@@ -117,7 +117,7 @@ const LoginForm = ({ variant = 'dark' }) => {
                     />
                     <span className={isLight ? "text-zinc-600" : "text-zinc-400"}>Ghi nhớ đăng nhập</span>
                 </label>
-                <Link to="/forgot-password" title="Chưa hỗ trợ" className="text-amber-600 hover:text-amber-700 font-medium transition-colors">
+                <Link to="/forgot-password" className="text-amber-600 hover:text-amber-700 font-medium transition-colors">
                     Quên mật khẩu?
                 </Link>
             </div>

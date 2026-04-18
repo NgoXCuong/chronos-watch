@@ -1,9 +1,13 @@
 import axios from './axios';
 
 const brandApi = {
-    getAll: async (params = {}) => {
-        const { data } = await axios.get('/brands', { params });
-        return data;
+    getAll: async (params) => {
+        try {
+            const response = await axios.get('/brands', { params });
+            return response.data;
+        } catch (error) {
+            throw error.response?.data || error.message;
+        }
     },
     getDetail: async (id) => {
         const { data } = await axios.get(`/brands/${id}`);

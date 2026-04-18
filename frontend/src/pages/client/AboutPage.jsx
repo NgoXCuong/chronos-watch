@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../context/ThemeContext';
+import herobanner from '../../assets/hero-banner-sp.avif'
 
 const AboutPage = () => {
     const { theme } = useTheme();
@@ -64,7 +65,7 @@ const AboutPage = () => {
                     <div className="md:col-span-5 relative group">
                         <div className="aspect-[6/7] overflow-hidden bg-zinc-100 dark:bg-zinc-900 rounded-sm">
                             <img
-                                src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=800"
+                                src={herobanner}
                                 alt="Watchmaking detailed craftsmanship"
                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                             />

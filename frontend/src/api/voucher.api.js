@@ -1,8 +1,8 @@
 import axios from './axios';
 
 const voucherApi = {
-    getAll: async () => {
-        const { data } = await axios.get('/vouchers');
+    getAll: async (params) => {
+        const { data } = await axios.get('/vouchers', { params });
         return data;
     },
     getDetail: async (id) => {

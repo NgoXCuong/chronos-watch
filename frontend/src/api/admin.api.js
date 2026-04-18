@@ -20,17 +20,17 @@ const adminApi = {
             throw error.response?.data || error.message;
         }
     },
-    getAllUsers: async () => {
+    getAllUsers: async (params) => {
         try {
-            const response = await axios.get('/admin/users');
+            const response = await axios.get('/admin/users', { params });
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;
         }
     },
-    getAllOrders: async () => {
+    getAllOrders: async (params) => {
         try {
-            const response = await axios.get('/admin/orders');
+            const response = await axios.get('/admin/orders', { params });
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;

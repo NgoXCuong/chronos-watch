@@ -4,7 +4,7 @@ const voucherController = {
     // Admin CRUD
     getAll: async (req, res) => {
         try {
-            const vouchers = await voucherService.getAll();
+            const vouchers = await voucherService.getAll(req.query);
             res.json(vouchers);
         } catch (error) {
             res.status(400).json({ message: error.message });

@@ -2,6 +2,8 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/client/auth/LoginPage';
 import RegisterPage from '../pages/client/auth/RegisterPage';
+import ForgotPasswordPage from '../pages/client/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/client/auth/ResetPasswordPage';
 import HomePage from '../pages/client/home/HomePage';
 import ClientProductListPage from '../pages/client/products/ClientProductListPage';
 import ProductDetailPage from '../pages/client/products/ProductDetailPage';
@@ -46,6 +48,8 @@ const AppRoutes = () => {
             {/* Public Routes - No Layout */}
             <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to={user?.role === 'admin' ? "/admin" : "/"} />} />
             <Route path="/register" element={!isAuthenticated ? <RegisterPage /> : <Navigate to={user?.role === 'admin' ? "/admin" : "/"} />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
             {/* Main Routes - With MainLayout */}
             <Route

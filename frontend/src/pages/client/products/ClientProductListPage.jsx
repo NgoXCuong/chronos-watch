@@ -36,8 +36,9 @@ const ClientProductListPage = () => {
             categoryApi.getAll(),
             brandApi.getAll()
         ]).then(([catData, brandData]) => {
-            setCategories(Array.isArray(catData) ? catData : (catData?.data || []));
-            setBrands(Array.isArray(brandData) ? brandData : (brandData?.data || []));
+            // Handle both {rows, count} and direct array responses
+            setCategories(catData?.rows || catData?.data || (Array.isArray(catData) ? catData : []));
+            setBrands(brandData?.rows || brandData?.data || (Array.isArray(brandData) ? brandData : []));
         }).catch(err => console.error("Filter Fetch Error:", err));
     }, []);
 
@@ -161,7 +162,7 @@ const ClientProductListPage = () => {
                                 </div>
                             </div>
 
-                            {/* Brands */}
+                            {/* Brands Dropdown */}
                             <div className={`pb-4 border-b ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
                                 <div className="flex items-center gap-3 mb-4">
                                     <div className={`p-2 rounded-lg ${isDark ? 'bg-amber-500/10 text-amber-500' : 'bg-amber-50/50 text-amber-600'}`}>
@@ -169,31 +170,26 @@ const ClientProductListPage = () => {
                                     </div>
                                     <h3 className={`text-[11px] uppercase font-bold ${isDark ? 'text-zinc-600' : 'text-zinc-700'}`}>Thương Hiệu</h3>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <button
-                                        onClick={() => updateFilter('brand', '')}
-                                        className={`px-3 py-2 text-center text-xs transition-all duration-300 rounded-md border truncate
-                                            ${!currentBrand
-                                                ? (isDark ? 'border-amber-500/50 bg-amber-500/10 text-amber-500' : 'border-amber-200 bg-amber-50 text-amber-700')
-                                                : (isDark ? 'border-white/5 text-zinc-700 hover:border-white/20 hover:text-zinc-300' : 'border-zinc-100 text-zinc-700 hover:border-zinc-200 hover:text-zinc-900')
+                                <div className="relative group">
+                                    <select
+                                        value={currentBrand}
+                                        onChange={(e) => updateFilter('brand', e.target.value)}
+                                        className={`w-full px-4 py-3 text-xs font-bold appearance-none transition-all duration-300 rounded-md border outline-none
+                                            ${isDark 
+                                                ? 'bg-zinc-900 border-white/10 text-zinc-300 focus:border-amber-500/50 focus:ring-4 focus:ring-amber-500/5' 
+                                                : 'bg-white border-zinc-100 text-zinc-700 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/5'
                                             }`}
                                     >
-                                        Tất cả
-                                    </button>
-                                    {brands.map(brand => (
-                                        <button
-                                            key={brand.id}
-                                            onClick={() => updateFilter('brand', brand.id)}
-                                            className={`px-3 py-2 text-center text-xs transition-all duration-300 rounded-md border truncate
-                                                ${currentBrand == brand.id
-                                                    ? (isDark ? 'border-amber-500/50 bg-amber-500/10 text-amber-500' : 'border-amber-200 bg-amber-50 text-amber-700')
-                                                    : (isDark ? 'border-white/5 text-zinc-700 hover:border-white/20 hover:text-zinc-300' : 'border-zinc-100 text-zinc-700 hover:border-zinc-200 hover:text-zinc-900')
-                                                }`}
-                                            title={brand.name}
-                                        >
-                                            {brand.name}
-                                        </button>
-                                    ))}
+                                        <option value="">Tất cả thương hiệu</option>
+                                        {brands.map(brand => (
+                                            <option key={brand.id} value={brand.id}>
+                                                {brand.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400 group-hover:text-amber-500 transition-colors">
+                                        <ChevronDown size={14} />
+                                    </div>
                                 </div>
                             </div>
 
@@ -349,7 +345,7 @@ const ClientProductListPage = () => {
                             </div>
                         </div>
 
-                        {/* Brands */}
+                        {/* Brands Dropdown */}
                         <div className={`pb-8 border-b ${isDark ? 'border-white/5' : 'border-zinc-100'}`}>
                             <div className="flex items-center gap-3 mb-6">
                                 <div className={`p-2 rounded-lg ${isDark ? 'bg-amber-500/10 text-amber-500' : 'bg-amber-50/50 text-amber-600'}`}>
@@ -357,31 +353,26 @@ const ClientProductListPage = () => {
                                 </div>
                                 <h3 className={`text-[11px] uppercase font-bold ${isDark ? 'text-zinc-600' : 'text-zinc-700'}`}>Thương Hiệu</h3>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <button
-                                    onClick={() => updateFilter('brand', '')}
-                                    className={`px-3 py-2 text-center text-xs transition-all duration-300 rounded-md border truncate
-                                        ${!currentBrand
-                                            ? (isDark ? 'border-amber-500/50 bg-amber-500/10 text-amber-500' : 'border-amber-200 bg-amber-50 text-amber-700')
-                                            : (isDark ? 'border-white/5 text-zinc-700 hover:border-white/20 hover:text-zinc-300' : 'border-zinc-100 text-zinc-700 hover:border-zinc-200 hover:text-zinc-900')
+                            <div className="relative group">
+                                <select
+                                    value={currentBrand}
+                                    onChange={(e) => updateFilter('brand', e.target.value)}
+                                    className={`w-full px-5 py-4 text-xs font-bold appearance-none transition-all duration-300 rounded-md border outline-none
+                                        ${isDark 
+                                            ? 'bg-zinc-800 border-white/5 text-zinc-300 focus:border-amber-500/50' 
+                                            : 'bg-zinc-50 border-zinc-100 text-zinc-700 focus:border-amber-500'
                                         }`}
                                 >
-                                    Tất cả
-                                </button>
-                                {brands.map(brand => (
-                                    <button
-                                        key={brand.id}
-                                        onClick={() => updateFilter('brand', brand.id)}
-                                        className={`px-3 py-2 text-center text-xs transition-all duration-300 rounded-md border truncate
-                                            ${currentBrand == brand.id
-                                                ? (isDark ? 'border-amber-500/50 bg-amber-500/10 text-amber-500' : 'border-amber-200 bg-amber-50 text-amber-700')
-                                                : (isDark ? 'border-white/5 text-zinc-700 hover:border-white/20 hover:text-zinc-300' : 'border-zinc-100 text-zinc-700 hover:border-zinc-200 hover:text-zinc-900')
-                                            }`}
-                                        title={brand.name}
-                                    >
-                                        {brand.name}
-                                    </button>
-                                ))}
+                                    <option value="">Tất cả thương hiệu</option>
+                                    {brands.map(brand => (
+                                        <option key={brand.id} value={brand.id}>
+                                            {brand.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
+                                    <ChevronDown size={14} />
+                                </div>
                             </div>
                         </div>
 

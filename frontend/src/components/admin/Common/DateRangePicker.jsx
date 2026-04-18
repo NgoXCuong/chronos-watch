@@ -14,7 +14,7 @@ const toInputDate = (d) => d.toISOString().split("T")[0];
 
 const DateRangePicker = ({ onChange, initialStart, initialEnd }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activePreset, setActivePreset] = useState("all_time");
+  const [activePreset, setActivePreset] = useState("30d");
   const [startDate, setStartDate] = useState(initialStart || "");
   const [endDate, setEndDate] = useState(initialEnd || "");
   const dropdownRef = useRef(null);
@@ -116,11 +116,10 @@ const DateRangePicker = ({ onChange, initialStart, initialEnd }) => {
               <button
                 key={p.id}
                 onClick={() => handlePresetSelect(p)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all group ${
-                  activePreset === p.id
-                    ? "bg-amber-100/50 text-amber-700"
-                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
-                }`}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all group ${activePreset === p.id
+                  ? "bg-amber-100/50 text-amber-700"
+                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                  }`}
               >
                 <span
                   className={`text-xs font-bold ${activePreset === p.id ? "font-black" : ""}`}
