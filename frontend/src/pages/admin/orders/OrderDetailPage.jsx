@@ -129,8 +129,8 @@ const OrderDetailPage = () => {
                 </div>
             </div>
 
-            {/* 2. Main Integrated Layout Container */}
-            <div className="bg-white border border-slate-100 rounded-[2rem] shadow-2xl shadow-slate-200/20 overflow-hidden min-h-[800px]">
+            {/* 2. Main Layout - Visible in UI, hidden in Print */}
+            <div className="bg-white border border-slate-100 rounded-[2rem] shadow-2xl shadow-slate-200/20 overflow-hidden min-h-[800px] print:hidden">
 
                 {/* 2.1 Top Metadata Bar (Seamless) */}
                 <div className="grid grid-cols-2 md:grid-cols-4 border-b border-slate-100">
@@ -472,23 +472,156 @@ const OrderDetailPage = () => {
                 </div>
             </div>
 
-            {/* Print Logic */}
+            {/* 3. Professional Invoice Template - ONLY VISIBLE IN PRINT */}
+            <div className="hidden print:block w-full max-w-[800px] mx-auto p-10 bg-white text-slate-900 font-sans">
+                {/* Invoice Header */}
+                <div className="flex justify-between items-start border-b-2 border-slate-900 pb-8">
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-black tracking-tighter text-slate-900 uppercase">CHRONOS WATCH</h1>
+                        <div className="text-[12px] font-medium text-slate-600 space-y-1">
+                            <p>Phan Tây Nhạc, Xuân Phương, Quận Nam Từ Liêm, Hà Nội</p>
+                            <p>Hotline: 1900 8888 66 | Email: contact@chronos.com</p>
+                            <p>Website: www.chronos-watch.com</p>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <h2 className="text-xl font-black uppercase text-slate-900">Hóa đơn bán hàng</h2>
+                        <div className="mt-2 text-[12px] font-bold space-y-1">
+                            <p>Mã đơn hàng: <span className="text-slate-900">#{order.id}</span></p>
+                            <p>Ngày lập: {new Date().toLocaleDateString('vi-VN')}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Information Section */}
+                <div className="grid grid-cols-2 gap-10 py-10 border-b border-slate-100">
+                    <div className="space-y-3">
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Thông tin khách hàng</h3>
+                        <div className="text-sm space-y-1">
+                            <p className="font-bold text-slate-900 uppercase">{order.full_name}</p>
+                            <p className="text-slate-600">{order.phone_number}</p>
+                            <p className="text-slate-600 leading-relaxed">
+                                {order.address_line}{order.ward ? `, ${order.ward}` : ''}{order.district ? `, ${order.district}` : ''}{order.city ? `, ${order.city}` : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="space-y-3">
+                        <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Chi tiết thanh toán</h3>
+                        <div className="text-sm space-y-1 font-bold">
+                            <p className="text-slate-600">Phương thức: <span className="text-slate-900 uppercase">{order.payment_method}</span></p>
+                            <p className="text-slate-600">Trạng thái: <span className="text-slate-900 uppercase">{order.payment_status === 'paid' ? 'Đã thanh toán' : 'Chờ thu tiền'}</span></p>
+                            <p className="text-slate-600">Ngày đặt: {new Date(order.created_at).toLocaleDateString('vi-VN')}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Items Table */}
+                <table className="w-full mt-10">
+                    <thead>
+                        <tr className="border-b-2 border-slate-900 bg-slate-50">
+                            <th className="py-3 px-2 text-left text-[10px] font-black uppercase">STT</th>
+                            <th className="py-3 px-2 text-left text-[10px] font-black uppercase">Sản phẩm</th>
+                            <th className="py-3 px-2 text-center text-[10px] font-black uppercase">Đơn giá</th>
+                            <th className="py-3 px-2 text-center text-[10px] font-black uppercase">Số lượng</th>
+                            <th className="py-3 px-2 text-right text-[10px] font-black uppercase">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                        {order.details?.map((item, index) => (
+                            <tr key={item.id}>
+                                <td className="py-4 px-2 text-sm text-slate-600 font-bold">{index + 1}</td>
+                                <td className="py-4 px-2">
+                                    <p className="text-sm font-bold text-slate-900 uppercase leading-tight">{item.product?.name}</p>
+                                    <p className="text-[10px] text-slate-400 mt-1 font-medium">SKU: CHRONOS-{item.product?.id}</p>
+                                </td>
+                                <td className="py-4 px-2 text-center text-sm font-bold text-slate-600">{formatCurrency(item.price)}</td>
+                                <td className="py-4 px-2 text-center text-sm font-black text-slate-900">{item.quantity}</td>
+                                <td className="py-4 px-2 text-right text-sm font-black text-slate-900">{formatCurrency(item.price * item.quantity)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {/* Calculation Summary */}
+                <div className="mt-8 border-t-2 border-slate-900 pt-8 flex justify-end">
+                    <div className="w-[300px] space-y-3">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-slate-600 font-bold uppercase">Tổng tiền hàng:</span>
+                            <span className="font-bold text-slate-900">{formatCurrency(order.subtotal)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-slate-600 font-bold uppercase">Phí vận chuyển:</span>
+                            <span className="font-bold text-slate-900">{formatCurrency(order.shipping_fee)}</span>
+                        </div>
+                        {parseFloat(order.discount_amount) > 0 && (
+                            <div className="flex justify-between text-sm">
+                                <span className="text-rose-600 font-bold uppercase">Giảm giá:</span>
+                                <span className="font-bold text-rose-600">-{formatCurrency(order.discount_amount)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between pt-3 border-t border-slate-200">
+                            <span className="text-md font-black uppercase text-slate-900">Tổng cộng:</span>
+                            <span className="text-xl font-black text-slate-900">{formatCurrency(order.total_amount)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer / Signatures */}
+                <div className="mt-20 grid grid-cols-2 text-center">
+                    <div className="space-y-20">
+                        <div>
+                            <p className="text-xs font-black uppercase">Người mua hàng</p>
+                            <p className="text-[10px] text-slate-400 italic font-medium">(Ký và ghi rõ họ tên)</p>
+                        </div>
+                    </div>
+                    <div className="space-y-20">
+                        <div>
+                            <p className="text-xs font-black uppercase">Người lập hóa đơn</p>
+                            <p className="text-[10px] text-slate-400 italic font-medium">(Ký và ghi rõ họ tên)</p>
+                        </div>
+                        <p className="text-sm font-black uppercase pt-10">CHRONOS WATCH</p>
+                    </div>
+                </div>
+
+                <div className="mt-10 pt-10 border-t border-slate-100 text-center">
+                    <p className="text-sm font-bold text-slate-900">Cảm ơn quý khách đã tin tưởng lựa chọn Chronos Watch!</p>
+                    <p className="text-[10px] text-slate-500">Vui lòng kiểm tra kỹ sản phẩm trước khi thanh toán. Hóa đơn này có giá trị trong vòng 30 ngày kể từ ngày lập.</p>
+                </div>
+            </div>
+
+            {/* Print CSS - Overrides for Print Mode */}
             <style dangerouslySetInnerHTML={{
                 __html: `
                 @media print {
-                    @page { margin: 1cm; size: A4; }
-                    body { background: white !important; font-family: sans-serif; }
-                    header, aside, .print-hidden, footer, .main-header { display: none !important; }
-                    .max-w-[1400px] { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-                    .bg-white, .bg-slate-50 { background: transparent !important; box-shadow: none !important; border: 1px solid #eee !important; border-radius: 0 !important; }
-                    .flex { display: block !important; }
-                    .lg\\:w-[380px] { width: 100% !important; border-left: none !important; border-top: 1px solid #eee !important; margin-top: 2rem !important; }
-                    .border-r, .border-l { border: none !important; border-bottom: 1px solid #eee !important; }
-                    .rounded-[2rem], .rounded-2xl { border-radius: 0.5rem !important; }
-                    table { width: 100% !important; border-collapse: collapse; }
-                    th { border-bottom: 2px solid #333 !important; padding: 0.5rem !important; }
-                    td { border-bottom: 1px solid #eee !important; padding: 1rem 0.5rem !important; }
-                    .text-amber-600 { color: black !important; font-weight: 900 !important; }
+                    @page { 
+                        margin: 0; 
+                        size: A4; 
+                    }
+                    body { 
+                        background: white !important; 
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    /* Hide EVERYTHING in normal UI */
+                    #root > div:not(.print-block),
+                    .max-w-[1400px] > div:not(.hidden.print\\:block) {
+                        display: none !important;
+                    }
+                    /* Force show the Invoice Template */
+                    .hidden.print\\:block {
+                        display: block !important;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: auto;
+                    }
+                    /* Standard resets */
+                    header, footer, nav, aside, button, .print-hidden {
+                        display: none !important;
+                    }
                 }
             `}} />
         </div>

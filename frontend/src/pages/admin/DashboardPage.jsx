@@ -58,12 +58,12 @@ const DashboardPage = () => {
     return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
   };
   const trendColor = (current, previous, reverse = false) => {
-    if (!previous || previous === 0) return "bg-slate-100 text-slate-400 border-slate-200/50";
+    if (!previous || previous === 0) return "bg-slate-50 text-slate-400 border-slate-100";
     const up = current >= previous;
     const isPositive = reverse ? !up : up;
     return isPositive
-      ? "bg-emerald-500 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
-      : "bg-rose-500 text-white border-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.4)]";
+      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+      : "bg-rose-50 text-rose-600 border-rose-100";
   };
 
   const statCards = [
@@ -73,9 +73,9 @@ const DashboardPage = () => {
       icon: DollarSign,
       trend: computeTrend(stats?.monthly_revenue, stats?.last_month_revenue),
       trendColor: trendColor(stats?.monthly_revenue, stats?.last_month_revenue),
-      color: "text-white",
-      bg: "bg-slate-900",
-      dot: "bg-amber-500",
+      color: "text-emerald-600",
+      bg: "bg-white",
+      dot: "bg-emerald-500",
       pulse: true,
       hist: [
         stats?.last_month_revenue * 0.7,
@@ -85,7 +85,7 @@ const DashboardPage = () => {
         stats?.monthly_revenue * 0.85,
         stats?.monthly_revenue,
       ],
-      chartColor: "#F59E0B",
+      chartColor: "#10B981",
     },
     {
       label: "Tổng đơn hàng",
@@ -93,11 +93,18 @@ const DashboardPage = () => {
       icon: ShoppingBag,
       trend: computeTrend(stats?.total_orders, stats?.last_month_orders),
       trendColor: trendColor(stats?.total_orders, stats?.last_month_orders),
-      color: "text-slate-900",
+      color: "text-blue-600",
       bg: "bg-white",
       dot: "bg-blue-500",
       pulse: true,
-      hist: [stats?.last_month_orders * 0.6, stats?.last_month_orders * 0.8, stats?.last_month_orders, stats?.total_orders * 0.7, stats?.total_orders * 0.9, stats?.total_orders || 0],
+      hist: [
+        stats?.last_month_orders * 0.6,
+        stats?.last_month_orders * 0.8,
+        stats?.last_month_orders,
+        stats?.total_orders * 0.7,
+        stats?.total_orders * 0.9,
+        stats?.total_orders || 0,
+      ],
       chartColor: "#3B82F6",
     },
     {
@@ -106,11 +113,18 @@ const DashboardPage = () => {
       icon: CreditCard,
       trend: computeTrend(stats?.aov, stats?.last_month_aov),
       trendColor: trendColor(stats?.aov, stats?.last_month_aov),
-      color: "text-slate-900",
+      color: "text-indigo-600",
       bg: "bg-white",
-      dot: "bg-emerald-500",
-      hist: [stats?.last_month_aov * 0.8, stats?.last_month_aov * 0.9, stats?.last_month_aov, stats?.aov * 0.8, stats?.aov * 0.9, stats?.aov || 0],
-      chartColor: "#10B981",
+      dot: "bg-indigo-500",
+      hist: [
+        stats?.last_month_aov * 0.8,
+        stats?.last_month_aov * 0.9,
+        stats?.last_month_aov,
+        stats?.aov * 0.8,
+        stats?.aov * 0.9,
+        stats?.aov || 0,
+      ],
+      chartColor: "#6366F1",
     },
     {
       label: "Khách hàng mới",
@@ -118,11 +132,18 @@ const DashboardPage = () => {
       icon: Users,
       trend: computeTrend(stats?.users_this_month, stats?.users_last_month),
       trendColor: trendColor(stats?.users_this_month, stats?.users_last_month),
-      color: "text-white",
-      bg: "bg-amber-600",
-      dot: "bg-white",
-      hist: [stats?.users_last_month * 0.7, stats?.users_last_month * 0.85, stats?.users_last_month, stats?.users_this_month * 0.8, stats?.users_this_month * 0.95, stats?.users_this_month || 0],
-      chartColor: "#FEF3C7",
+      color: "text-amber-600",
+      bg: "bg-white",
+      dot: "bg-amber-500",
+      hist: [
+        stats?.users_last_month * 0.7,
+        stats?.users_last_month * 0.85,
+        stats?.users_last_month,
+        stats?.users_this_month * 0.8,
+        stats?.users_this_month * 0.95,
+        stats?.users_this_month || 0,
+      ],
+      chartColor: "#F59E0B",
     },
   ];
 

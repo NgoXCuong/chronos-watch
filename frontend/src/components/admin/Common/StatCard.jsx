@@ -57,11 +57,11 @@ const StatCard = ({
               )}
             >
               {trend.startsWith("+") ? (
-                <TrendingUp size={14} strokeWidth={3} className="text-emerald-600" />
+                <TrendingUp size={14} strokeWidth={3} />
               ) : (
-                <TrendingDown size={14} strokeWidth={3} className="text-rose-600" />
+                <TrendingDown size={14} strokeWidth={3} />
               )}
-              <span className="tabular-nums text-emerald-600">{trend}</span>
+              <span className="tabular-nums">{trend}</span>
             </div>
           </div>
         )}

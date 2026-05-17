@@ -120,7 +120,16 @@ const Chatbot = () => {
                                                             e.preventDefault();
                                                             window.open(props.href, '_blank');
                                                         }
-                                                    }} />
+                                                    }} />,
+                                                    img: ({ node, ...props }) => (
+                                                        <div className="my-3 rounded-lg overflow-hidden border border-zinc-200 shadow-sm">
+                                                            <img
+                                                                {...props}
+                                                                className="w-full h-auto object-cover max-h-[180px] hover:scale-105 transition-transform duration-500"
+                                                                alt={props.alt || 'Product'}
+                                                            />
+                                                        </div>
+                                                    )
                                                 }}
                                             >
                                                 {msg.content}

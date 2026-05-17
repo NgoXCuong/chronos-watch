@@ -53,16 +53,27 @@ const ProductEditorPage = () => {
 
     const fetchOptions = async () => {
         try {
-            const [b, c] = await Promise.all([brandApi.getAll(), categoryApi.getAll()]);
-            setBrands(Array.isArray(b) ? b : []);
+            const [b, c] = await Promise.all([
+                brandApi.getAll({ limit: 100 }), 
+                categoryApi.getAll()
+            ]);
+            
+            // Extract brands from {count, rows} or direct array
+            const brandList = b?.rows || (Array.isArray(b) ? b : []);
+            setBrands(brandList);
+
+            // Extract categories from direct array or {count, rows}
+            const catList = Array.isArray(c) ? c : (c?.rows || []);
             const flatCats = [];
             const flatten = (list, level = 0) => list.forEach(cat => {
                 flatCats.push({ ...cat, level });
                 if (cat.children?.length) flatten(cat.children, level + 1);
             });
-            flatten(Array.isArray(c) ? c : []);
+            flatten(catList);
             setCategories(flatCats);
-        } catch { /* silent */ }
+        } catch (err) {
+            console.error('Lỗi khi tải tùy chọn:', err);
+        }
     };
 
     const fetchProduct = async () => {

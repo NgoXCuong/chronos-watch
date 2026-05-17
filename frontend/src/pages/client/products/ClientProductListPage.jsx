@@ -6,6 +6,7 @@ import productApi from '../../../api/product.api';
 import categoryApi from '../../../api/category.api';
 import brandApi from '../../../api/brand.api';
 import ProductCard from '../../../components/ui/ProductCard';
+import ProductPagination from '../../../components/products/ProductPagination';
 
 const ClientProductListPage = () => {
     const { theme } = useTheme();
@@ -29,6 +30,7 @@ const ClientProductListPage = () => {
     const currentSearch = searchParams.get('search') || '';
     const currentMinPrice = searchParams.get('min_price') || '';
     const currentMaxPrice = searchParams.get('max_price') || '';
+    const currentPage = parseInt(searchParams.get('page')) || 1;
 
     useEffect(() => {
         // Fetch Filter Options
@@ -46,7 +48,8 @@ const ClientProductListPage = () => {
         setLoading(true);
         // Build API params
         const params = {
-            limit: 12,
+            limit: 9,
+            page: currentPage,
             category_id: currentCategory,
             brand_id: currentBrand,
             sort: currentSort,
@@ -69,12 +72,18 @@ const ClientProductListPage = () => {
                 setLoading(false);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
-    }, [currentCategory, currentBrand, currentSort, currentSearch, currentMinPrice, currentMaxPrice]);
+    }, [currentCategory, currentBrand, currentSort, currentSearch, currentMinPrice, currentMaxPrice, currentPage]);
 
     const updateFilter = (key, value) => {
         const newParams = new URLSearchParams(searchParams);
         if (value) newParams.set(key, value);
         else newParams.delete(key);
+        
+        // Reset page to 1 when any filter changes
+        if (key !== 'page') {
+            newParams.delete('page');
+        }
+        
         setSearchParams(newParams);
     };
 
@@ -282,11 +291,21 @@ const ClientProductListPage = () => {
                                 ))}
                             </div>
                         ) : products.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
-                                {products.map(product => (
-                                    <ProductCard key={product.id || product._id} product={product} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+                                    {products.map(product => (
+                                        <ProductCard key={product.id || product._id} product={product} />
+                                    ))}
+                                </div>
+
+                                {/* Pagination */}
+                                <ProductPagination
+                                    currentPage={currentPage}
+                                    totalPages={Math.ceil(totalProducts / 9)}
+                                    onPageChange={(page) => updateFilter('page', page)}
+                                    isDark={isDark}
+                                />
+                            </>
                         ) : (
                             <div className="py-32 text-center">
                                 <Search className={`w-12 h-12 mx-auto mb-6 opacity-20 ${isDark ? 'text-white' : 'text-zinc-900'}`} />

@@ -56,8 +56,10 @@ const ProductListPage = () => {
                 brandApi.getAll({ limit: 100 }),
                 categoryApi.getAll({ limit: 100 })
             ]);
-            setBrands(brandRes.rows || []);
-            setCategories(categoryRes.rows || []);
+            
+            // Handle both {rows, count} and direct array responses
+            setBrands(brandRes?.rows || (Array.isArray(brandRes) ? brandRes : []));
+            setCategories(categoryRes?.rows || (Array.isArray(categoryRes) ? categoryRes : []));
         } catch (error) {
             console.error('Lỗi khi tải dữ liệu lọc:', error);
         }

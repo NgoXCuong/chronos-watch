@@ -5,7 +5,7 @@ const chat = async (req, res) => {
         const { message, history } = req.body;
 
         if (!message) {
-            return res.status(400).json({ error: 'Message is required' });
+            return res.status(400).json({ error: 'Tin nhắn là bắt buộc' });
         }
 
         const response = await aiService.generateChatResponse(message, history);
@@ -15,10 +15,10 @@ const chat = async (req, res) => {
             data: response
         });
     } catch (error) {
-        console.error('AI Controller Error:', error);
+        console.error('Lỗi bộ điều khiển AI:', error);
         res.status(500).json({
             success: false,
-            error: error.message || 'Internal server error while processing AI chat'
+            error: error.message || 'Lỗi máy chủ nội bộ trong quá trình xử lý cuộc trò chuyện AI'
         });
     }
 };
