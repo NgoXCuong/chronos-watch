@@ -193,6 +193,7 @@ const ProductListPage = () => {
                 isAllSelected={isAllSelected}
                 formatCurrency={formatCurrency}
                 onEdit={(id) => navigate(`/admin/products/edit/${id}`)}
+                onView={(slug) => window.open(`/products/${slug}`, '_blank')}
                 onDelete={handleDelete}
                 pagination={{
                     currentPage: currentPage,

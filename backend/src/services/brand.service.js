@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import sequelize from "../config/db.js";
 import Brand from "../models/brand.model.js";
 
 const brandService = {
@@ -18,7 +19,19 @@ const brandService = {
             where,
             limit,
             offset,
-            order: [['name', 'ASC']]
+            order: [['name', 'ASC']],
+            attributes: {
+                include: [
+                    [
+                        sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM products AS p
+                            WHERE p.brand_id = Brand.id
+                        )`),
+                        'product_count'
+                    ]
+                ]
+            }
         });
     },
 

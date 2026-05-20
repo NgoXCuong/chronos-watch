@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Eye } from 'lucide-react';
 import { Button } from '../../ui/button';
 import AdminPagination from '../Common/AdminPagination';
 
@@ -13,6 +13,7 @@ const ProductTable = ({
     formatCurrency,
     onEdit,
     onDelete,
+    onView,
     pagination
 }) => {
     return (
@@ -96,6 +97,15 @@ const ProductTable = ({
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <div className="flex items-center justify-end gap-1">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => onView(product.slug)}
+                                            className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 shadow-sm border border-transparent hover:border-blue-100 transition-all"
+                                            title="Xem chi tiết"
+                                        >
+                                            <Eye className="h-4 w-4" />
+                                        </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"

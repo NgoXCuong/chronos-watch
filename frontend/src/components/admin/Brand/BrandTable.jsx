@@ -21,6 +21,7 @@ const BrandTable = ({
                             <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Slug</th>
                             <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Mô tả</th>
                             <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Quốc gia</th>
+                            <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Sản phẩm</th>
                             <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Trạng thái</th>
                             <th className="px-4 py-4 text-xs font-semibold text-slate-500 uppercase ">Thao tác</th>
                         </tr>
@@ -28,14 +29,14 @@ const BrandTable = ({
                     <tbody className="divide-y divide-slate-50">
                         {loading && (
                             <tr>
-                                <td colSpan={6} className="py-10 text-center">
+                                <td colSpan={7} className="py-10 text-center">
                                     <div className="w-7 h-7 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto" />
                                 </td>
                             </tr>
                         )}
                         {!loading && !brands.length && (
                             <tr>
-                                <td colSpan={6} className="py-8 text-center text-slate-400 text-sm">
+                                <td colSpan={7} className="py-8 text-center text-slate-400 text-sm">
                                     Chưa có thương hiệu nào
                                 </td>
                             </tr>
@@ -57,6 +58,7 @@ const BrandTable = ({
                                 <td className="px-4 py-3 text-slate-500 text-xs font-medium">{brand.slug || '—'}</td>
                                 <td className="px-4 py-3 text-slate-500 text-xs max-w-xs truncate">{brand.description || '—'}</td>
                                 <td className="px-4 py-3 text-slate-500 text-xs font-medium uppercase">{brand.country || '—'}</td>
+                                <td className="px-4 py-3 text-slate-800 text-sm font-bold">{brand.product_count || 0}</td>
                                 <td className="px-4 py-3">
                                     <button onClick={() => onToggle(brand)} className="flex items-center gap-1.5 focus:outline-none">
                                         {brand.is_active
