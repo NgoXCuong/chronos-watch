@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Cpu,
   Shield,
@@ -25,9 +26,18 @@ import ProductReviews from "./ProductReviews";
 import ProductEditorial from "./ProductEditorial";
 
 const ProductDetailsTabs = ({ product, isDark }) => {
+  const location = useLocation();
+  const hashTab = (location.hash || "").replace("#", "") || "story";
+  const [activeTab, setActiveTab] = useState(hashTab || "story");
+
+  useEffect(() => {
+    const h = (location.hash || "").replace("#", "") || "story";
+    setActiveTab(h);
+  }, [location.hash]);
+
   return (
     <div className="mt-6 md:mt-12">
-      <Tabs defaultValue="story" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Custom Luxury Tabs Navigation */}
         <div className="flex justify-center mb-6">
           <TabsList className="bg-transparent border-b dark:border-white/5 border-zinc-100 rounded-none w-full max-w-2xl justify-center gap-2 md:gap-8 h-10 p-0">
@@ -101,7 +111,7 @@ const ProductDetailsTabs = ({ product, isDark }) => {
                   <div
                     key={key}
                     className={`flex justify-between items-center py-2 border-b transition-all duration-500 group
-                                        ${isDark ? "border-white/[0.03] hover:border-amber-500/20" : "border-zinc-100 hover:border-zinc-300"}`}
+                                        ${isDark ? "border-white/3 hover:border-amber-500/20" : "border-zinc-100 hover:border-zinc-300"}`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-1 h-1 rounded-full bg-amber-500/40 group-hover:bg-amber-500 transition-colors"></div>

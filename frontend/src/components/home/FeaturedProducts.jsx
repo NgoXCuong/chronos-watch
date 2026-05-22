@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ShoppingCart, Heart, Star } from "lucide-react";
 import { useTheme } from "../../context/ThemeContext";
+import { useWishlist } from "../../context/WishlistContext";
 import productApi from "../../api/product.api";
 import anhminhhoa from "../../assets/anh-minh-hoa.jpg";
 
@@ -21,6 +22,9 @@ const ProductCard = ({ product, isDark }) => {
     ? Math.round((1 - price / originalPrice) * 100)
     : null;
 
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const activeWishlist = isInWishlist(product._id || product.id);
+
   return (
     <div
       className={`group relative border overflow-hidden flex flex-col transition-all duration-500 ${
@@ -38,13 +42,19 @@ const ProductCard = ({ product, isDark }) => {
 
       {/* Wishlist */}
       <button
-        className={`absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center border backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 ${
-          isDark
-            ? "bg-black/40 border-white/10 text-zinc-500 hover:text-amber-400 hover:border-amber-500/40"
-            : "bg-white/80 border-zinc-200 text-zinc-400 hover:text-amber-600 hover:border-amber-400/60"
-        }`}
+        onClick={() => toggleWishlist(product)}
+        className={`absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center border backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100
+                ${
+                  activeWishlist
+                    ? "bg-amber-500 border-amber-500 text-white opacity-100"
+                    : isDark
+                      ? "bg-black/40 border-white/10 text-zinc-500 hover:text-amber-400 hover:border-amber-500/40"
+                      : "bg-white/80 border-zinc-200 text-zinc-400 hover:text-amber-600 hover:border-amber-400/60"
+                }`}
       >
-        <Heart className="w-3.5 h-3.5" />
+        <Heart
+          className={`w-3.5 h-3.5 ${activeWishlist ? "fill-current" : ""}`}
+        />
       </button>
 
       {/* Image */}

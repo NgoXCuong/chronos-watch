@@ -150,7 +150,7 @@ const Navbar = () => {
       >
         {/* Announcement bar */}
         <div className={`${announceBg} hidden md:block overflow-hidden`}>
-          <div className="max-w-[1400px] mx-auto px-8 h-6 flex items-center justify-between">
+          <div className="max-w-350 mx-auto px-8 h-6 flex items-center justify-between">
             {/* Container cho chữ trượt */}
             <div className="relative flex-1 overflow-hidden h-full flex items-center">
               <div className="animate-marquee whitespace-nowrap flex">
@@ -198,7 +198,7 @@ const Navbar = () => {
         </div>
 
         {/* Main nav */}
-        <div className="max-w-[1400px] mx-auto px-6 md:px-8">
+        <div className="max-w-350 mx-auto px-6 md:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Mobile toggle */}
             <button
@@ -291,64 +291,13 @@ const Navbar = () => {
                 )}
               </div>
 
-              {/* Brands */}
-              <div
-                className="relative"
-                onMouseEnter={() => setActiveDropdown("brands")}
-                onMouseLeave={() => setActiveDropdown(null)}
+              {/* Brands (no dropdown) */}
+              <Link
+                to="/brands"
+                className={`flex items-center gap-1 text-[12px] font-semibold uppercase transition-colors duration-300 py-2 ${navLink}`}
               >
-                <Link
-                  to="/brands"
-                  className={`flex items-center gap-1 text-[12px] font-semibold uppercase transition-colors duration-300 py-2 ${navLink}`}
-                >
-                  Thương Hiệu
-                  <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-300 ${activeDropdown === "brands" ? "rotate-180 text-amber-500" : ""}`}
-                  />
-                </Link>
-
-                {activeDropdown === "brands" && (
-                  <div
-                    className={`absolute top-full left-0 mt-0 w-56 border backdrop-blur-2xl animate-fadeInDown ${dropBg}`}
-                  >
-                    <div className="py-2">
-                      <div
-                        className={`px-4 py-2 border-b mb-1 ${isDark ? "border-white/5" : "border-zinc-100"}`}
-                      >
-                        <p
-                          className={`text-[12px] font-bold uppercase ${dropLabel}`}
-                        >
-                          Thương Hiệu
-                        </p>
-                      </div>
-                      {(brands.length > 0
-                        ? brands
-                        : [
-                            { _id: "1", name: "Rolex" },
-                            { _id: "2", name: "Omega" },
-                            { _id: "3", name: "Patek Philippe" },
-                            { _id: "4", name: "Cartier" },
-                            { _id: "5", name: "Tag Heuer" },
-                          ]
-                      )
-                        .slice(0, 8)
-                        .map((brand, idx) => (
-                          <Link
-                            key={brand.id || brand._id || `brand-${idx}`}
-                            to={`/products?brand=${brand.slug || brand.id || brand._id}`}
-                            onClick={() => setActiveDropdown(null)}
-                            className={`flex items-center gap-3 px-4 py-2.5 text-[11px] uppercase transition-all duration-200 group/item ${dropItem}`}
-                          >
-                            <span
-                              className={`w-1 h-1 rounded-full bg-amber-500/0 transition-all duration-300 ${dropDot}`}
-                            ></span>
-                            {brand.name}
-                          </Link>
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+                Thương Hiệu
+              </Link>
 
               <Link
                 to="/about"
@@ -367,7 +316,7 @@ const Navbar = () => {
                 >
                   CHRONOS
                 </span>
-                <div className="h-px bg-gradient-to-r from-transparent via-amber-500/60 to-transparent w-full mt-0.5 group-hover:via-amber-500 transition-all duration-500"></div>
+                <div className="h-px bg-linear-to-r from-transparent via-amber-500/60 to-transparent w-full mt-0.5 group-hover:via-amber-500 transition-all duration-500"></div>
                 <span
                   className={`text-[10px]  uppercase mt-0.5 transition-colors duration-500 ${logoSub}`}
                 >
@@ -384,7 +333,7 @@ const Navbar = () => {
                   onClick={() => setSearchOpen(!searchOpen)}
                   className={`p-1.5 transition-colors duration-300 ${iconBtn}`}
                 >
-                  <Search className="w-[18px] h-[18px]" />
+                  <Search className="w-4.5 h-4.5" />
                 </button>
                 {searchOpen && (
                   <div
@@ -419,7 +368,7 @@ const Navbar = () => {
                 <div
                   className={`p-1.5 cursor-pointer transition-colors duration-300 ${iconBtn}`}
                 >
-                  <User className="w-[18px] h-[18px]" />
+                  <User className="w-4.5 h-4.5" />
                 </div>
                 {activeDropdown === "user" && (
                   <div
@@ -533,10 +482,10 @@ const Navbar = () => {
                 to="/wishlist"
                 className={`relative p-1.5 transition-colors duration-300 ${iconBtn}`}
               >
-                <Heart className="w-[18px] h-[18px]" />
+                <Heart className="w-4.5 h-4.5" />
                 {wishlistCount > 0 && (
                   <span
-                    className={`absolute -top-0.5 -right-0.5 min-w-[12px] h-3 px-1 flex items-center justify-center bg-red-500 text-[7px] text-white font-black rounded-full ring-2 ${isDark ? "ring-zinc-950" : "ring-white"}`}
+                    className={`absolute -top-0.5 -right-0.5 min-w-3 h-3 px-1 flex items-center justify-center bg-red-500 text-[7px] text-white font-black rounded-full ring-2 ${isDark ? "ring-zinc-950" : "ring-white"}`}
                   >
                     {wishlistCount}
                   </span>
@@ -548,10 +497,10 @@ const Navbar = () => {
                 to="/cart"
                 className={`relative p-1.5 transition-colors duration-300 ${iconBtn}`}
               >
-                <ShoppingCart className="w-[18px] h-[18px]" />
+                <ShoppingCart className="w-4.5 h-4.5" />
                 {cartCount > 0 && (
                   <span
-                    className={`absolute -top-0.5 -right-0.5 min-w-[12px] h-3 px-1 flex items-center justify-center bg-amber-500 text-[7px] text-white font-black rounded-full ring-2 ${isDark ? "ring-zinc-950" : "ring-white"}`}
+                    className={`absolute -top-0.5 -right-0.5 min-w-3 h-3 px-1 flex items-center justify-center bg-amber-500 text-[7px] text-white font-black rounded-full ring-2 ${isDark ? "ring-zinc-950" : "ring-white"}`}
                   >
                     {cartCount}
                   </span>
@@ -562,12 +511,12 @@ const Navbar = () => {
         </div>
 
         {/* Gold bottom line */}
-        <div className="h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent"></div>
+        <div className="h-px bg-linear-to-r from-transparent via-amber-500/20 to-transparent"></div>
       </header>
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 z-[110] transition-all duration-500 ${mobileMenuOpen ? "visible opacity-100" : "invisible opacity-0"}`}
+        className={`fixed inset-0 z-110 transition-all duration-500 ${mobileMenuOpen ? "visible opacity-100" : "invisible opacity-0"}`}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"

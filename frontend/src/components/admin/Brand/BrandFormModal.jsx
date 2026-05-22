@@ -46,7 +46,7 @@ const BrandFormModal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4 transition-all duration-300">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-white/20 animate-in fade-in zoom-in duration-300">
         {/* Header */}
-        <div className="relative px-8 pt-8 pb-6 bg-gradient-to-br from-slate-50 to-white border-b border-slate-100">
+        <div className="relative px-8 pt-8 pb-6 bg-linear-to-br from-slate-50 to-white border-b border-slate-100">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
@@ -177,7 +177,7 @@ const BrandFormModal = ({
             <Button
               type="submit"
               disabled={saving}
-              className="flex-[1.5] h-13 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-[13px] shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 transition-all duration-300 active:scale-95 disabled:opacity-70"
+              className="flex-[1.5] h-13 rounded-xl bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-[13px] shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 transition-all duration-300 active:scale-95 disabled:opacity-70"
             >
               {saving ? (
                 <div className="flex items-center gap-2">
