@@ -68,7 +68,7 @@ const BrandListPage = () => {
                         Tinh Hoa <br className="md:hidden" />
                         <span className="italic font-light text-zinc-700 dark:text-zinc-600">Chế Tác</span>
                     </h1>
-                    <p className="text-zinc-700 dark:text-zinc-600 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                    <p className="text-zinc-700 dark:text-zinc-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
                         Tập hợp những nhà chế tác vĩ đại nhất. Mỗi thương hiệu là một chương hào hùng trong lịch sử đo lường thời gian của nhân loại.
                     </p>
                 </div>
@@ -96,12 +96,12 @@ const BrandListPage = () => {
                     <div className="flex items-center gap-12 text-center">
                         <div>
                             <p className="text-2xl text-zinc-900 dark:text-white">{brands.length}</p>
-                            <p className="text-[10px]  text-zinc-700 uppercase mt-1">Thương Hiệu</p>
+                            <p className="text-[10px]  text-zinc-700 dark:text-zinc-400 uppercase mt-1">Thương Hiệu</p>
                         </div>
                         <div className="w-px h-8 bg-zinc-200 dark:bg-zinc-800"></div>
                         <div>
                             <p className="text-2xl  text-zinc-900 dark:text-white">100%</p>
-                            <p className="text-[10px] text-zinc-700 uppercase mt-1">Chính Hãng</p>
+                            <p className="text-[10px] text-zinc-700 dark:text-zinc-400 uppercase mt-1">Chính Hãng</p>
                         </div>
                     </div>
                 </div>
@@ -133,17 +133,17 @@ const BrandListPage = () => {
                                         <h3 className="text-xl font-serif text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
                                             {brand.name}
                                         </h3>
-                                        <p className="text-xs text-zinc-700 leading-relaxed line-clamp-2">
+                                        <p className="text-xs text-zinc-700 dark:text-zinc-400 leading-relaxed line-clamp-2">
                                             {brand.description || "Thương hiệu đồng hồ cao cấp với bề dày lịch sử và nghệ thuật chế tác đỉnh cao."}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800/50 flex items-center justify-between group-hover:border-amber-100 dark:group-hover:border-amber-900/30 transition-colors">
-                                    <span className="text-[10px] font-semibold  uppercase text-zinc-600 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
+                                    <span className="text-[10px] font-semibold  uppercase text-zinc-600 dark:text-zinc-400 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
                                         Khám phá
                                     </span>
-                                    <ArrowRight size={16} className="text-zinc-300 dark:text-zinc-600 group-hover:text-amber-600 dark:group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
+                                    <ArrowRight size={16} className="text-zinc-300 dark:text-zinc-400 group-hover:text-amber-600 dark:group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
                                 </div>
                             </div>
                         ))}

@@ -1,4 +1,5 @@
 import Voucher from '../models/voucher.model.js';
+import VoucherUsage from '../models/voucher_usage.model.js';
 import { Op } from 'sequelize';
 
 const voucherService = {
@@ -48,7 +49,7 @@ const voucherService = {
     },
 
     // Logic nghiệp vụ cho Checkout
-    validateVoucher: async (code, orderValue) => {
+    validateVoucher: async (code, orderValue, userId = null) => {
         const voucher = await Voucher.findOne({ 
             where: { 
                 code: code,
@@ -71,6 +72,19 @@ const voucherService = {
 
         if (orderValue < voucher.min_order_value) {
             throw new Error(`Đơn hàng tối thiểu ${voucher.min_order_value}đ để áp dụng mã này.`);
+        }
+
+        // Kiểm tra nếu người dùng đã từng dùng voucher này
+        if (userId) {
+            const hasUsed = await VoucherUsage.findOne({
+                where: {
+                    voucher_id: voucher.id,
+                    user_id: userId
+                }
+            });
+            if (hasUsed) {
+                throw new Error("Bạn đã sử dụng mã giảm giá này rồi.");
+            }
         }
 
         return voucher;

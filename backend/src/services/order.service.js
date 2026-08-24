@@ -3,7 +3,10 @@ import OrderDetail from "../models/order_detail.model.js";
 import OrderHistory from "../models/order_history.model.js";
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
+import Voucher from "../models/voucher.model.js";
+import VoucherUsage from "../models/voucher_usage.model.js";
 import sequelize from "../config/db.js";
+import { Op } from "sequelize";
 import vnpayService from "./vnpay.service.js";
 import voucherService from "./voucher.service.js";
 import UserAddress from "../models/user_address.model.js";
@@ -44,6 +47,7 @@ const orderService = {
         const voucher = await voucherService.validateVoucher(
           orderData.voucher_code,
           totalItemsPrice,
+          userId,
         );
         discountAmount = voucherService.calculateDiscount(
           voucher,
@@ -51,10 +55,24 @@ const orderService = {
         );
         voucherId = voucher.id;
 
-        await voucher.update(
-          { used_count: (voucher.used_count || 0) + 1 },
-          { transaction },
+        // Atomic voucher usage limit check & increment
+        const [affectedVoucher] = await Voucher.update(
+          { used_count: sequelize.literal("used_count + 1") },
+          {
+            where: {
+              id: voucher.id,
+              [Op.or]: [
+                { usage_limit: null },
+                { used_count: { [Op.lt]: sequelize.col("usage_limit") } },
+              ],
+            },
+            transaction,
+          },
         );
+
+        if (affectedVoucher === 0) {
+          throw new Error("Mã giảm giá đã hết lượt sử dụng");
+        }
       }
 
       const totalAmount =
@@ -103,7 +121,19 @@ const orderService = {
         { transaction },
       );
 
-      // 4. Create OrderDetails and Update Stock
+      // Record voucher usage if voucher applied
+      if (voucherId) {
+        await VoucherUsage.create(
+          {
+            voucher_id: voucherId,
+            user_id: userId,
+            order_id: order.id,
+          },
+          { transaction },
+        );
+      }
+
+      // 7. Create OrderDetails and Update Stock atomically
       for (const item of cartItems) {
         await OrderDetail.create(
           {
@@ -115,17 +145,29 @@ const orderService = {
           { transaction },
         );
 
-        // Reduce stock
-        await Product.update(
+        // Atomic stock reduction & sold_count increment (safeguard against race conditions)
+        const [affectedRows] = await Product.update(
           {
-            stock: item.product.stock - item.quantity,
-            sold_count: (item.product.sold_count || 0) + item.quantity,
+            stock: sequelize.literal(`stock - ${item.quantity}`),
+            sold_count: sequelize.literal(`sold_count + ${item.quantity}`),
           },
-          { where: { id: item.product_id }, transaction },
+          {
+            where: {
+              id: item.product_id,
+              stock: { [Op.gte]: item.quantity },
+            },
+            transaction,
+          },
         );
+
+        if (affectedRows === 0) {
+          throw new Error(
+            `Sản phẩm ${item.product ? item.product.name : "này"} không đủ số lượng tồn kho`,
+          );
+        }
       }
 
-      // 5. Create History
+      // 8. Create History
       await OrderHistory.create(
         {
           order_id: order.id,
@@ -135,12 +177,12 @@ const orderService = {
         { transaction },
       );
 
-      // 6. Clear Cart
+      // 9. Clear Cart
       await Cart.destroy({ where: { user_id: userId }, transaction });
 
       await transaction.commit();
 
-      // 7. Handle VNPay URL generation if needed
+      // 10. Handle VNPay URL generation if needed
       if (orderData.payment_method === "vnpay") {
         const paymentUrl = vnpayService.createPaymentUrl(order, ipAddr);
         return { order, paymentUrl };
@@ -305,19 +347,32 @@ const orderService = {
       order.status = "cancelled";
       await order.save({ transaction });
 
-      // Revert stock
+      // Revert stock atomically
       const details = await OrderDetail.findAll({
         where: { order_id: orderId },
       });
       for (const item of details) {
-        const product = await Product.findByPk(item.product_id);
         await Product.update(
           {
-            stock: product.stock + item.quantity,
-            sold_count: product.sold_count - item.quantity,
+            stock: sequelize.literal(`stock + ${item.quantity}`),
+            sold_count: sequelize.literal(`GREATEST(0, sold_count - ${item.quantity})`),
           },
           { where: { id: item.product_id }, transaction },
         );
+      }
+
+      // Revert voucher count if voucher was used
+      if (order.voucher_id) {
+        await Voucher.update(
+          {
+            used_count: sequelize.literal('GREATEST(0, used_count - 1)')
+          },
+          { where: { id: order.voucher_id }, transaction }
+        );
+        await VoucherUsage.destroy({
+          where: { order_id: order.id },
+          transaction
+        });
       }
 
       await OrderHistory.create(

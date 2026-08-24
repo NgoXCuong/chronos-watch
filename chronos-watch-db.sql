@@ -1,8 +1,6 @@
 CREATE DATABASE chronos_watch_db;
 USE chronos_watch_db;
 
-DROP TABLE IF EXISTS banners;
-
 -- ============================================================
 -- 1. BẢNG users (Người dùng)
 -- ============================================================
@@ -40,6 +38,7 @@ CREATE TABLE `user_addresses` (
   `is_default`      TINYINT(1)   DEFAULT 0,
   `created_at`      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  KEY `idx_address_user_default` (`user_id`, `is_default`),
   CONSTRAINT `fk_address_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -75,6 +74,7 @@ CREATE TABLE `categories` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_cat_name` (`name`),
   UNIQUE KEY `unique_cat_slug` (`slug`),
+  KEY `idx_category_parent` (`parent_id`),
   CONSTRAINT `fk_category_parent` FOREIGN KEY (`parent_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -100,6 +100,11 @@ CREATE TABLE `products` (
   `updated_at`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_product_slug` (`slug`),
+  KEY `idx_products_status_brand_price` (`status`, `brand_id`, `price`),
+  KEY `idx_products_status_views` (`status`, `views`),
+  KEY `idx_products_status_sold` (`status`, `sold_count`),
+  KEY `idx_products_created` (`created_at`),
+  FULLTEXT KEY `ft_product_search` (`name`),
   CONSTRAINT `fk_product_brand` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE CASCADE,
   CONSTRAINT `chk_stock` CHECK (`stock` >= 0),
   CONSTRAINT `chk_price` CHECK (`price` > 0)
@@ -112,6 +117,7 @@ CREATE TABLE `product_categories` (
   `product_id`  INT NOT NULL,
   `category_id` INT NOT NULL,
   PRIMARY KEY (`product_id`, `category_id`),
+  KEY `idx_pc_category_id` (`category_id`),
   CONSTRAINT `fk_pc_product`  FOREIGN KEY (`product_id`)  REFERENCES `products`   (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_pc_category` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -131,12 +137,29 @@ CREATE TABLE `vouchers` (
   `start_date`          DATETIME      NOT NULL,
   `end_date`            DATETIME      NOT NULL,
   `status`              ENUM('active','inactive') DEFAULT 'active',
-  `created_at`          DATETIME      NOT NULL,
-  `updated_at`          DATETIME      NOT NULL,
+  `created_at`          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_voucher_code` (`code`)
+  UNIQUE KEY `unique_voucher_code` (`code`),
+  KEY `idx_vouchers_status_dates` (`status`, `start_date`, `end_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ============================================================
+-- 7b. BẢNG voucher_usages (Lịch sử sử dụng mã giảm giá)
+-- ============================================================
+CREATE TABLE `voucher_usages` (
+  `id`         INT       NOT NULL AUTO_INCREMENT,
+  `voucher_id` INT       NOT NULL,
+  `user_id`    INT       NOT NULL,
+  `order_id`   INT       DEFAULT NULL,
+  `used_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_vu_voucher_user` (`voucher_id`, `user_id`),
+  KEY `idx_vu_order` (`order_id`),
+  CONSTRAINT `fk_vu_voucher` FOREIGN KEY (`voucher_id`) REFERENCES `vouchers` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_vu_user`    FOREIGN KEY (`user_id`)    REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_vu_order`   FOREIGN KEY (`order_id`)   REFERENCES `orders` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
 -- 8. BẢNG orders (Đơn hàng - Snapshot thông tin tại lúc mua)
@@ -163,6 +186,8 @@ CREATE TABLE `orders` (
   `payment_status`  ENUM('unpaid','paid','refunded') DEFAULT 'unpaid',
   `created_at`      TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  KEY `idx_orders_status_created` (`status`, `created_at`),
+  KEY `idx_orders_user_created`   (`user_id`, `created_at`),
   CONSTRAINT `fk_order_user`    FOREIGN KEY (`user_id`)    REFERENCES `users` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_order_address` FOREIGN KEY (`address_id`) REFERENCES `user_addresses` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_order_voucher` FOREIGN KEY (`voucher_id`) REFERENCES `vouchers` (`id`) ON DELETE SET NULL
@@ -179,6 +204,7 @@ CREATE TABLE `order_details` (
   `price`      DECIMAL(15,0) NOT NULL,
   `subtotal`   DECIMAL(15,0) GENERATED ALWAYS AS (`quantity` * `price`) STORED,
   PRIMARY KEY (`id`),
+  KEY `idx_od_product` (`product_id`),
   CONSTRAINT `fk_od_order`   FOREIGN KEY (`order_id`)   REFERENCES `orders`   (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_od_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -193,6 +219,7 @@ CREATE TABLE `order_history` (
   `note`        TEXT,
   `created_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  KEY `idx_history_order` (`order_id`),
   CONSTRAINT `fk_history_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -206,6 +233,7 @@ CREATE TABLE `carts` (
   `quantity`   INT DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_cart` (`user_id`, `product_id`),
+  KEY `idx_cart_prod` (`product_id`),
   CONSTRAINT `fk_cart_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_cart_prod` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -217,6 +245,7 @@ CREATE TABLE `wishlists` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_wishlist` (`user_id`, `product_id`),
+  KEY `idx_wishlist_prod` (`product_id`),
   CONSTRAINT `fk_wishlist_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_wishlist_prod` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -233,6 +262,8 @@ CREATE TABLE `reviews` (
   `created_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  KEY `idx_reviews_prod_active_rating` (`product_id`, `is_active`, `rating`),
+  KEY `idx_reviews_user` (`user_id`),
   CONSTRAINT `fk_rev_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_rev_prod` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
   CONSTRAINT `chk_rating`  CHECK (rating BETWEEN 1 AND 5)
@@ -240,10 +271,9 @@ CREATE TABLE `reviews` (
 
 
 -- ============================================================
--- 12. TRIGGERS (Đã lược bỏ - Logic chuyển về Backend)
+-- 12. LOGIC TRỪ KHO & LỊCH SỬ ĐƠN HÀNG
 -- ============================================================
--- Các nghiệp vụ trừ kho, hoàn kho và ghi lịch sử đơn hàng
--- hiện đã được xử lý tập trung tại Backend (Sequelize)
--- để tránh xung đột dữ liệu và hỗ trợ Custom Note.
+-- Các nghiệp vụ trừ kho (Atomic Decrement), hoàn kho và ghi lịch sử đơn hàng
+-- được xử lý tập trung và an toàn tại Backend (Sequelize Transaction).
 
 DELIMITER ;

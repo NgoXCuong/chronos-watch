@@ -22,7 +22,6 @@ const productService = {
         }
 
         // Lọc theo thông số kỹ thuật (specifications)
-        // Ví dụ: glass=Sapphire, movement=Automatic
         const specFilters = ['glass', 'movement', 'water_resistance', 'case_material'];
         specFilters.forEach(key => {
             if (rest[key]) {

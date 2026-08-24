@@ -63,9 +63,9 @@ const LoginPage = () => {
 
                     <LoginForm variant="light" />
 
-                    <div className="mt-12 border-t border-zinc-100 pt-6 text-[10px] text-center  text-zinc-600 font-heading uppercase">
+                    {/* <div className="mt-12 border-t border-zinc-100 pt-6 text-[10px] text-center  text-zinc-600 font-heading uppercase">
                         &copy; MMXXIV Chronos Prestige Group
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

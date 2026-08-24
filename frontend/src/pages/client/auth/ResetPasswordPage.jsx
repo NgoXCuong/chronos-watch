@@ -147,7 +147,7 @@ const ResetPasswordPage = () => {
                                     variant="primary"
                                     size="full"
                                     loading={loading}
-                                    className="h-12 text-xs uppercase tracking-widest font-bold mt-8"
+                                    className="h-12 text-xs uppercase  font-bold mt-8"
                                 >
                                     {loading ? (
                                         <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -169,7 +169,7 @@ const ResetPasswordPage = () => {
                                 Bạn sẽ được chuyển hướng về trang đăng nhập trong giây lát.
                             </p>
                             <Link to="/login">
-                                <Button variant="primary" size="full" className="h-12 uppercase tracking-widest text-[10px] font-bold">
+                                <Button variant="primary" size="full" className="h-12 uppercase  text-[10px] font-bold">
                                     Đăng nhập ngay
                                 </Button>
                             </Link>
