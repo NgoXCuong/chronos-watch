@@ -9,6 +9,14 @@ import {
 import adminApi from '../../../api/admin.api';
 import { formatCurrency } from '../../../utils/formatCurrency';
 import { Button } from '../../../components/ui/button';
+import {
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell
+} from '../../../components/ui/table';
 import { toast } from 'sonner';
 import { cn } from '../../../lib/utils';
 
@@ -206,19 +214,19 @@ const OrderDetailPage = () => {
                             </h3>
 
                             <div className="overflow-x-auto pb-4">
-                                <table className="w-full">
-                                    <thead>
-                                        <tr className="border-b border-slate-50">
-                                            <th className="pb-4 text-left text-[10px] font-black text-slate-600 uppercase ">Chi tiết sản phẩm</th>
-                                            <th className="pb-4 text-center text-[10px] font-black text-slate-600 uppercase ">Đơn giá</th>
-                                            <th className="pb-4 text-center text-[10px] font-black text-slate-600 uppercase ">S.Lượng</th>
-                                            <th className="pb-4 text-right text-[10px] font-black text-slate-600 uppercase ">Thành tiền</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-50">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="border-b border-slate-50 hover:bg-transparent">
+                                            <TableHead className="pb-4 text-left text-[10px] font-black text-slate-600 uppercase">Chi tiết sản phẩm</TableHead>
+                                            <TableHead className="pb-4 text-center text-[10px] font-black text-slate-600 uppercase">Đơn giá</TableHead>
+                                            <TableHead className="pb-4 text-center text-[10px] font-black text-slate-600 uppercase">S.Lượng</TableHead>
+                                            <TableHead className="pb-4 text-right text-[10px] font-black text-slate-600 uppercase">Thành tiền</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody className="divide-y divide-slate-50">
                                         {order.details?.map((item) => (
-                                            <tr key={item.id} className="group hover:bg-slate-50/20 transition-all">
-                                                <td className="py-6 pr-4">
+                                            <TableRow key={item.id} className="group hover:bg-slate-50/20 transition-all border-slate-50">
+                                                <TableCell className="py-6 pr-4">
                                                     <div className="flex items-center gap-5">
                                                         <div className="h-20 w-16 bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-500 flex-shrink-0">
                                                             <img src={item.product?.image_url} alt={item.product?.name} className="h-full w-full object-cover p-1" />
@@ -228,16 +236,16 @@ const OrderDetailPage = () => {
                                                             <p className="text-[10px] text-slate-600 mt-1 font-bold">MÃ SP: #{item.product?.id}</p>
                                                         </div>
                                                     </div>
-                                                </td>
-                                                <td className="py-6 text-center text-sm font-bold text-slate-600">{formatCurrency(item.price)}</td>
-                                                <td className="py-6 text-center">
+                                                </TableCell>
+                                                <TableCell className="py-6 text-center text-sm font-bold text-slate-600">{formatCurrency(item.price)}</TableCell>
+                                                <TableCell className="py-6 text-center">
                                                     <span className="text-sm font-black text-slate-900">×{item.quantity}</span>
-                                                </td>
-                                                <td className="py-6 text-right text-sm font-black text-slate-900 font-price">{formatCurrency(item.price * item.quantity)}</td>
-                                            </tr>
+                                                </TableCell>
+                                                <TableCell className="py-6 text-right text-sm font-black text-slate-900 font-price">{formatCurrency(item.price * item.quantity)}</TableCell>
+                                            </TableRow>
                                         ))}
-                                    </tbody>
-                                </table>
+                                    </TableBody>
+                                </Table>
                             </div>
 
                             {/* Internal Calculation Summary */}
