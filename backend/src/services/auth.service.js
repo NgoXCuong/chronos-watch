@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
 
 import { sendResetPasswordEmail } from "../utils/mail.js";
+import AppError from "../utils/AppError.js";
 
 const authService = {
     register: async (userData) => {
@@ -14,7 +15,7 @@ const authService = {
             where: { [Op.or]: [{ username }, { email }] }
         });
         if (existingUser) {
-            throw new Error('Tài khoản hoặc Email đã tồn tại');
+            throw new AppError(400, 'Tài khoản hoặc Email đã tồn tại');
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,16 +32,16 @@ const authService = {
         });
 
         if (!user) {
-            throw new Error('Tài khoản không chính xác');
+            throw new AppError(401, 'Tài khoản không chính xác');
         }
 
         if (user.status === 'banned') {
-            throw new Error('Tài khoản đã bị khóa');
+            throw new AppError(403, 'Tài khoản đã bị khóa');
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            throw new Error('Mật khẩu không chính xác');
+            throw new AppError(401, 'Mật khẩu không chính xác');
         }
 
         const token = jwt.sign(
@@ -64,16 +65,16 @@ const authService = {
         const user = await User.findByPk(userId, {
             attributes: { exclude: ['password', 'reset_password_token', 'reset_password_expires'] }
         });
-        if (!user) throw new Error('Người dùng không tồn tại');
+        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
         return user;
     },
 
     changePassword: async (userId, oldPassword, newPassword) => {
         const user = await User.findByPk(userId);
-        if (!user) throw new Error('Người dùng không tồn tại');
+        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
 
         const isMatch = await bcrypt.compare(oldPassword, user.password);
-        if (!isMatch) throw new Error('Mật khẩu cũ không chính xác');
+        if (!isMatch) throw new AppError(400, 'Mật khẩu cũ không chính xác');
 
         user.password = await bcrypt.hash(newPassword, 10);
         await user.save();
@@ -82,7 +83,7 @@ const authService = {
 
     forgotPassword: async (email) => {
         const user = await User.findOne({ where: { email } });
-        if (!user) throw new Error('Email không tồn tại');
+        if (!user) throw new AppError(404, 'Email không tồn tại');
 
         const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
         user.reset_password_token = resetToken;
@@ -92,7 +93,7 @@ const authService = {
         // Gửi email thật
         await sendResetPasswordEmail(email, resetToken);
 
-        return resetToken;
+        return { message: "Link đặt lại mật khẩu đã được gửi qua email!" };
     },
 
     resetPassword: async (token, newPassword) => {
@@ -102,7 +103,7 @@ const authService = {
                 reset_password_expires: { [Op.gt]: Date.now() }
             }
         });
-        if (!user) throw new Error('Token không hợp lệ hoặc đã hết hạn');
+        if (!user) throw new AppError(400, 'Token không hợp lệ hoặc đã hết hạn');
 
         user.password = await bcrypt.hash(newPassword, 10);
         user.reset_password_token = null;
@@ -113,7 +114,7 @@ const authService = {
 
     updateProfile: async (userId, updateData) => {
         const user = await User.findByPk(userId);
-        if (!user) throw new Error('Người dùng không tồn tại');
+        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
 
         const { full_name, phone, address, avatar_url } = updateData;
 
@@ -151,7 +152,7 @@ const authService = {
 
     logout: async (userId) => {
         const user = await User.findByPk(userId);
-        if (!user) throw new Error('Người dùng không tồn tại');
+        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
         user.reset_password_token = null;
         user.reset_password_expires = null;
         await user.save();

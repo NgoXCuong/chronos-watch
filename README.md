@@ -133,6 +133,7 @@ Dành cho quản trị viên:
 | **Sequelize**    | ^6.37.8   | ORM                   |
 | **JWT**          | ^9.0.3    | Authentication        |
 | **bcryptjs**     | ^3.0.3    | Password encryption   |
+| **express-rate-limit** | ^8.x | Rate limiting         |
 | **Cloudinary**   | ^1.41.3   | Image hosting         |
 | **Multer**       | ^2.1.1    | File upload           |
 | **Nodemailer**   | ^8.0.5    | Email service         |
@@ -300,6 +301,7 @@ DB_PASSWORD=your_password
 # Server Configuration
 PORT=3000
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
 
 # JWT Configuration
 JWT_SECRET=your_jwt_secret_key_here_min_32_chars
@@ -332,6 +334,21 @@ VNPAY_NOTIFY_URL=http://localhost:3000/api/payments/vnpay-notify
 VITE_API_URL=http://localhost:3000/api
 VITE_APP_NAME=Chronos Watch
 ```
+
+---
+
+# Chạy Tests
+
+```bash
+cd backend
+npm test
+```
+
+Test dùng **Vitest** và nằm trong `backend/src/__tests__/`:
+
+- `vnpay.test.js` — kiểm tra tạo URL thanh toán và xác thực chữ ký VNPay (hợp lệ / giả mạo)
+- `auth.service.test.js` — kiểm tra đăng ký, đăng nhập, đổi mật khẩu, quên mật khẩu
+- `errorHandler.test.js` — kiểm tra format lỗi Sequelize
 
 ---
 

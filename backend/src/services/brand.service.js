@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import sequelize from "../config/db.js";
 import Brand from "../models/brand.model.js";
+import AppError from "../utils/AppError.js";
 
 const brandService = {
     getAll: async (query = {}) => {
@@ -38,7 +39,7 @@ const brandService = {
     getDetail: async (id_or_slug) => {
         const where = isNaN(id_or_slug) ? { slug: id_or_slug } : { id: id_or_slug };
         const brand = await Brand.findOne({ where });
-        if (!brand) throw new Error("Thương hiệu không tồn tại");
+        if (!brand) throw new AppError(404, "Thương hiệu không tồn tại");
         return brand;
     },
 
@@ -48,20 +49,20 @@ const brandService = {
 
     update: async (id, data) => {
         const brand = await Brand.findByPk(id);
-        if (!brand) throw new Error("Thương hiệu không tồn tại");
+        if (!brand) throw new AppError(404, "Thương hiệu không tồn tại");
         return await brand.update(data);
     },
 
     delete: async (id) => {
         const brand = await Brand.findByPk(id);
-        if (!brand) throw new Error("Thương hiệu không tồn tại");
+        if (!brand) throw new AppError(404, "Thương hiệu không tồn tại");
         await brand.destroy();
         return true;
     },
 
     toggleStatus: async (id) => {
         const brand = await Brand.findByPk(id);
-        if (!brand) throw new Error("Thương hiệu không tồn tại");
+        if (!brand) throw new AppError(404, "Thương hiệu không tồn tại");
         brand.is_active = !brand.is_active;
         await brand.save();
         return brand;

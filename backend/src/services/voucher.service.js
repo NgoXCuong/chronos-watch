@@ -1,6 +1,7 @@
 import Voucher from '../models/voucher.model.js';
 import VoucherUsage from '../models/voucher_usage.model.js';
 import { Op } from 'sequelize';
+import AppError from "../utils/AppError.js";
 
 const voucherService = {
     // Admin CRUD
@@ -30,20 +31,20 @@ const voucherService = {
     create: async (data) => {
         // Kiểm tra mã trùng
         const existing = await Voucher.findOne({ where: { code: data.code } });
-        if (existing) throw new Error("Mã voucher đã tồn tại.");
+        if (existing) throw new AppError(400, "Mã voucher đã tồn tại.");
         
         return await Voucher.create(data);
     },
 
     update: async (id, data) => {
         const voucher = await Voucher.findByPk(id);
-        if (!voucher) throw new Error("Voucher không tồn tại.");
+        if (!voucher) throw new AppError(404, "Voucher không tồn tại.");
         return await voucher.update(data);
     },
 
     delete: async (id) => {
         const voucher = await Voucher.findByPk(id);
-        if (!voucher) throw new Error("Voucher không tồn tại.");
+        if (!voucher) throw new AppError(404, "Voucher không tồn tại.");
         await voucher.destroy();
         return true;
     },
@@ -58,20 +59,20 @@ const voucherService = {
         });
 
         if (!voucher) {
-            throw new Error("Mã giảm giá không hợp lệ hoặc đã hết hạn.");
+            throw new AppError(400, "Mã giảm giá không hợp lệ hoặc đã hết hạn.");
         }
 
         const now = new Date();
         if (now < new Date(voucher.start_date) || now > new Date(voucher.end_date)) {
-            throw new Error("Mã giảm giá đã hết hạn hoặc chưa đến ngày sử dụng.");
+            throw new AppError(400, "Mã giảm giá đã hết hạn hoặc chưa đến ngày sử dụng.");
         }
 
         if (voucher.usage_limit !== null && voucher.used_count >= voucher.usage_limit) {
-            throw new Error("Mã giảm giá đã hết lượt sử dụng.");
+            throw new AppError(400, "Mã giảm giá đã hết lượt sử dụng.");
         }
 
         if (orderValue < voucher.min_order_value) {
-            throw new Error(`Đơn hàng tối thiểu ${voucher.min_order_value}đ để áp dụng mã này.`);
+            throw new AppError(400, `Đơn hàng tối thiểu ${voucher.min_order_value}đ để áp dụng mã này.`);
         }
 
         // Kiểm tra nếu người dùng đã từng dùng voucher này
@@ -83,7 +84,7 @@ const voucherService = {
                 }
             });
             if (hasUsed) {
-                throw new Error("Bạn đã sử dụng mã giảm giá này rồi.");
+                throw new AppError(400, "Bạn đã sử dụng mã giảm giá này rồi.");
             }
         }
 

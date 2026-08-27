@@ -1,6 +1,7 @@
 import Wishlist from '../models/wishlist.model.js';
 import Product from '../models/product.model.js';
 import Brand from '../models/brand.model.js';
+import AppError from "../utils/AppError.js";
 
 const wishlistService = {
     toggleWishlist: async (userId, productId) => {
@@ -17,7 +18,7 @@ const wishlistService = {
         } else {
             // Check if product exists
             const product = await Product.findByPk(productId);
-            if (!product) throw new Error("Sản phẩm không tồn tại.");
+            if (!product) throw new AppError(404, "Sản phẩm không tồn tại.");
 
             await Wishlist.create({
                 user_id: userId,

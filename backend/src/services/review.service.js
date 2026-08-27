@@ -4,6 +4,7 @@ import OrderDetail from '../models/order_detail.model.js';
 import User from '../models/user.model.js';
 import Product from '../models/product.model.js';
 import { Op } from 'sequelize';
+import AppError from "../utils/AppError.js";
 
 const reviewService = {
     createReview: async (userId, data) => {
@@ -23,7 +24,7 @@ const reviewService = {
         });
 
         if (!hasBought) {
-            throw new Error("Tuyệt phẩm này chỉ dành cho những người thực sự sở hữu. Hãy để lại cảm nhận sau khi bạn đã nhận được sản phẩm.");
+            throw new AppError(403, "Tuyệt phẩm này chỉ dành cho những người thực sự sở hữu. Hãy để lại cảm nhận sau khi bạn đã nhận được sản phẩm.");
         }
 
         // 2. Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa (chỉ cho phép 1 lần đánh giá/sản phẩm)
@@ -35,7 +36,7 @@ const reviewService = {
         });
 
         if (existingReview) {
-            throw new Error("Dấu ấn của bạn đã được ghi lại. Mỗi tuyệt phẩm chỉ cần một lời cảm nhận chân thành.");
+            throw new AppError(400, "Dấu ấn của bạn đã được ghi lại. Mỗi tuyệt phẩm chỉ cần một lời cảm nhận chân thành.");
         }
 
         // 3. Tạo đánh giá mới
@@ -86,11 +87,11 @@ const reviewService = {
     deleteReview: async (reviewId, userId, isAdmin = false) => {
         const review = await Review.findByPk(reviewId);
         if (!review) {
-            throw new Error("Đánh giá không tồn tại.");
+            throw new AppError(404, "Đánh giá không tồn tại.");
         }
 
         if (!isAdmin && review.user_id !== userId) {
-            throw new Error("Bạn không có quyền xóa đánh giá này.");
+            throw new AppError(403, "Bạn không có quyền xóa đánh giá này.");
         }
 
         await review.destroy();

@@ -1,114 +1,71 @@
 import adminService from "../services/admin.service.js";
+import asyncHandler from "../utils/asyncHandler.js";
 
 const adminController = {
-    getDashboard: async (req, res) => {
-        try {
-            const stats = await adminService.getDashboardStats();
-            res.json(stats);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getDashboard: asyncHandler(async (req, res) => {
+        const stats = await adminService.getDashboardStats();
+        res.json(stats);
+    }),
 
-    getAllUsers: async (req, res) => {
-        try {
-            const users = await adminService.getAllUsers(req.query);
-            res.json(users);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getAllUsers: asyncHandler(async (req, res) => {
+        const users = await adminService.getAllUsers(req.query);
+        res.json(users);
+    }),
 
-    getAllOrders: async (req, res) => {
-        try {
-            const orders = await adminService.getAllOrders(req.query);
-            res.json(orders);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getAllOrders: asyncHandler(async (req, res) => {
+        const orders = await adminService.getAllOrders(req.query);
+        res.json(orders);
+    }),
 
-    getOrderDetail: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const order = await adminService.getOrderDetail(id);
-            res.json(order);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getOrderDetail: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const order = await adminService.getOrderDetail(id);
+        res.json(order);
+    }),
 
-    getNotifications: async (req, res) => {
-        try {
-            const notifications = await adminService.getNotifications();
-            res.json(notifications);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getNotifications: asyncHandler(async (req, res) => {
+        const notifications = await adminService.getNotifications();
+        res.json(notifications);
+    }),
 
-    getAllReviews: async (req, res) => {
-        try {
-            const reviews = await adminService.getAllReviews();
-            res.json(reviews);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getAllReviews: asyncHandler(async (req, res) => {
+        const reviews = await adminService.getAllReviews();
+        res.json(reviews);
+    }),
 
-    updateReviewStatus: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { is_active } = req.body;
-            const review = await adminService.updateReviewStatus(id, is_active);
-            res.json(review);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    updateReviewStatus: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const { is_active } = req.body;
+        const review = await adminService.updateReviewStatus(id, is_active);
+        res.json(review);
+    }),
 
-    replyToReview: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { reply } = req.body;
-            const review = await adminService.replyToReview(id, reply);
-            res.json(review);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    replyToReview: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const { reply } = req.body;
+        const review = await adminService.replyToReview(id, reply);
+        res.json(review);
+    }),
 
-    getRevenueStats: async (req, res) => {
-        try {
-            const { start_date, end_date } = req.query;
-            const data = await adminService.getRevenueStats(start_date, end_date);
-            res.json(data);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    getRevenueStats: asyncHandler(async (req, res) => {
+        const { start_date, end_date } = req.query;
+        const data = await adminService.getRevenueStats(start_date, end_date);
+        res.json(data);
+    }),
 
-    updateUserStatus: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { status } = req.body;
-            const user = await adminService.updateUserStatus(id, status);
-            res.json(user);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+    updateUserStatus: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const { status } = req.body;
+        const user = await adminService.updateUserStatus(id, status);
+        res.json(user);
+    }),
 
-    updateUserRole: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const { role } = req.body;
-            const user = await adminService.updateUserRole(id, role);
-            res.json(user);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    }
+    updateUserRole: asyncHandler(async (req, res) => {
+        const { id } = req.params;
+        const { role } = req.body;
+        const user = await adminService.updateUserRole(id, role);
+        res.json(user);
+    })
 };
 
 export default adminController;

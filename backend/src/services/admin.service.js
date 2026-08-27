@@ -6,6 +6,7 @@ import OrderDetail from "../models/order_detail.model.js";
 import OrderHistory from "../models/order_history.model.js";
 import Voucher from "../models/voucher.model.js";
 import { Op, fn, col } from "sequelize";
+import AppError from "../utils/AppError.js";
 
 const adminService = {
     getDashboardStats: async () => {
@@ -204,7 +205,7 @@ const adminService = {
                 { model: OrderHistory, as: 'history' }
             ]
         });
-        if (!order) throw new Error('Đơn hàng không tồn tại');
+        if (!order) throw new AppError(404, 'Đơn hàng không tồn tại');
         return order;
     },
 
@@ -258,7 +259,7 @@ const adminService = {
 
     updateReviewStatus: async (reviewId, is_active) => {
         const review = await Review.findByPk(reviewId);
-        if (!review) throw new Error('Đánh giá không tồn tại');
+        if (!review) throw new AppError(404, 'Đánh giá không tồn tại');
         review.is_active = is_active;
         await review.save();
         return review;
@@ -266,7 +267,7 @@ const adminService = {
 
     replyToReview: async (reviewId, reply) => {
         const review = await Review.findByPk(reviewId);
-        if (!review) throw new Error('Đánh giá không tồn tại');
+        if (!review) throw new AppError(404, 'Đánh giá không tồn tại');
         review.admin_reply = reply;
         review.replied_at = new Date();
         await review.save();
@@ -314,7 +315,7 @@ const adminService = {
 
     updateUserStatus: async (userId, status) => {
         const user = await User.findByPk(userId);
-        if (!user) throw new Error('Thành viên không tồn tại');
+        if (!user) throw new AppError(404, 'Thành viên không tồn tại');
         user.status = status;
         await user.save();
         return user;
@@ -322,7 +323,7 @@ const adminService = {
 
     updateUserRole: async (userId, role) => {
         const user = await User.findByPk(userId);
-        if (!user) throw new Error('Thành viên không tồn tại');
+        if (!user) throw new AppError(404, 'Thành viên không tồn tại');
         user.role = role;
         await user.save();
         return user;

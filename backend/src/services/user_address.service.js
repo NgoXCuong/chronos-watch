@@ -1,5 +1,6 @@
 import UserAddress from "../models/user_address.model.js";
 import sequelize from "../config/db.js";
+import AppError from "../utils/AppError.js";
 
 const userAddressService = {
     /**
@@ -51,7 +52,7 @@ const userAddressService = {
      */
     updateAddress: async (userId, addressId, addressData) => {
         const address = await UserAddress.findOne({ where: { id: addressId, user_id: userId } });
-        if (!address) throw new Error('Địa chỉ không tồn tại');
+        if (!address)         throw new AppError(404, 'Địa chỉ không tồn tại');
 
         const transaction = await sequelize.transaction();
         try {
@@ -79,7 +80,7 @@ const userAddressService = {
      */
     deleteAddress: async (userId, addressId) => {
         const address = await UserAddress.findOne({ where: { id: addressId, user_id: userId } });
-        if (!address) throw new Error('Địa chỉ không tồn tại');
+        if (!address)         throw new AppError(404, 'Địa chỉ không tồn tại');
 
         const isDefault = address.is_default;
         await address.destroy();
@@ -101,7 +102,7 @@ const userAddressService = {
      */
     setDefault: async (userId, addressId) => {
         const address = await UserAddress.findOne({ where: { id: addressId, user_id: userId } });
-        if (!address) throw new Error('Địa chỉ không tồn tại');
+        if (!address)         throw new AppError(404, 'Địa chỉ không tồn tại');
 
         const transaction = await sequelize.transaction();
         try {

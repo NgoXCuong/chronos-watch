@@ -1,5 +1,6 @@
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
+import AppError from "../utils/AppError.js";
 
 const cartService = {
     getCart: async (userId) => {
@@ -16,8 +17,8 @@ const cartService = {
     addToCart: async (userId, productId, quantity = 1) => {
         // Check if product exists
         const product = await Product.findByPk(productId);
-        if (!product) throw new Error('Sản phẩm không tồn tại');
-        if (product.stock < quantity) throw new Error('Số lượng sản phẩm trong kho không đủ');
+        if (!product) throw new AppError(404, 'Sản phẩm không tồn tại');
+        if (product.stock < quantity) throw new AppError(400, 'Số lượng sản phẩm trong kho không đủ');
 
         // Check if item already in cart
         let cartItem = await Cart.findOne({
@@ -26,7 +27,7 @@ const cartService = {
 
         if (cartItem) {
             cartItem.quantity += parseInt(quantity);
-            if (product.stock < cartItem.quantity) throw new Error('Số lượng vượt quá tồn kho');
+            if (product.stock < cartItem.quantity) throw new AppError(400, 'Số lượng vượt quá tồn kho');
             await cartItem.save();
         } else {
             cartItem = await Cart.create({
@@ -44,10 +45,10 @@ const cartService = {
             where: { user_id: userId, product_id: productId }
         });
 
-        if (!cartItem) throw new Error('Sản phẩm không có trong giỏ hàng');
+        if (!cartItem) throw new AppError(404, 'Sản phẩm không có trong giỏ hàng');
 
         const product = await Product.findByPk(productId);
-        if (product.stock < quantity) throw new Error('Số lượng sản phẩm trong kho không đủ');
+        if (product.stock < quantity) throw new AppError(400, 'Số lượng sản phẩm trong kho không đủ');
 
         cartItem.quantity = parseInt(quantity);
         await cartItem.save();
@@ -59,7 +60,7 @@ const cartService = {
             where: { user_id: userId, product_id: productId }
         });
 
-        if (!deleted) throw new Error('Sản phẩm không có trong giỏ hàng');
+        if (!deleted) throw new AppError(404, 'Sản phẩm không có trong giỏ hàng');
         return true;
     },
 

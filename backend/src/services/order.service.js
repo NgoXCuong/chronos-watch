@@ -11,6 +11,7 @@ import vnpayService from "./vnpay.service.js";
 import voucherService from "./voucher.service.js";
 import UserAddress from "../models/user_address.model.js";
 import User from "../models/user.model.js";
+import AppError from "../utils/AppError.js";
 
 const orderService = {
   checkout: async (userId, orderData, ipAddr) => {
@@ -18,7 +19,7 @@ const orderService = {
     try {
       // 1. Get user info for email
       const user = await User.findByPk(userId);
-      if (!user) throw new Error("Người dùng không tồn tại");
+      if (!user) throw new AppError(404, "Người dùng không tồn tại");
 
       // 2. Get cart items
       const cartItems = await Cart.findAll({
@@ -26,14 +27,14 @@ const orderService = {
         include: [{ model: Product, as: "product" }],
       });
 
-      if (cartItems.length === 0) throw new Error("Giỏ hàng trống");
+      if (cartItems.length === 0) throw new AppError(400, "Giỏ hàng trống");
 
       // 3. Validate stock and calculate subtotal
       let subtotal = 0;
       for (const item of cartItems) {
         if (!item.product) continue;
         if (item.product.stock < item.quantity) {
-          throw new Error(`Sản phẩm ${item.product.name} không đủ tồn kho`);
+          throw new AppError(400, `Sản phẩm ${item.product.name} không đủ tồn kho`);
         }
         subtotal += item.product.price * item.quantity;
       }
@@ -71,7 +72,7 @@ const orderService = {
         );
 
         if (affectedVoucher === 0) {
-          throw new Error("Mã giảm giá đã hết lượt sử dụng");
+          throw new AppError(400, "Mã giảm giá đã hết lượt sử dụng");
         }
       }
 
@@ -161,9 +162,7 @@ const orderService = {
         );
 
         if (affectedRows === 0) {
-          throw new Error(
-            `Sản phẩm ${item.product ? item.product.name : "này"} không đủ số lượng tồn kho`,
-          );
+          throw new AppError(400, `Sản phẩm ${item.product ? item.product.name : "này"} không đủ số lượng tồn kho`);
         }
       }
 
@@ -199,16 +198,22 @@ const orderService = {
     const isValid = vnpayService.validateResponse(vnp_Params);
     const orderId = vnp_Params["vnp_TxnRef"];
     const responseCode = vnp_Params["vnp_ResponseCode"];
+    const responseAmount = parseInt(vnp_Params["vnp_Amount"], 10);
 
     const order = await Order.findByPk(orderId);
-    if (!order) throw new Error("Đơn hàng không tồn tại");
+    if (!order) throw new AppError(404, "Đơn hàng không tồn tại");
+
+    // Kiểm tra số tiền thanh toán khớp với total_amount của đơn hàng
+    // (VNPay trả vnp_Amount theo đơn vị "cents" = VND * 100)
+    const expectedAmount = Math.round(parseFloat(order.total_amount) * 100);
+    const amountValid = Number.isFinite(responseAmount) && responseAmount === expectedAmount;
 
     // Idempotency check: If already paid or confirmed, just return success
     if (order.payment_status === "paid" || order.status === "confirmed") {
       return { success: true, order };
     }
 
-    if (isValid && responseCode === "00") {
+    if (isValid && responseCode === "00" && amountValid) {
       const transaction = await sequelize.transaction();
       try {
         order.payment_status = "paid";
@@ -231,7 +236,7 @@ const orderService = {
         throw error;
       }
     } else {
-      // Payment failed or signature invalid
+      // Payment failed, signature invalid, or amount mismatch
       return { success: false, order, message: "Thanh toán không thành công" };
     }
   },
@@ -275,13 +280,13 @@ const orderService = {
         { model: UserAddress, as: "shipping_address_ref" },
       ],
     });
-    if (!order) throw new Error("Đơn hàng không tồn tại");
+    if (!order)     throw new AppError(404, "Đơn hàng không tồn tại");
     return order;
   },
 
   updateOrderStatus: async (orderId, status, note) => {
     const order = await Order.findByPk(orderId);
-    if (!order) throw new Error("Đơn hàng không tồn tại");
+    if (!order)     throw new AppError(404, "Đơn hàng không tồn tại");
 
     const transaction = await sequelize.transaction();
     try {
@@ -307,9 +312,9 @@ const orderService = {
 
   markAsPaid: async (orderId) => {
     const order = await Order.findByPk(orderId);
-    if (!order) throw new Error("Đơn hàng không tồn tại");
+    if (!order)     throw new AppError(404, "Đơn hàng không tồn tại");
     if (order.payment_status === "paid")
-      throw new Error("Đơn hàng này đã được thanh toán");
+      throw new AppError(400, "Đơn hàng này đã được thanh toán");
 
     const transaction = await sequelize.transaction();
     try {
@@ -337,9 +342,9 @@ const orderService = {
     const order = await Order.findOne({
       where: { id: orderId, user_id: userId },
     });
-    if (!order) throw new Error("Đơn hàng không tồn tại");
+    if (!order)     throw new AppError(404, "Đơn hàng không tồn tại");
     if (!["pending", "confirmed"].includes(order.status)) {
-      throw new Error("Không thể hủy đơn hàng ở trạng thái hiện tại");
+      throw new AppError(400, "Không thể hủy đơn hàng ở trạng thái hiện tại");
     }
 
     const transaction = await sequelize.transaction();

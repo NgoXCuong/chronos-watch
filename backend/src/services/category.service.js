@@ -1,4 +1,5 @@
 import Category from "../models/category.model.js";
+import AppError from "../utils/AppError.js";
 
 const categoryService = {
     getAll: async (query = {}) => {
@@ -19,26 +20,26 @@ const categoryService = {
             where,
             include: ['children', 'parent']
         });
-        if (!category) throw new Error("Danh mục không tồn tại");
+        if (!category) throw new AppError(404, "Danh mục không tồn tại");
         return category;
     },
 
     create: async (data) => {
         if (data.parent_id) {
             const parent = await Category.findByPk(data.parent_id);
-            if (!parent) throw new Error("Danh mục cha không tồn tại");
+            if (!parent) throw new AppError(400, "Danh mục cha không tồn tại");
         }
         return await Category.create(data);
     },
 
     update: async (id, data) => {
         const category = await Category.findByPk(id);
-        if (!category) throw new Error("Danh mục không tồn tại");
+        if (!category) throw new AppError(404, "Danh mục không tồn tại");
         
         if (data.parent_id) {
-            if (data.parent_id === id) throw new Error("Danh mục không thể làm cha của chính nó");
+            if (data.parent_id === id) throw new AppError(400, "Danh mục không thể làm cha của chính nó");
             const parent = await Category.findByPk(data.parent_id);
-            if (!parent) throw new Error("Danh mục cha không tồn tại");
+            if (!parent) throw new AppError(400, "Danh mục cha không tồn tại");
         }
 
         return await category.update(data);
@@ -46,14 +47,14 @@ const categoryService = {
 
     delete: async (id) => {
         const category = await Category.findByPk(id);
-        if (!category) throw new Error("Danh mục không tồn tại");
+        if (!category) throw new AppError(404, "Danh mục không tồn tại");
         await category.destroy();
         return true;
     },
 
     toggleStatus: async (id) => {
         const category = await Category.findByPk(id);
-        if (!category) throw new Error("Danh mục không tồn tại");
+        if (!category) throw new AppError(404, "Danh mục không tồn tại");
         category.is_active = !category.is_active;
         await category.save();
         return category;

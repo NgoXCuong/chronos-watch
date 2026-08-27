@@ -2,6 +2,7 @@ import Product from "../models/product.model.js";
 import Brand from "../models/brand.model.js";
 import Category from "../models/category.model.js";
 import { Op, fn, col, literal } from "sequelize";
+import AppError from "../utils/AppError.js";
 
 const productService = {
     getAll: async (filters = {}) => {
@@ -117,7 +118,7 @@ const productService = {
                 { model: Category, as: 'categories', through: { attributes: [] } }
             ]
         });
-        if (!product) throw new Error("Sản phẩm không tồn tại");
+        if (!product) throw new AppError(404, "Sản phẩm không tồn tại");
         
         // Tăng lượt xem
         await product.increment('views');
@@ -139,7 +140,7 @@ const productService = {
     update: async (id, productData) => {
         const { category_ids, ...data } = productData;
         const product = await Product.findByPk(id);
-        if (!product) throw new Error("Sản phẩm không tồn tại");
+        if (!product) throw new AppError(404, "Sản phẩm không tồn tại");
 
         await product.update(data);
 
@@ -152,7 +153,7 @@ const productService = {
 
     delete: async (id) => {
         const product = await Product.findByPk(id);
-        if (!product) throw new Error("Sản phẩm không tồn tại");
+        if (!product) throw new AppError(404, "Sản phẩm không tồn tại");
         await product.update({ status: 'inactive' });
         return true;
     },
@@ -160,7 +161,7 @@ const productService = {
     getRelated: async (id_or_slug, limit = 4) => {
         const where = isNaN(id_or_slug) ? { slug: id_or_slug } : { id: id_or_slug };
         const product = await Product.findOne({ where });
-        if (!product) throw new Error("Sản phẩm không tồn tại");
+        if (!product) throw new AppError(404, "Sản phẩm không tồn tại");
 
         return await Product.findAll({
             where: {

@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Initialize the Gemini client
-const aiKey = process.env.GEMINI_API_KEY;
+const aiKey = process.env.GOOGLE_GENAI_API_KEY;
 const ai = aiKey ? new GoogleGenAI({ apiKey: aiKey }) : null;
 
 const getProductContext = async () => {
@@ -48,7 +48,7 @@ const getProductContext = async () => {
 
 const generateChatResponse = async (userMessage, history = []) => {
     if (!ai) {
-        throw new Error('Gemini API is not configured on the server. Missing GEMINI_API_KEY.');
+        throw new Error('Gemini API is not configured on the server. Missing GOOGLE_GENAI_API_KEY.');
     }
 
     try {
