@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -39,13 +39,7 @@ const AdminLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 60000); // Check every minute
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const data = await adminApi.getNotifications();
       setNotifications(data);
@@ -53,7 +47,13 @@ const AdminLayout = ({ children }) => {
     } catch (error) {
       console.error("Lỗi lấy thông báo:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   const handleNotificationClick = (link) => {
     setUnreadCount((prev) => Math.max(0, prev - 1));
