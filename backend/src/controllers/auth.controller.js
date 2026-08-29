@@ -1,6 +1,7 @@
 import authService from "../services/auth.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
+import jwt from "jsonwebtoken";
 
 const authController = {
     register: asyncHandler(async (req, res) => {
@@ -20,14 +21,33 @@ const authController = {
         }
 
         const result = await authService.login(loginAccount, password);
+
+        // Lưu token vào httpOnly cookie (an toàn hơn localStorage - chống XSS)
+        const decoded = jwt.decode(result.token);
+        if (decoded && decoded.exp) {
+            const maxAge = Math.max(0, decoded.exp * 1000 - Date.now());
+            res.cookie("token", result.token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge
+            });
+        }
+
         res.json({
             message: "Đăng nhập thành công!",
-            ...result
+            user: result.user
         });
     }),
 
     logout: asyncHandler(async (req, res) => {
-        await authService.logout(req.user.id);
+        const token =
+            req.cookies?.token ||
+            (req.headers["authorization"] &&
+                req.headers["authorization"].split(" ")[1]);
+
+        await authService.logout(req.user.id, token);
+        res.clearCookie("token");
         res.json({ message: "Đăng xuất thành công!" });
     }),
 

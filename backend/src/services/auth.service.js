@@ -1,7 +1,9 @@
 import User from "../models/user.model.js";
 import UserAddress from "../models/user_address.model.js";
+import TokenBlacklist from "../models/token_blacklist.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { Op } from "sequelize";
 
 import { sendResetPasswordEmail } from "../utils/mail.js";
@@ -152,12 +154,24 @@ const authService = {
         return await User.findByPk(userId, { include: ['addresses'] });
     },
 
-    logout: async (userId) => {
-        const user = await User.findByPk(userId);
-        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
-        user.reset_password_token = null;
-        user.reset_password_expires = null;
-        await user.save();
+    logout: async (userId, token) => {
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+                const expiresAt = new Date(decoded.exp * 1000);
+
+                // Chỉ blacklist nếu token còn hạn
+                if (expiresAt > new Date()) {
+                    await TokenBlacklist.upsert({
+                        token_hash: tokenHash,
+                        expires_at: expiresAt
+                    });
+                }
+            } catch (e) {
+                // Token đã hết hạn, không cần blacklist
+            }
+        }
         return true;
     },
 };

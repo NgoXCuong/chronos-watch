@@ -4,8 +4,20 @@ async function runMigration() {
   console.log('🚀 Bắt đầu quá trình cập nhật cấu trúc Database (Không mất dữ liệu)...');
 
   try {
-    // 1. Tạo bảng voucher_usages nếu chưa tồn tại
-    console.log('⏳ 1. Kiểm tra và tạo bảng voucher_usages...');
+    // 1. Tạo bảng token_blacklist nếu chưa tồn tại (hỗ trợ logout vô hiệu hóa JWT)
+    console.log('⌛ 1. Kiểm tra và tạo bảng token_blacklist...');
+    await sequelize.query(`
+      CREATE TABLE IF NOT EXISTS \`token_blacklist\` (
+        \`token_hash\` CHAR(64)    NOT NULL,
+        \`expires_at\` DATETIME    NOT NULL,
+        PRIMARY KEY (\`token_hash\`),
+        KEY \`idx_token_blacklist_expires\` (\`expires_at\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+    console.log('✅ Bảng token_blacklist đã sẵn sàng.');
+
+    // 2. Tạo bảng voucher_usages nếu chưa tồn tại
+    console.log('⌛ 2. Kiểm tra và tạo bảng voucher_usages...');
     await sequelize.query(`
       CREATE TABLE IF NOT EXISTS \`voucher_usages\` (
         \`id\`         INT       NOT NULL AUTO_INCREMENT,
@@ -45,7 +57,7 @@ async function runMigration() {
       }
     };
 
-    console.log('\n⏳ 2. Thêm các Index tối ưu hóa truy vấn...');
+    console.log('\n⏳ 3. Thêm các Index tối ưu hóa truy vấn...');
 
     // Index cho user_addresses
     await addIndexIfNotExists('user_addresses', 'idx_address_user_default', 'KEY `idx_address_user_default` (`user_id`, `is_default`)');
@@ -85,7 +97,7 @@ async function runMigration() {
     await addIndexIfNotExists('reviews', 'idx_reviews_user', 'KEY `idx_reviews_user` (`user_id`)');
 
     // 3. Cập nhật kiểu timestamp của vouchers nếu cần
-    console.log('\n⏳ 3. Chuẩn hóa timestamps bảng vouchers...');
+    console.log('\n⏳ 4. Chuẩn hóa timestamps bảng vouchers...');
     try {
       await sequelize.query(`
         ALTER TABLE \`vouchers\`

@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
     findByPk: vi.fn(),
     create: vi.fn(),
     sendResetPasswordEmail: vi.fn().mockResolvedValue(true),
+    tokenBlacklistUpsert: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock('../models/user.model.js', () => ({
@@ -20,6 +21,12 @@ vi.mock('../models/user_address.model.js', () => ({
     default: {
         findOne: vi.fn(),
         create: vi.fn(),
+    },
+}));
+
+vi.mock('../models/token_blacklist.model.js', () => ({
+    default: {
+        upsert: mocks.tokenBlacklistUpsert,
     },
 }));
 
@@ -163,6 +170,28 @@ describe('authService', () => {
             expect(mocks.sendResetPasswordEmail).toHaveBeenCalled();
             expect(result).not.toHaveProperty('reset_token');
             expect(user.reset_password_token).toBeTruthy();
+        });
+    });
+
+    describe('logout', () => {
+        it('nên blacklist token khi logout', async () => {
+            // Tạo JWT hợp lệ để test blacklist
+            const jwt = await import('jsonwebtoken');
+            const token = jwt.sign({ id: 1, role: 'customer' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+            const result = await authService.logout(1, token);
+
+            expect(result).toBe(true);
+            expect(mocks.tokenBlacklistUpsert).toHaveBeenCalled();
+            const upsertArg = mocks.tokenBlacklistUpsert.mock.calls[0][0];
+            expect(upsertArg).toHaveProperty('token_hash');
+            expect(upsertArg).toHaveProperty('expires_at');
+        });
+
+        it('nên bỏ qua nếu token hết hạn hoặc null', async () => {
+            const result = await authService.logout(1, null);
+            expect(result).toBe(true);
+            expect(mocks.tokenBlacklistUpsert).not.toHaveBeenCalled();
         });
     });
 });

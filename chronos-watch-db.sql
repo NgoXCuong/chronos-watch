@@ -269,6 +269,16 @@ CREATE TABLE `reviews` (
   CONSTRAINT `chk_rating`  CHECK (rating BETWEEN 1 AND 5)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ============================================================
+-- 11b. BẢNG token_blacklist (Hỗ trợ logout vô hiệu hóa JWT)
+-- ============================================================
+CREATE TABLE `token_blacklist` (
+  `token_hash` CHAR(64)  NOT NULL,
+  `expires_at` DATETIME  NOT NULL,
+  PRIMARY KEY (`token_hash`),
+  KEY `idx_token_blacklist_expires` (`expires_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ============================================================
 -- 12. LOGIC TRỪ KHO & LỊCH SỬ ĐƠN HÀNG
