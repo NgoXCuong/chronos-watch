@@ -7,6 +7,8 @@ import { Op } from "sequelize";
 import { sendResetPasswordEmail } from "../utils/mail.js";
 import AppError from "../utils/AppError.js";
 
+const JWT_EXPIRE = process.env.JWT_EXPIRE || '1h';
+
 const authService = {
     register: async (userData) => {
         const { username, email, password, full_name, phone } = userData;
@@ -47,7 +49,7 @@ const authService = {
         const token = jwt.sign(
             { id: user.id, role: user.role },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: JWT_EXPIRE }
         );
 
         return {

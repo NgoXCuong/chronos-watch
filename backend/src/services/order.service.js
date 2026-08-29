@@ -13,6 +13,16 @@ import UserAddress from "../models/user_address.model.js";
 import User from "../models/user.model.js";
 import AppError from "../utils/AppError.js";
 
+const ORDER_STATUS_TRANSITIONS = {
+    pending: ['confirmed', 'cancelled'],
+    confirmed: ['processing', 'cancelled'],
+    processing: ['shipping', 'cancelled'],
+    shipping: ['delivered'],
+    delivered: ['returned'],
+    cancelled: [],
+    returned: [],
+};
+
 const orderService = {
   checkout: async (userId, orderData, ipAddr) => {
     const transaction = await sequelize.transaction();
@@ -287,6 +297,11 @@ const orderService = {
   updateOrderStatus: async (orderId, status, note) => {
     const order = await Order.findByPk(orderId);
     if (!order)     throw new AppError(404, "Đơn hàng không tồn tại");
+
+    const allowed = ORDER_STATUS_TRANSITIONS[order.status] || [];
+    if (!allowed.includes(status)) {
+      throw new AppError(400, `Không thể chuyển trạng thái từ "${order.status}" sang "${status}"`);
+    }
 
     const transaction = await sequelize.transaction();
     try {

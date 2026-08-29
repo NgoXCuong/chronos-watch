@@ -79,6 +79,16 @@ const STATUS_CONFIG = {
   },
 };
 
+const ORDER_STATUS_TRANSITIONS = {
+  pending: ['confirmed', 'cancelled'],
+  confirmed: ['processing', 'cancelled'],
+  processing: ['shipping', 'cancelled'],
+  shipping: ['delivered'],
+  delivered: ['returned'],
+  cancelled: [],
+  returned: [],
+};
+
 const StatusBadge = ({ status }) => {
   const s = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
   return (
@@ -200,7 +210,10 @@ const OrderTable = ({
                 <RefreshCcw className="h-4 w-4 animate-spin mx-auto text-amber-600" />
               </div>
             ) : (
-              Object.entries(STATUS_CONFIG).map(([key, cfg]) => (
+              Object.entries(STATUS_CONFIG).filter(([key]) => {
+                const allowed = ORDER_STATUS_TRANSITIONS[row.status] || [];
+                return allowed.includes(key);
+              }).map(([key, cfg]) => (
                 <DropdownMenuItem
                   key={key}
                   className={cn(
