@@ -10,6 +10,8 @@ import BrandTable from '../../../components/admin/Brand/BrandTable';
 import BrandFormModal from '../../../components/admin/Brand/BrandFormModal';
 import AdminPagination from '../../../components/admin/Common/AdminPagination';
 
+import useDebounce from '../../../hooks/useDebounce';
+
 const EMPTY_FORM = { name: '', slug: '', description: '', country: '' };
 
 const BrandListPage = () => {
@@ -22,6 +24,7 @@ const BrandListPage = () => {
     const [logoPreview, setLogoPreview] = useState(null);
     const [saving, setSaving] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(searchTerm, 400);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const limit = 10;
@@ -31,8 +34,7 @@ const BrandListPage = () => {
         setLoading(true);
         try {
             const data = await brandApi.getAll({ 
-                all: true, 
-                search: searchTerm, 
+                search: debouncedSearch, 
                 page: currentPage, 
                 limit: limit 
             });
@@ -45,14 +47,20 @@ const BrandListPage = () => {
         }
     };
 
-    useEffect(() => { 
-        setCurrentPage(1); 
-        fetchBrands(); 
-    }, [searchTerm]);
+    const isFirstFilter = useRef(true);
+    useEffect(() => {
+        if (isFirstFilter.current) {
+            isFirstFilter.current = false;
+            return;
+        }
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
+    }, [debouncedSearch]);
 
     useEffect(() => { 
         fetchBrands(); 
-    }, [currentPage]);
+    }, [currentPage, debouncedSearch]);
 
     const openCreate = () => {
         setEditingBrand(null);

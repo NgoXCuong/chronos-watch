@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     UserCheck,
     FileSpreadsheet,
@@ -17,11 +17,13 @@ import AdminPagination from '../../../components/admin/Common/AdminPagination';
 import adminApi from '../../../api/admin.api';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
+import useDebounce from '../../../hooks/useDebounce';
 
 const UserListPage = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(searchTerm, 400);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
     const limit = 10;
@@ -30,7 +32,7 @@ const UserListPage = () => {
         setLoading(true);
         try {
             const data = await adminApi.getAllUsers({ 
-                search: searchTerm, 
+                search: debouncedSearch, 
                 page: currentPage, 
                 limit: limit 
             });
@@ -44,14 +46,20 @@ const UserListPage = () => {
         }
     };
 
-    useEffect(() => { 
-        setCurrentPage(1); 
-        fetchUsers(); 
-    }, [searchTerm]);
+    const isFirstFilter = useRef(true);
+    useEffect(() => {
+        if (isFirstFilter.current) {
+            isFirstFilter.current = false;
+            return;
+        }
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
+    }, [debouncedSearch]);
 
     useEffect(() => { 
         fetchUsers(); 
-    }, [currentPage]);
+    }, [currentPage, debouncedSearch]);
 
     const handleExportExcel = () => {
         if (users.length === 0) {

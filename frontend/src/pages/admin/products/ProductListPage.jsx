@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, RefreshCw } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
@@ -10,6 +10,7 @@ import AdminHeader from '../../../components/admin/Common/AdminHeader';
 import SearchBanner from '../../../components/admin/Common/SearchBanner';
 import ProductTable from '../../../components/admin/Product/ProductTable';
 import AdminPagination from '../../../components/admin/Common/AdminPagination';
+import useDebounce from '../../../hooks/useDebounce';
 
 const ProductListPage = () => {
     const navigate = useNavigate();
@@ -17,6 +18,7 @@ const ProductListPage = () => {
     const [count, setCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(searchTerm, 400);
     const [selectedBrand, setSelectedBrand] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('');
     const [brands, setBrands] = useState([]);
@@ -33,7 +35,7 @@ const ProductListPage = () => {
         setLoading(true);
         try {
             const data = await productApi.getAll({ 
-                search: searchTerm, 
+                search: debouncedSearch, 
                 brand_id: selectedBrand,
                 category_id: selectedCategory,
                 page: currentPage, 
@@ -84,14 +86,20 @@ const ProductListPage = () => {
         );
     };
 
-    useEffect(() => { 
-        setCurrentPage(1); 
-        fetchProducts(); 
-    }, [searchTerm, selectedBrand, selectedCategory]);
+    const isFirstFilter = useRef(true);
+    useEffect(() => {
+        if (isFirstFilter.current) {
+            isFirstFilter.current = false;
+            return;
+        }
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
+    }, [debouncedSearch, selectedBrand, selectedCategory]);
 
     useEffect(() => { 
         fetchProducts(); 
-    }, [currentPage]);
+    }, [currentPage, debouncedSearch, selectedBrand, selectedCategory]);
 
     const handleDelete = async (product) => {
         if (!window.confirm(`Xóa sản phẩm "${product.name}"?`)) return;

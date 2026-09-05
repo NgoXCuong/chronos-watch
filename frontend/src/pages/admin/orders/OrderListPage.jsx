@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     RefreshCw,
     FileSpreadsheet
@@ -15,6 +15,7 @@ import OrderTable, { STATUS_CONFIG } from '../../../components/admin/Order/Order
 import OrderStatusFilter from '../../../components/admin/Order/OrderStatusFilter';
 import AdminPagination from '../../../components/admin/Common/AdminPagination';
 import { cn } from '../../../lib/utils';
+import useDebounce from '../../../hooks/useDebounce';
 
 const STATUSES = Object.entries(STATUS_CONFIG).map(([k, v]) => ({ key: k, label: v.label }));
 
@@ -24,6 +25,7 @@ const OrderListPage = () => {
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const debouncedSearch = useDebounce(searchTerm, 400);
     const [updatingId, setUpdatingId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalCount, setTotalCount] = useState(0);
@@ -33,7 +35,7 @@ const OrderListPage = () => {
         setLoading(true);
         try {
             const data = await adminApi.getAllOrders({ 
-                search: searchTerm, 
+                search: debouncedSearch, 
                 status: filterStatus, 
                 page: currentPage, 
                 limit: limit 
@@ -47,14 +49,20 @@ const OrderListPage = () => {
         }
     };
 
-    useEffect(() => { 
-        setCurrentPage(1); 
-        fetchOrders(); 
-    }, [searchTerm, filterStatus]);
+    const isFirstFilter = useRef(true);
+    useEffect(() => {
+        if (isFirstFilter.current) {
+            isFirstFilter.current = false;
+            return;
+        }
+        if (currentPage !== 1) {
+            setCurrentPage(1);
+        }
+    }, [debouncedSearch, filterStatus]);
 
     useEffect(() => { 
         fetchOrders(); 
-    }, [currentPage]);
+    }, [currentPage, debouncedSearch, filterStatus]);
 
     const handleStatusUpdate = async (orderId, status) => {
         setUpdatingId(orderId);
