@@ -21,6 +21,26 @@ describe('vnpayService', () => {
             expect(url).toContain('vnp_Amount=10000000'); // 100000 * 100
             expect(url).toContain('vnp_SecureHash=');
         });
+
+        it('nên hoạt động với VNPAY_HASH_SECRET thay cho VNPAY_SECRET_KEY', () => {
+            const oldSecret = process.env.VNPAY_SECRET_KEY;
+            delete process.env.VNPAY_SECRET_KEY;
+            process.env.VNPAY_HASH_SECRET = 'test-hash-secret';
+
+            const order = { id: 2, total_amount: 50000 };
+            const url = vnpayService.createPaymentUrl(order, '127.0.0.1');
+
+            expect(url).toContain('vnp_TxnRef=2');
+            expect(url).toContain('vnp_SecureHash=');
+
+            const queryPart = url.split('?')[1];
+            const params = Object.fromEntries(new URLSearchParams(queryPart));
+            expect(vnpayService.validateResponse(params)).toBe(true);
+
+            // Restore
+            delete process.env.VNPAY_HASH_SECRET;
+            process.env.VNPAY_SECRET_KEY = oldSecret;
+        });
     });
 
     describe('validateResponse', () => {

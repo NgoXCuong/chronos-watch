@@ -32,7 +32,10 @@ function sortObject(obj) {
 const vnpayService = {
     createPaymentUrl: (order, ipAddr) => {
         let tmnCode = process.env.VNPAY_TMN_CODE;
-        let secretKey = process.env.VNPAY_SECRET_KEY;
+        let secretKey = process.env.VNPAY_HASH_SECRET || process.env.VNPAY_SECRET_KEY;
+        if (!secretKey) {
+            throw new Error("VNPAY secret key chưa được cấu hình (thiếu VNPAY_HASH_SECRET hoặc VNPAY_SECRET_KEY)");
+        }
         let vnpUrl = process.env.VNPAY_URL;
         let returnUrl = process.env.VNPAY_RETURN_URL;
 
@@ -84,7 +87,10 @@ const vnpayService = {
 
         vnp_Params = sortObject(vnp_Params);
 
-        let secretKey = process.env.VNPAY_SECRET_KEY;
+        let secretKey = process.env.VNPAY_HASH_SECRET || process.env.VNPAY_SECRET_KEY;
+        if (!secretKey) {
+            return false;
+        }
         let querystring = Object.keys(vnp_Params).map((key) => {
             return key + '=' + vnp_Params[key];
         }).join('&');

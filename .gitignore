@@ -11,6 +11,7 @@ md/
 # Environment variables (Cực kỳ quan trọng để bảo mật)
 .env
 .env.*
+!.env.example
 
 # Logs
 logs

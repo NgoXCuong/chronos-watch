@@ -17,6 +17,15 @@ const errorHandler = (err, req, res, next) => {
     ) {
         statusCode = 400;
         message = formatSequelizeError(err);
+    } else if (err.name === "MulterError") {
+        statusCode = 400;
+        if (err.code === "LIMIT_FILE_SIZE") {
+            message = "Dung lượng ảnh tải lên không được vượt quá 5MB";
+        } else if (err.code === "LIMIT_FILE_COUNT") {
+            message = "Số lượng file tải lên vượt quá giới hạn cho phép";
+        } else {
+            message = `Lỗi tải tệp: ${err.message}`;
+        }
     }
 
     if (statusCode >= 500) {

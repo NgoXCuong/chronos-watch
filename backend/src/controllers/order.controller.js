@@ -21,7 +21,7 @@ const orderController = {
     }),
 
     getDetail: asyncHandler(async (req, res) => {
-        const order = await orderService.getOrderDetail(req.params.id);
+        const order = await orderService.getOrderDetail(req.params.id, req.user?.id, req.user?.role);
         res.json(order);
     }),
 

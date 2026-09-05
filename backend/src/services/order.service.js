@@ -23,6 +23,35 @@ const ORDER_STATUS_TRANSITIONS = {
     returned: [],
 };
 
+const revertOrderStockAndVoucher = async (order, transaction) => {
+  const details = await OrderDetail.findAll({
+    where: { order_id: order.id },
+    transaction,
+  });
+  for (const item of details) {
+    await Product.update(
+      {
+        stock: sequelize.literal(`stock + ${item.quantity}`),
+        sold_count: sequelize.literal(`GREATEST(0, sold_count - ${item.quantity})`),
+      },
+      { where: { id: item.product_id }, transaction },
+    );
+  }
+
+  if (order.voucher_id) {
+    await Voucher.update(
+      {
+        used_count: sequelize.literal('GREATEST(0, used_count - 1)')
+      },
+      { where: { id: order.voucher_id }, transaction }
+    );
+    await VoucherUsage.destroy({
+      where: { order_id: order.id },
+      transaction
+    });
+  }
+};
+
 const orderService = {
   checkout: async (userId, orderData, ipAddr) => {
     const transaction = await sequelize.transaction();
@@ -272,7 +301,7 @@ const orderService = {
     });
   },
 
-  getOrderDetail: async (orderId) => {
+  getOrderDetail: async (orderId, userId = null, userRole = null) => {
     const order = await Order.findByPk(orderId, {
       include: [
         {
@@ -291,6 +320,12 @@ const orderService = {
       ],
     });
     if (!order)     throw new AppError(404, "Đơn hàng không tồn tại");
+
+    // IDOR protection: only the owner or an admin can access order details
+    if (userId && userRole !== "admin" && order.user_id !== userId) {
+      throw new AppError(403, "Bạn không có quyền xem thông tin đơn hàng này");
+    }
+
     return order;
   },
 
@@ -307,6 +342,11 @@ const orderService = {
     try {
       order.status = status;
       await order.save({ transaction });
+
+      // Hoàn trả tồn kho và voucher nếu đơn hàng bị hủy hoặc hoàn trả
+      if (status === "cancelled" || status === "returned") {
+        await revertOrderStockAndVoucher(order, transaction);
+      }
 
       await OrderHistory.create(
         {
@@ -367,33 +407,8 @@ const orderService = {
       order.status = "cancelled";
       await order.save({ transaction });
 
-      // Revert stock atomically
-      const details = await OrderDetail.findAll({
-        where: { order_id: orderId },
-      });
-      for (const item of details) {
-        await Product.update(
-          {
-            stock: sequelize.literal(`stock + ${item.quantity}`),
-            sold_count: sequelize.literal(`GREATEST(0, sold_count - ${item.quantity})`),
-          },
-          { where: { id: item.product_id }, transaction },
-        );
-      }
-
-      // Revert voucher count if voucher was used
-      if (order.voucher_id) {
-        await Voucher.update(
-          {
-            used_count: sequelize.literal('GREATEST(0, used_count - 1)')
-          },
-          { where: { id: order.voucher_id }, transaction }
-        );
-        await VoucherUsage.destroy({
-          where: { order_id: order.id },
-          transaction
-        });
-      }
+      // Revert stock & voucher atomically
+      await revertOrderStockAndVoucher(order, transaction);
 
       await OrderHistory.create(
         {

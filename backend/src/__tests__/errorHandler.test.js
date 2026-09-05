@@ -25,3 +25,26 @@ describe('formatSequelizeError', () => {
         expect(formatSequelizeError(err)).toBe('Lỗi nghiệp vụ');
     });
 });
+
+import { errorHandler } from '../middlewares/errorHandler.js';
+
+describe('errorHandler middleware', () => {
+    it('nên xử lý MulterError LIMIT_FILE_SIZE và trả về 400', () => {
+        const err = new Error('File too large');
+        err.name = 'MulterError';
+        err.code = 'LIMIT_FILE_SIZE';
+
+        const req = {};
+        let status = 0;
+        let jsonResponse = null;
+        const res = {
+            status: (s) => { status = s; return res; },
+            json: (j) => { jsonResponse = j; return res; }
+        };
+        const next = () => {};
+
+        errorHandler(err, req, res, next);
+        expect(status).toBe(400);
+        expect(jsonResponse.message).toContain('5MB');
+    });
+});
