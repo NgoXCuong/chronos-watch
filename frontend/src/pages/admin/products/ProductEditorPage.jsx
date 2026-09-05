@@ -45,8 +45,9 @@ const ProductEditorPage = () => {
     // Image states
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
-    const [galleryFiles, setGalleryFiles] = useState([]);
-    const [galleryPreviews, setGalleryPreviews] = useState([]);
+    const [existingGallery, setExistingGallery] = useState([]);
+    const [newGalleryFiles, setNewGalleryFiles] = useState([]);
+    const [newGalleryPreviews, setNewGalleryPreviews] = useState([]);
 
     const imageRef = useRef();
     const galleryRef = useRef();
@@ -90,7 +91,10 @@ const ProductEditorPage = () => {
             });
             setImagePreview(product.image_url || null);
             if (product.image_gallery) {
-                setGalleryPreviews(Array.isArray(product.image_gallery) ? product.image_gallery : JSON.parse(product.image_gallery));
+                const gallery = Array.isArray(product.image_gallery) 
+                    ? product.image_gallery 
+                    : (typeof product.image_gallery === 'string' ? JSON.parse(product.image_gallery) : []);
+                setExistingGallery(gallery || []);
             }
         } catch (err) {
             toast.error('Không thể tải thông tin sản phẩm');
@@ -115,15 +119,22 @@ const ProductEditorPage = () => {
 
     const handleGalleryChange = (e) => {
         const files = Array.from(e.target.files);
-        setGalleryFiles(prev => [...prev, ...files]);
+        setNewGalleryFiles(prev => [...prev, ...files]);
         const previews = files.map(f => URL.createObjectURL(f));
-        setGalleryPreviews(prev => [...prev, ...previews]);
+        setNewGalleryPreviews(prev => [...prev, ...previews]);
     };
 
     const removeGalleryItem = (index) => {
-        setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
-        setGalleryFiles(prev => prev.filter((_, i) => i !== (index - (galleryPreviews.length - galleryFiles.length))));
+        if (index < existingGallery.length) {
+            setExistingGallery(prev => prev.filter((_, i) => i !== index));
+        } else {
+            const newIndex = index - existingGallery.length;
+            setNewGalleryFiles(prev => prev.filter((_, i) => i !== newIndex));
+            setNewGalleryPreviews(prev => prev.filter((_, i) => i !== newIndex));
+        }
     };
+
+    const allGalleryPreviews = [...existingGallery, ...newGalleryPreviews];
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -137,9 +148,10 @@ const ProductEditorPage = () => {
             });
             fd.append('specifications', JSON.stringify(specsToObj(form.specifications)));
             fd.append('category_ids', JSON.stringify(form.category_ids));
+            fd.append('existing_gallery', JSON.stringify(existingGallery));
 
             if (imageFile) fd.append('image', imageFile);
-            galleryFiles.forEach(f => fd.append('gallery', f));
+            newGalleryFiles.forEach(f => fd.append('gallery', f));
 
             if (isEdit) {
                 await productApi.update(id, fd);
@@ -248,7 +260,7 @@ const ProductEditorPage = () => {
                         imagePreview={imagePreview}
                         imageRef={imageRef}
                         handleImageChange={handleImageChange}
-                        galleryPreviews={galleryPreviews}
+                        galleryPreviews={allGalleryPreviews}
                         galleryRef={galleryRef}
                         handleGalleryChange={handleGalleryChange}
                         removeGalleryItem={removeGalleryItem}

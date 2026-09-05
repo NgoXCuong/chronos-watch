@@ -14,12 +14,24 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['lucide-react', 'sonner', 'sweetalert2', 'swiper'],
-          'vendor-charts': ['recharts'],
-          'vendor-editor': ['react-quill-new'],
-          'vendor-xlsx': ['xlsx'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react/') || id.includes('react-dom/') || id.includes('react-router-dom/')) {
+              return 'vendor-react';
+            }
+            if (id.includes('recharts')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('react-quill-new')) {
+              return 'vendor-editor';
+            }
+            if (id.includes('xlsx')) {
+              return 'vendor-xlsx';
+            }
+            if (id.includes('lucide-react') || id.includes('sonner') || id.includes('sweetalert2') || id.includes('swiper')) {
+              return 'vendor-ui';
+            }
+          }
         },
       },
     },

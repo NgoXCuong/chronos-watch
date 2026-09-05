@@ -1,4 +1,5 @@
 import productService from "../services/product.service.js";
+import aiService from "../services/ai.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 
@@ -43,6 +44,7 @@ const productController = {
         }
 
         const product = await productService.create(data);
+        aiService.clearProductContextCache();
         res.status(201).json({
             message: "Tạo sản phẩm thành công!",
             product
@@ -55,8 +57,29 @@ const productController = {
         if (req.files && req.files.image) {
             data.image_url = req.files.image[0].path;
         }
-        if (req.files && req.files.gallery) {
-            data.image_gallery = req.files.gallery.map(file => file.path);
+
+        // Xử lý bộ sưu tập ảnh: giữ ảnh cũ được chọn + ghép thêm ảnh mới tải lên
+        let existingGallery = null;
+        if (data.existing_gallery !== undefined) {
+            try {
+                existingGallery = typeof data.existing_gallery === 'string'
+                    ? JSON.parse(data.existing_gallery)
+                    : data.existing_gallery;
+                if (!Array.isArray(existingGallery)) existingGallery = [];
+            } catch (e) {
+                existingGallery = [];
+            }
+        }
+
+        const newGalleryImages = (req.files && req.files.gallery)
+            ? req.files.gallery.map(file => file.path)
+            : [];
+
+        if (existingGallery !== null || newGalleryImages.length > 0) {
+            data.image_gallery = [
+                ...(existingGallery || []),
+                ...newGalleryImages
+            ];
         }
 
         if (typeof data.category_ids === 'string' && data.category_ids.trim() !== "") {
@@ -75,6 +98,7 @@ const productController = {
         }
 
         const product = await productService.update(req.params.id, data);
+        aiService.clearProductContextCache();
         res.json({
             message: "Cập nhật sản phẩm thành công!",
             product
@@ -83,6 +107,7 @@ const productController = {
 
     delete: asyncHandler(async (req, res) => {
         await productService.delete(req.params.id);
+        aiService.clearProductContextCache();
         res.json({ message: "Xóa sản phẩm thành công!" });
     }),
 

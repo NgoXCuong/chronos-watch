@@ -12,7 +12,16 @@ const getAiClient = () => {
     return aiKey ? new GoogleGenAI({ apiKey: aiKey }) : null;
 };
 
+let cachedProductContext = null;
+let cacheExpiry = 0;
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 phút
+
 const getProductContext = async () => {
+    const now = Date.now();
+    if (cachedProductContext && now < cacheExpiry) {
+        return cachedProductContext;
+    }
+
     try {
         const products = await Product.findAll({
             where: { status: 'active' },
@@ -41,11 +50,19 @@ const getProductContext = async () => {
             contextText += `  Mô tả: ${tempDiv}...\n\n`;
         });
 
+        cachedProductContext = contextText;
+        cacheExpiry = now + CACHE_TTL_MS;
+
         return contextText;
     } catch (error) {
         console.error("Error fetching product context:", error);
-        return "Hiện tại không lấy được danh sách sản phẩm.";
+        return cachedProductContext || "Hiện tại không lấy được danh sách sản phẩm.";
     }
+};
+
+const clearProductContextCache = () => {
+    cachedProductContext = null;
+    cacheExpiry = 0;
 };
 
 const generateChatResponse = async (userMessage, history = []) => {
@@ -101,5 +118,6 @@ ${productContext}
 };
 
 export default {
-    generateChatResponse
+    generateChatResponse,
+    clearProductContextCache
 };
