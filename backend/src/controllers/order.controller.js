@@ -43,6 +43,27 @@ const orderController = {
         const { note } = req.body;
         await orderService.cancelOrder(req.user.id, req.params.id, note);
         res.json({ message: "Đã hủy đơn hàng thành công" });
+    }),
+
+    retryPayment: asyncHandler(async (req, res) => {
+        const ipAddr = req.headers['x-forwarded-for'] || 
+                     req.connection.remoteAddress || 
+                     req.socket.remoteAddress || 
+                     req.connection.socket.remoteAddress;
+
+        const result = await orderService.retryVNPayPayment(req.params.id, req.user.id, ipAddr);
+        res.json({
+            message: "Tạo liên kết thanh toán lại thành công",
+            ...result
+        });
+    }),
+
+    switchCOD: asyncHandler(async (req, res) => {
+        const result = await orderService.switchPaymentMethodToCOD(req.params.id, req.user.id);
+        res.json({
+            message: "Đã chuyển phương thức thanh toán sang COD thành công",
+            ...result
+        });
     })
 };
 

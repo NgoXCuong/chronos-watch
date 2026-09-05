@@ -13,6 +13,12 @@ const sequelize = new Sequelize(
     dialect: "mysql",
     logging: false, // Tắt log SQL ra console cho sạch, bật lên nếu muốn debug
     timezone: "+07:00", // Khớp với múi giờ Việt Nam
+    pool: {
+      max: parseInt(process.env.DB_POOL_MAX || "10", 10),
+      min: parseInt(process.env.DB_POOL_MIN || "2", 10),
+      acquire: 30000,
+      idle: 10000,
+    },
     define: {
       timestamps: true, // Tự động quản lý created_at, updated_at
       underscored: true, // Chuyển camelCase sang snake_case (ví dụ: createdAt -> created_at)

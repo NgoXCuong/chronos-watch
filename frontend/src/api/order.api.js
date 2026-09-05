@@ -17,6 +17,14 @@ const orderApi = {
         const response = await axios.post(`/orders/${id}/cancel`);
         return response.data;
     },
+    retryPayment: async (id) => {
+        const response = await axios.post(`/orders/${id}/retry-payment`);
+        return response.data;
+    },
+    switchCOD: async (id) => {
+        const response = await axios.patch(`/orders/${id}/switch-cod`);
+        return response.data;
+    },
 };
 
 export default orderApi;

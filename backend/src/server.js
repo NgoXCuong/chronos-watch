@@ -23,6 +23,15 @@ app.use(
     })
 );
 
+// Security Headers
+app.use((req, res, next) => {
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("X-XSS-Protection", "1; mode=block");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    next();
+});
+
 // Rate limiting chung cho toàn bộ API
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút

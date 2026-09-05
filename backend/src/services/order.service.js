@@ -426,6 +426,73 @@ const orderService = {
       throw error;
     }
   },
+
+  retryVNPayPayment: async (orderId, userId, ipAddr) => {
+    const order = await Order.findByPk(orderId);
+    if (!order) {
+      throw new AppError(404, "Đơn hàng không tồn tại");
+    }
+
+    if (order.user_id !== userId) {
+      throw new AppError(403, "Bạn không có quyền thực hiện thanh toán cho đơn hàng này");
+    }
+
+    if (order.status !== "pending") {
+      throw new AppError(400, `Không thể thanh toán lại cho đơn hàng ở trạng thái "${order.status}"`);
+    }
+
+    if (order.payment_status === "paid") {
+      throw new AppError(400, "Đơn hàng này đã được thanh toán");
+    }
+
+    if (order.payment_method !== "vnpay") {
+      order.payment_method = "vnpay";
+      await order.save();
+    }
+
+    const paymentUrl = vnpayService.createPaymentUrl(order, ipAddr);
+    return { order, paymentUrl };
+  },
+
+  switchPaymentMethodToCOD: async (orderId, userId) => {
+    const order = await Order.findByPk(orderId);
+    if (!order) {
+      throw new AppError(404, "Đơn hàng không tồn tại");
+    }
+
+    if (order.user_id !== userId) {
+      throw new AppError(403, "Bạn không có quyền thay đổi phương thức thanh toán của đơn hàng này");
+    }
+
+    if (order.status !== "pending") {
+      throw new AppError(400, `Không thể đổi phương thức thanh toán cho đơn hàng ở trạng thái "${order.status}"`);
+    }
+
+    if (order.payment_status === "paid") {
+      throw new AppError(400, "Đơn hàng này đã được thanh toán");
+    }
+
+    const transaction = await sequelize.transaction();
+    try {
+      order.payment_method = "cod";
+      await order.save({ transaction });
+
+      await OrderHistory.create(
+        {
+          order_id: order.id,
+          status: "pending",
+          note: "Người dùng chuyển phương thức thanh toán sang COD (thanh toán khi nhận hàng)",
+        },
+        { transaction },
+      );
+
+      await transaction.commit();
+      return { success: true, order };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  },
 };
 
 export default orderService;

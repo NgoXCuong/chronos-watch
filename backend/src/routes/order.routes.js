@@ -11,6 +11,8 @@ router.post("/checkout", orderController.checkout);
 router.get("/my-orders", orderController.getMyOrders);
 router.get("/:id", orderController.getDetail);
 router.post("/:id/cancel", orderController.cancelOrder);
+router.post("/:id/retry-payment", orderController.retryPayment);
+router.patch("/:id/switch-cod", orderController.switchCOD);
 
 // Admin routes
 router.patch("/:id/status", isAdmin, orderController.updateStatus);
