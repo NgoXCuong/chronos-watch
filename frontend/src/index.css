@@ -1,54 +1,139 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./styles/prose-editorial.css";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ===== Ink & Steel tokens (Navy Standard + nhấn navy đậm) — docs/design-system/02-tokens.md ===== */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-navy-50: #F2F6FA;
+  --color-navy-100: #E3EAF3;
+  --color-navy-200: #C9D6E7;
+  --color-navy-300: #9CB2CC;
+  --color-navy-500: #3F6390;
+  --color-navy-600: #1E3A5F;
+  --color-navy-700: #17304F;
+  --color-navy-800: #12263E;
+  --color-navy-900: #0C1D33;
+  --color-navy-950: #071322;
+
+  /* Accent lạnh phụ (teal + violet pastel) — chỉ dùng cho khối số liệu/badge trạng thái,
+     không thay navy làm màu thương hiệu. Vàng/gold vẫn cấm (ngoại lệ: sao rating). */
+  --color-teal-50: #EAF6F4;
+  --color-teal-100: #D2ECE8;
+  --color-teal-200: #A6D9D2;
+  --color-teal-300: #6FBDB4;
+  --color-teal-500: #14A08F;
+  --color-teal-600: #0D9488;
+  --color-teal-700: #0B7C72;
+
+  --color-violet-50: #F2F1FC;
+  --color-violet-100: #E6E4F9;
+  --color-violet-200: #CFCBF3;
+  --color-violet-300: #ABA3E7;
+  --color-violet-500: #7E6DDC;
+  --color-violet-600: #6D5BD0;
+  --color-violet-700: #5747A8;
+
+  --color-sale: #DC2626;
+  --color-sale-soft: #FEE2E2;
+  --color-success: #16A34A;
+  --color-success-soft: #DCFCE7;
+  --color-warning: #EA580C;
+  --color-warning-soft: #FFEDD5;
+  --color-info: #0EA5E9;
+  --color-info-soft: #E0F2FE;
+
+  --shadow-card: 0 1px 2px rgba(12, 29, 51, .05);
+  --shadow-hover: 0 10px 24px rgba(12, 29, 51, .14);
+  --shadow-navy: 0 30px 60px rgba(12, 29, 51, .35);
+}
+
 @layer base {
   :root {
-    --luxury-gold: #C5A059;
-    --luxury-black: #121212;
-    --luxury-charcoal: #1A1A1A;
-    --luxury-pearl: #F5F5F5;
+    --background: #F7F9FC;
+    --foreground: #0B1624;
+    --card: #FFFFFF;
+    --card-foreground: #0B1624;
+    --popover: #FFFFFF;
+    --popover-foreground: #0B1624;
+    --primary: #0F2A4A;
+    --primary-foreground: #FFFFFF;
+    --secondary: #EEF2F7;
+    --secondary-foreground: #334155;
+    --muted: #EEF2F7;
+    --muted-foreground: #5B6B80;
+    --accent: #E3EAF3;
+    --accent-foreground: #0B1624;
+    --destructive: #DC2626;
+    --destructive-foreground: #FFFFFF;
+    --success: #16A34A;
+    --warning: #EA580C;
+    --info: #0EA5E9;
+    --border: #DFE7EF;
+    --input: #CBD5E1;
+    --ring: #1E3A5F;
+    --radius: 0.75rem;
+  }
+
+  /* html.dark — navy tối dần, nhả sáng các màu chữ/viền; primary giữ navy sáng hơn nền */
+  .dark {
+    --background: #0B1624;
+    --foreground: #E8EDF4;
+    --card: #122236;
+    --card-foreground: #E8EDF4;
+    --popover: #122236;
+    --popover-foreground: #E8EDF4;
+    --primary: #3F6390;
+    --primary-foreground: #FFFFFF;
+    --secondary: #1B2E46;
+    --secondary-foreground: #C6D4E4;
+    --muted: #1B2E46;
+    --muted-foreground: #94A9C0;
+    --accent: #1E3A5F;
+    --accent-foreground: #E8EDF4;
+    --destructive: #EF6B6B;
+    --destructive-foreground: #0C1D33;
+    --border: #233952;
+    --input: #2B4463;
+    --ring: #9CB2CC;
+    --radius: 0.75rem;
   }
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Roboto', sans-serif;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  .font-heading,
-  .font-price,
-  .font-banner,
-  .font-roboto {
-    font-family: 'Roboto', sans-serif !important;
+  html {
+    @apply font-sans;
+  }
+
+  * {
+    @apply border-border;
   }
 
   /* Luxury Quill Editor Customization */
   @import "react-quill-new/dist/quill.snow.css";
 
   .ql-toolbar.ql-snow {
-    border: 1px solid #e2e8f0 !important;
-    border-top-left-radius: 0.25rem !important;
-    border-top-right-radius: 0.25rem !important;
-    background-color: #f8fafc !important;
+    border: 1px solid var(--border) !important;
+    border-top-left-radius: var(--radius-sm) !important;
+    border-top-right-radius: var(--radius-sm) !important;
+    background-color: var(--muted) !important;
     padding: 0.75rem !important;
   }
 
   .ql-container.ql-snow {
-    border: 1px solid #e2e8f0 !important;
-    border-bottom-left-radius: 0.25rem !important;
-    border-bottom-right-radius: 0.25rem !important;
-    font-family: 'Roboto', sans-serif !important;
+    border: 1px solid var(--border) !important;
+    border-bottom-left-radius: var(--radius-sm) !important;
+    border-bottom-right-radius: var(--radius-sm) !important;
     font-size: 0.875rem !important;
     min-height: 300px !important;
-    transition: all 0.2s ease-in-out;
   }
 
   .ql-editor {
@@ -56,59 +141,29 @@
   }
 
   .ql-editor.ql-blank::before {
-    color: #94a3b8 !important;
+    color: var(--muted-foreground) !important;
     font-style: normal !important;
   }
 
-  /* Luxury Focus Effect */
   .quill-luxury:focus-within .ql-toolbar.ql-snow,
   .quill-luxury:focus-within .ql-container.ql-snow {
-    border-color: var(--luxury-gold) !important;
+    border-color: var(--ring) !important;
   }
 
   .quill-luxury:focus-within .ql-container.ql-snow {
-    box-shadow: 0 0 0 4px rgba(197, 160, 89, 0.1) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--ring) 12%, transparent) !important;
   }
-
-  * {
-    @apply border-border outline-ring/50;
-  }
-
-  html {
-    @apply font-sans;
-  }
-}
-
-@layer components {
-  .luxury-card {
-    @apply bg-card/40 backdrop-blur-xl border border-border shadow-2xl transition-all duration-500 hover:border-primary/30;
-  }
-
-  .luxury-input {
-    @apply bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all duration-500 rounded-none;
-  }
-
-  .luxury-button-gold {
-    @apply bg-gradient-to-br from-primary/90 via-primary to-primary shadow-xl shadow-primary/10 transition-all duration-700 text-primary-foreground font-bold uppercase hover:opacity-90 hover:scale-[1.02] active:scale-95;
-  }
-
-  .luxury-link {
-    @apply relative py-1 text-[11px] uppercase font-bold text-muted-foreground hover:text-foreground transition-all duration-300;
-  }
-
-  .luxury-link::after {
-    @apply content-[''] absolute bottom-0 left-0 w-0 h-px bg-primary transition-all duration-500;
-  }
-
-  .luxury-link:hover::after {
-    @apply w-full;
-  }
-
 }
 
 @layer utilities {
   .italic-fade-in {
-    animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .italic-fade-in {
+      animation: none;
+    }
   }
 
   @keyframes fadeIn {
@@ -121,14 +176,6 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-
-  .bg-luxury-gradient {
-    background: radial-gradient(circle at center, #1A1A1A 0%, #0A0A0A 100%);
-  }
-
-  .text-glow {
-    text-shadow: 0 0 20px rgba(197, 160, 89, 0.3);
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -153,26 +200,24 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+    @apply bg-border rounded-full hover:bg-navy-300 transition-colors;
   }
 }
 
 @theme inline {
-  --font-heading: 'Roboto', sans-serif;
-  --font-sans: 'Roboto', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --color-sidebar-ring: var(--ring);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-accent-foreground: var(--accent-foreground);
+  --color-sidebar-accent: var(--accent);
+  --color-sidebar-primary-foreground: var(--primary-foreground);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-foreground: var(--foreground);
+  --color-sidebar: var(--card);
+  --color-chart-1: var(--color-navy-600);
+  --color-chart-2: var(--color-success);
+  --color-chart-3: var(--color-info);
+  --color-chart-4: var(--color-navy-300);
+  --color-chart-5: var(--color-navy-500);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -200,55 +245,28 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-  /* Light Mode - Crisp Luxury White */
-  --background: oklch(0.99 0 0);
-  /* Pure White / Pearl */
-  --foreground: oklch(0.1 0 0);
-  /* Deep Black / Almost #111 */
-  --card: oklch(0.97 0 0);
-  --card-foreground: oklch(0.1 0 0);
-  --popover: oklch(0.99 0 0);
-  --popover-foreground: oklch(0.1 0 0);
-  --primary: oklch(0.55 0.15 45);
-  /* Luxury Amber/Gold */
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --muted: oklch(0.94 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  /* Darker gray, not too faded */
-  --accent: oklch(0.94 0 0);
-  --accent-foreground: oklch(0.15 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.1 0 0 / 0.1);
-  --input: oklch(0.1 0 0 / 0.05);
-  --ring: oklch(0.55 0.15 45);
-  --radius: 0rem;
-  /* Straight luxury edges */
-}
+/* Bản in hóa đơn: bỏ khung scroll của layout admin để nội dung trải nhiều trang */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
 
-.dark {
-  /* Dark Mode - Deep Zinc/Black */
-  --background: oklch(0.1 0 0);
-  /* Even Darker */
-  --foreground: oklch(0.95 0 0);
-  /* Off White */
-  --card: oklch(0.12 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.1 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(0.65 0.15 45);
-  /* Brighter Gold for Dark */
-  --primary-foreground: oklch(0.1 0 0);
-  --secondary: oklch(0.15 0 0);
-  --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.15 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.15 0 0);
-  --accent-foreground: oklch(0.95 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.95 0 0 / 0.08);
-  --input: oklch(0.95 0 0 / 0.04);
-  --ring: oklch(0.65 0.15 45);
+  html,
+  body {
+    height: auto;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .h-screen {
+    height: auto !important;
+  }
+
+  main,
+  .overflow-y-auto,
+  .overflow-hidden {
+    overflow: visible !important;
+  }
 }

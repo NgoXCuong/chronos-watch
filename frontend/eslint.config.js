@@ -23,7 +23,9 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Component PascalCase chỉ "được dùng" trong JSX mà plugin react (jsx-uses-vars) không bật,
+      // nên tham số map ({ icon: Icon }) bị báo oan — bỏ qua giống varsIgnorePattern đang làm.
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' }],
     },
   },
 ])

@@ -1,19 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { Mail, Lock, LogIn } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
-import { useLocation } from 'react-router-dom';
+import { Field, PasswordField } from '@/components/market/Field';
 
-const LoginForm = ({ variant = 'dark' }) => {
-    const isLight = variant === 'light';
+const LoginForm = () => {
     const [credentials, setCredentials] = useState({ account: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const { login } = useAuth();
     const navigate = useNavigate();
@@ -23,13 +19,12 @@ const LoginForm = ({ variant = 'dark' }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setCredentials(prev => ({ ...prev, [name]: value }));
-        if (error) setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!credentials.account || !credentials.password) {
-            setError('Vui lòng điền đầy đủ thông tin');
+            toast.error('Vui lòng điền đầy đủ thông tin');
             return;
         }
 
@@ -38,109 +33,62 @@ const LoginForm = ({ variant = 'dark' }) => {
             const data = await login(credentials);
             toast.success('Đăng nhập thành công!');
 
-            // Redirect based on role or 'from' state
             if (data?.user?.role === 'admin') {
                 navigate('/admin');
             } else {
                 navigate(from, { replace: true });
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Tài khoản hoặc mật khẩu không chính xác');
-            toast.error(err.response?.data?.message || 'Đăng nhập thất bại');
+            toast.error(err.response?.data?.message || 'Tài khoản hoặc mật khẩu không chính xác');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            {/* {error && (
-                <div className={cn(
-                    "p-3 rounded-none flex items-start gap-2 text-sm border",
-                    isLight
-                        ? "bg-red-50 text-red-600 border-red-200"
-                        : "bg-red-950/20 text-red-500 border-red-500/30"
-                )}>
-                    <AlertCircle size={18} className="shrink-0" />
-                    <span>{error}</span>
-                </div>
-            )} */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <Field
+                id="account"
+                label="Tài khoản (Email hoặc Username)"
+                type="text"
+                icon={Mail}
+                placeholder="Nhập email hoặc username"
+                value={credentials.account}
+                onChange={handleChange}
+                autoComplete="username"
+                required
+            />
 
-            <div className="space-y-2 group">
-                <Label className={cn(
-                    "text-xs transition-colors duration-300",
-                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
-                )}>
-                    Tài khoản (Email hoặc Username)
-                </Label>
-                <Input
-                    name="account"
-                    type="text"
-                    variant={variant}
-                    icon={Mail}
-                    placeholder="Nhập email hoặc username"
-                    value={credentials.account}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
-
-            <div className="space-y-2 group">
-                <Label className={cn(
-                    "text-xs transition-colors duration-300",
-                    isLight ? "text-zinc-500 group-focus-within:text-amber-600" : "text-zinc-400 group-focus-within:text-primary"
-                )}>
-                    Mật khẩu
-                </Label>
-                <Input
-                    name="password"
-                    type="password"
-                    variant={variant}
-                    icon={Lock}
-                    placeholder="••••••••"
-                    value={credentials.password}
-                    onChange={handleChange}
-                    required
-                />
-            </div>
+            <PasswordField
+                id="password"
+                label="Mật khẩu"
+                icon={Lock}
+                placeholder="••••••••"
+                value={credentials.password}
+                onChange={handleChange}
+                show={showPassword}
+                onToggle={() => setShowPassword(prev => !prev)}
+                autoComplete="current-password"
+                required
+            />
 
             <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-2 text-muted-foreground">
                     <input
                         type="checkbox"
-                        className={cn(
-                            "rounded-none h-4 w-4",
-                            isLight
-                                ? "bg-white border-zinc-300 text-amber-600 focus:ring-amber-500/50"
-                                : "bg-zinc-900 border-zinc-700 text-primary focus:ring-primary/50"
-                        )}
+                        className="size-4 rounded-md accent-navy-600"
                     />
-                    <span className={isLight ? "text-zinc-600" : "text-zinc-400"}>Ghi nhớ đăng nhập</span>
+                    Ghi nhớ đăng nhập
                 </label>
-                <Link to="/forgot-password" className="text-amber-600 hover:text-amber-700 font-medium transition-colors">
+                <Link to="/forgot-password" className="font-semibold text-navy-600 hover:text-navy-800">
                     Quên mật khẩu?
                 </Link>
             </div>
 
-            <Button
-                type="submit"
-                variant="primary"
-                size="full"
-                loading={loading}
-            >
-                <LogIn className="w-4 h-4 mr-2" />
+            <Button type="submit" variant="buy" size="full" loading={loading}>
+                <LogIn size={16} strokeWidth={2} aria-hidden="true" />
                 Đăng Nhập
             </Button>
-
-            <div className={cn(
-                "text-center text-sm mt-6 pt-4 border-t",
-                isLight ? "text-zinc-500 border-zinc-200" : "text-zinc-400 border-white/5"
-            )}>
-                Chưa có tài khoản?{' '}
-                <Link to="/register" className="text-amber-600 hover:text-amber-700 font-semibold transition-colors">
-                    Đăng ký ngay
-                </Link>
-            </div>
         </form>
     );
 };

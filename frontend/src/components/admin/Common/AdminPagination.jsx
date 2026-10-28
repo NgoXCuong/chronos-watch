@@ -1,83 +1,87 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../../ui/button';
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "../../ui/button";
+import { cn } from "../../../lib/utils";
 
-const AdminPagination = ({
-    currentPage,
-    totalPages,
-    totalCount,
-    countLabel = 'mục',
-    onPageChange
-}) => {
-    // If no total count and only 1 page, we still might want to show "Total: 0"
-    // but typically if totalCount is 0, we show that.
+const MAX_VISIBLE = 5;
 
-    const renderPageNumbers = () => {
-        const pages = [];
-        const maxVisible = 5;
-        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let end = Math.min(totalPages, start + maxVisible - 1);
-
-        if (end - start + 1 < maxVisible) {
-            start = Math.max(1, end - maxVisible + 1);
-        }
-
-        for (let i = start; i <= end; i++) {
-            pages.push(
-                <button
-                    key={i}
-                    onClick={() => onPageChange(i)}
-                    className={`h-7 min-w-[28px] px-1.5 rounded-md text-[10px] font-bold transition-all
-                        ${currentPage === i
-                            ? 'bg-amber-100 text-amber-700 shadow-sm border border-amber-200'
-                            : 'text-slate-500 hover:bg-slate-100 border border-transparent hover:border-slate-200'
-                        }`}
-                >
-                    {i}
-                </button>
-            );
-        }
-        return pages;
-    };
-
-    return (
-        <div className="p-1 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-            {/* Total Count on Left */}
-            <p className="text-[11px] text-slate-400 font-bold flex items-center gap-2">
-                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                Tổng: <span className="text-slate-900">{totalCount}</span> {countLabel}
-            </p>
-
-            {/* Pagination Controls on Right */}
-            <div className="flex items-center gap-2">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    disabled={currentPage <= 1}
-                    onClick={() => onPageChange(currentPage - 1)}
-                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all disabled:opacity-30"
-                >
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
-
-                {totalPages > 0 && (
-                    <div className="flex items-center gap-1.5 px-1.5 py-1 rounded-2xl bg-slate-100/50 border border-slate-200/30">
-                        {renderPageNumbers()}
-                    </div>
-                )}
-
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    disabled={currentPage >= totalPages}
-                    onClick={() => onPageChange(currentPage + 1)}
-                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-amber-600 hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all disabled:opacity-30"
-                >
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </div>
-        </div>
-    );
+const pageWindow = (currentPage, totalPages) => {
+  let start = Math.max(1, currentPage - Math.floor(MAX_VISIBLE / 2));
+  const end = Math.min(totalPages, start + MAX_VISIBLE - 1);
+  if (end - start + 1 < MAX_VISIBLE) {
+    start = Math.max(1, end - MAX_VISIBLE + 1);
+  }
+  return Array.from(
+    { length: Math.max(end - start + 1, 0) },
+    (_, i) => start + i,
+  );
 };
+
+const NavButton = ({ icon: Icon, disabled, onClick, label }) => (
+  <Button
+    variant="ghost"
+    size="icon"
+    disabled={disabled}
+    onClick={onClick}
+    aria-label={label}
+    className="h-8 w-8 rounded-lg border border-border/70 bg-card text-muted-foreground hover:bg-navy-50 hover:text-navy-700 dark:hover:bg-navy-500/15 dark:hover:text-navy-100"
+  >
+    {Icon && <Icon className="h-4 w-4" strokeWidth={2} />}
+  </Button>
+);
+
+// Phân trang dùng chung cho mọi DataTable — active = navy đặc chữ trắng
+const AdminPagination = ({
+  currentPage,
+  totalPages,
+  totalCount,
+  countLabel = "mục",
+  onPageChange,
+}) => (
+  <div className="flex items-center justify-between gap-3 border-t border-border bg-muted/40 px-4 py-2.5">
+    <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground">
+      <span className="h-1 w-1 rounded-full bg-muted-foreground/60" />
+      Tổng
+      <span className="text-foreground tabular-nums">{totalCount}</span>
+      {countLabel}
+    </p>
+
+    <div className="flex items-center gap-2">
+      <NavButton
+        icon={ChevronLeft}
+        label="Trang trước"
+        disabled={currentPage <= 1}
+        onClick={() => onPageChange(currentPage - 1)}
+      />
+
+      {totalPages > 0 && (
+        <div className="flex items-center gap-1 rounded-lg border border-border/70 bg-card px-1.5 py-1">
+          {pageWindow(currentPage, totalPages).map((page) => (
+            <button
+              key={page}
+              type="button"
+              onClick={() => onPageChange(page)}
+              aria-current={currentPage === page ? "page" : undefined}
+              className={cn(
+                "h-7 min-w-7 rounded-md px-1.5 text-[11px] font-bold tabular-nums transition-colors",
+                currentPage === page
+                  ? "bg-navy-600 text-primary-foreground shadow-sm dark:bg-navy-500"
+                  : "text-muted-foreground hover:bg-navy-50 hover:text-navy-700 dark:hover:bg-navy-500/15 dark:hover:text-navy-100",
+              )}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <NavButton
+        icon={ChevronRight}
+        label="Trang sau"
+        disabled={currentPage >= totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      />
+    </div>
+  </div>
+);
 
 export default AdminPagination;

@@ -26,6 +26,9 @@ const AboutPage = lazy(() => import('../pages/client/AboutPage'));
 const BrandDiscoveryPage = lazy(() => import('../pages/client/BrandListPage'));
 const MyOrdersPage = lazy(() => import('../pages/client/orders/MyOrdersPage'));
 const MyOrderDetailPage = lazy(() => import('../pages/client/orders/MyOrderDetailPage'));
+const MyWarrantiesPage = lazy(() => import('../pages/client/warranties/MyWarrantiesPage'));
+const WarrantyDetailPage = lazy(() => import('../pages/client/warranties/WarrantyDetailPage'));
+const NotificationsPage = lazy(() => import('../pages/client/notifications/NotificationsPage'));
 const ProfilePage = lazy(() => import('../pages/client/profile/ProfilePage'));
 
 // Lazy load all Admin pages (keeps heavy bundles like charts, editors, xlsx out of customer bundle)
@@ -37,12 +40,16 @@ const OrderDetailPage = lazy(() => import('../pages/admin/orders/OrderDetailPage
 const UserListPage = lazy(() => import('../pages/admin/users/UserListPage'));
 const ReviewListPage = lazy(() => import('../pages/admin/reviews/ReviewListPage'));
 const VoucherListPage = lazy(() => import('../pages/admin/vouchers/VoucherListPage'));
+const FlashSaleListPage = lazy(() => import('../pages/admin/flashSales/FlashSaleListPage'));
 const CategoryListPage = lazy(() => import('../pages/admin/categories/CategoryListPage'));
 const BrandListPage = lazy(() => import('../pages/admin/brands/BrandListPage'));
+const BannerListPage = lazy(() => import('../pages/admin/banners/BannerListPage'));
+const WarrantyListPage = lazy(() => import('../pages/admin/warranties/WarrantyListPage'));
+const AdminNotificationsPage = lazy(() => import('../pages/admin/notifications/AdminNotificationsPage'));
 
 const PageLoader = () => (
     <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-navy-600 border-t-transparent rounded-full animate-spin"></div>
     </div>
 );
 
@@ -51,8 +58,8 @@ const AppRoutes = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-                <div className="w-12 h-12 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="w-12 h-12 border-4 border-navy-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -183,6 +190,36 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 }
             />
+            <Route
+                path="/warranties"
+                element={
+                    <ProtectedRoute>
+                        <MainLayout>
+                            <MyWarrantiesPage />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/warranties/:id"
+                element={
+                    <ProtectedRoute>
+                        <MainLayout>
+                            <WarrantyDetailPage />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/notifications"
+                element={
+                    <ProtectedRoute>
+                        <MainLayout>
+                            <NotificationsPage />
+                        </MainLayout>
+                    </ProtectedRoute>
+                }
+            />
 
             {/* Admin Routes - With AdminLayout & ProtectedRoute */}
             <Route
@@ -200,8 +237,12 @@ const AppRoutes = () => {
                                 <Route path="reviews" element={<ReviewListPage />} />
                                 <Route path="brands" element={<BrandListPage />} />
                                 <Route path="categories" element={<CategoryListPage />} />
+                                <Route path="banners" element={<BannerListPage />} />
                                 <Route path="vouchers" element={<VoucherListPage />} />
+                                <Route path="flash-sales" element={<FlashSaleListPage />} />
+                                <Route path="warranties" element={<WarrantyListPage />} />
                                 <Route path="users" element={<UserListPage />} />
+                                <Route path="notifications" element={<AdminNotificationsPage />} />
                             </Routes>
                         </AdminLayout>
                     </ProtectedRoute>

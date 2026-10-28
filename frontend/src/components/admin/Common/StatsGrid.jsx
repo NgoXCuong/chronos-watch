@@ -11,7 +11,7 @@ const StatsGrid = ({ children, stats, columns = 4 }) => {
 
   return (
     <div
-      className={`grid ${gridCols[columns]} rounded-md gap-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 stagger-children`}
+      className={`grid ${gridCols[columns]} gap-3 animate-in fade-in slide-in-from-bottom-6 duration-1000 stagger-children`}
     >
       {stats
         ? stats.map((stat, index) => <StatCard key={index} {...stat} />)

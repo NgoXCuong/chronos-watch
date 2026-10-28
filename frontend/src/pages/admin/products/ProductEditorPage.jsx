@@ -1,274 +1,120 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Save, ArrowLeft } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
-import productApi from '../../../api/product.api';
-import brandApi from '../../../api/brand.api';
-import categoryApi from '../../../api/category.api';
-import { toast } from 'sonner';
+import AdminHeader from "../../../components/admin/Common/AdminHeader";
+import { Badge } from "../../../components/ui/badge";
+import { Button } from "../../../components/ui/button";
+import { useProductForm } from "../../../hooks/useProductForm";
+import BasicInfo from "../../../components/admin/Product/Editor/BasicInfo";
+import ProductCategorization from "../../../components/admin/Product/Editor/ProductCategorization";
+import ProductDescription from "../../../components/admin/Product/Editor/ProductDescription";
+import ProductImages from "../../../components/admin/Product/Editor/ProductImages";
+import ProductPerformance from "../../../components/admin/Product/Editor/ProductPerformance";
+import ProductPricing from "../../../components/admin/Product/Editor/ProductPricing";
+import ProductSpecifications from "../../../components/admin/Product/Editor/ProductSpecifications";
 
-// Import refactored components
-import BasicInfo from '../../../components/admin/Product/Editor/BasicInfo';
-import ProductDescription from '../../../components/admin/Product/Editor/ProductDescription';
-import ProductSpecifications from '../../../components/admin/Product/Editor/ProductSpecifications';
-import ProductPricing from '../../../components/admin/Product/Editor/ProductPricing';
-import ProductCategorization from '../../../components/admin/Product/Editor/ProductCategorization';
-import ProductImages from '../../../components/admin/Product/Editor/ProductImages';
-
-const EMPTY_FORM = {
-    name: '', slug: '', price: '', old_price: '', stock: '', brand_id: '',
-    description: '', status: 'active',
-    specifications: [],   // [{key: '', value: ''}]
-    category_ids: []
-};
-
-// convert [{key,value}] -> object
-const specsToObj = (arr) => arr.reduce((acc, { key, value }) => {
-    if (key.trim()) acc[key.trim()] = value;
-    return acc;
-}, {});
-
-// convert object -> [{key,value}]
-const objToSpecs = (obj) => Object.entries(obj || {}).map(([key, value]) => ({ key, value }));
+const LoadingState = () => (
+  <div className="flex h-96 items-center justify-center">
+    <span className="h-10 w-10 animate-spin rounded-full border-4 border-navy-600 border-t-transparent" />
+  </div>
+);
 
 const ProductEditorPage = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const isEdit = !!id;
+  const state = useProductForm();
+  const {
+    isEdit,
+    loading,
+    saving,
+    product,
+    form,
+    setForm,
+    setField,
+    setSlug,
+    slugTouched,
+    errors,
+    brands,
+    categories,
+    imagePreview,
+    pickImage,
+    existingGallery,
+    galleryPreviews,
+    addGalleryFiles,
+    removeGalleryItem,
+    imageInputRef,
+    galleryInputRef,
+    dirty,
+    submit,
+    cancel,
+  } = state;
 
-    const [form, setForm] = useState(EMPTY_FORM);
-    const [loading, setLoading] = useState(isEdit);
-    const [saving, setSaving] = useState(false);
-    const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]);
+  if (loading) return <LoadingState />;
 
-    // Image states
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
-    const [existingGallery, setExistingGallery] = useState([]);
-    const [newGalleryFiles, setNewGalleryFiles] = useState([]);
-    const [newGalleryPreviews, setNewGalleryPreviews] = useState([]);
-
-    const imageRef = useRef();
-    const galleryRef = useRef();
-
-    const fetchOptions = async () => {
-        try {
-            const [b, c] = await Promise.all([
-                brandApi.getAll({ limit: 100 }), 
-                categoryApi.getAll()
-            ]);
-            
-            // Extract brands from {count, rows} or direct array
-            const brandList = b?.rows || (Array.isArray(b) ? b : []);
-            setBrands(brandList);
-
-            // Extract categories from direct array or {count, rows}
-            const catList = Array.isArray(c) ? c : (c?.rows || []);
-            const flatCats = [];
-            const flatten = (list, level = 0) => list.forEach(cat => {
-                flatCats.push({ ...cat, level });
-                if (cat.children?.length) flatten(cat.children, level + 1);
-            });
-            flatten(catList);
-            setCategories(flatCats);
-        } catch (err) {
-            console.error('Lỗi khi tải tùy chọn:', err);
+  return (
+    <div className="space-y-5 pb-16">
+      <AdminHeader
+        title={isEdit ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}
+        subtitle={
+          isEdit
+            ? product?.name || "Cập nhật thông tin sản phẩm"
+            : "Điền đủ các trường bắt buộc để sản phẩm hiển thị trên website"
         }
-    };
-
-    const fetchProduct = async () => {
-        if (!isEdit) return;
-        try {
-            const product = await productApi.getDetail(id);
-            setForm({
-                name: product.name || '', slug: product.slug || '',
-                price: product.price || '', old_price: product.old_price || '',
-                stock: product.stock ?? '', brand_id: product.brand_id || '',
-                description: product.description || '', status: product.status || 'active',
-                specifications: objToSpecs(product.specifications),
-                category_ids: product.categories?.map(c => c.id) || []
-            });
-            setImagePreview(product.image_url || null);
-            if (product.image_gallery) {
-                const gallery = Array.isArray(product.image_gallery) 
-                    ? product.image_gallery 
-                    : (typeof product.image_gallery === 'string' ? JSON.parse(product.image_gallery) : []);
-                setExistingGallery(gallery || []);
-            }
-        } catch (err) {
-            toast.error('Không thể tải thông tin sản phẩm');
-            navigate('/admin/products');
-        } finally {
-            setLoading(false);
+        actions={
+          <>
+            {dirty && (
+              <Badge variant="warning" className="mr-1 shrink-0">
+                Chưa lưu
+              </Badge>
+            )}
+            <Button type="button" variant="outline" onClick={cancel}>
+              Hủy
+            </Button>
+            <Button type="button" onClick={submit} loading={saving}>
+              {saving ? "Đang lưu" : "Lưu sản phẩm"}
+            </Button>
+          </>
         }
-    };
+      />
 
-    useEffect(() => {
-        fetchOptions();
-        if (isEdit) fetchProduct();
-    }, [id]);
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
-        }
-    };
-
-    const handleGalleryChange = (e) => {
-        const files = Array.from(e.target.files);
-        setNewGalleryFiles(prev => [...prev, ...files]);
-        const previews = files.map(f => URL.createObjectURL(f));
-        setNewGalleryPreviews(prev => [...prev, ...previews]);
-    };
-
-    const removeGalleryItem = (index) => {
-        if (index < existingGallery.length) {
-            setExistingGallery(prev => prev.filter((_, i) => i !== index));
-        } else {
-            const newIndex = index - existingGallery.length;
-            setNewGalleryFiles(prev => prev.filter((_, i) => i !== newIndex));
-            setNewGalleryPreviews(prev => prev.filter((_, i) => i !== newIndex));
-        }
-    };
-
-    const allGalleryPreviews = [...existingGallery, ...newGalleryPreviews];
-
-    const handleSubmit = async (e) => {
-        if (e) e.preventDefault();
-        if (!form.name || !form.price) return toast.error('Tên và giá bán là bắt buộc');
-
-        setSaving(true);
-        try {
-            const fd = new FormData();
-            ['name', 'slug', 'price', 'old_price', 'stock', 'brand_id', 'description', 'status'].forEach(k => {
-                if (form[k] !== undefined && form[k] !== null) fd.append(k, form[k]);
-            });
-            fd.append('specifications', JSON.stringify(specsToObj(form.specifications)));
-            fd.append('category_ids', JSON.stringify(form.category_ids));
-            fd.append('existing_gallery', JSON.stringify(existingGallery));
-
-            if (imageFile) fd.append('image', imageFile);
-            newGalleryFiles.forEach(f => fd.append('gallery', f));
-
-            if (isEdit) {
-                await productApi.update(id, fd);
-                toast.success('Cập nhật sản phẩm thành công!');
-            } else {
-                await productApi.create(fd);
-                toast.success('Thêm sản phẩm thành công!');
-            }
-            navigate('/admin/products');
-        } catch (err) {
-            toast.error(err?.message || 'Có lỗi xảy ra');
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    // Quill config — toolbar được thiết kế để sinh ra HTML sạch
-    // Không có color/background vì chúng inject inline style gây hỏng dark mode
-    const quillModules = {
-        toolbar: [
-            // Heading hierarchy — dùng thẻ <h1>, <h2>, <h3> đúng chuẩn
-            [{ 'header': [1, 2, 3, false] }],
-            // Font size
-            [{ 'size': ['small', false, 'large', 'huge'] }],
-            // Inline formatting
-            ['bold', 'italic', 'underline', 'strike'],
-            // Block elements
-            ['blockquote', 'code-block'],
-            // Lists
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            // Alignment — tạo class ql-align-center, ql-align-right...
-            [{ 'align': [] }],
-            // Media
-            ['link', 'image'],
-            // Clean formatting
-            ['clean']
-        ],
-    };
-
-    // Formats whitelist — chỉ cho phép các format có trong toolbar
-    // Loại bỏ 'color' và 'background' để không inject inline style
-    const quillFormats = [
-        'header', 'size',
-        'bold', 'italic', 'underline', 'strike',
-        'blockquote', 'code-block',
-        'list', 'bullet', 'indent',
-        'align',
-        'link', 'image',
-    ];
-
-    if (loading) return (
-        <div className="h-96 flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          submit();
+        }}
+        className="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]"
+      >
+        <div className="min-w-0 space-y-4">
+          <BasicInfo
+            form={form}
+            setField={setField}
+            setSlug={setSlug}
+            errors={errors}
+            slugTouched={slugTouched}
+          />
+          <ProductDescription form={form} setField={setField} />
+          <ProductSpecifications form={form} setForm={setForm} errors={errors} />
         </div>
-    );
 
-    return (
-        <div className="max-w-6xl mx-auto space-y-6 pb-20">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <Link to="/admin/products" className="h-10 w-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-amber-600 hover:border-amber-200 transition-all shadow-sm">
-                        <ArrowLeft className="h-5 w-5" />
-                    </Link>
-                    <div>
-                        <h2 className="text-2xl font-bold text-slate-900">{isEdit ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h2>
-                        <p className="text-sm text-slate-500">{isEdit ? 'Cập nhật thông tin chi tiết cho sản phẩm' : 'Tạo một sản phẩm mới vào kho hàng'}</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Button variant="outline" onClick={() => navigate('/admin/products')} className="px-6 rounded-xl border-slate-200">Hủy</Button>
-                    <Button onClick={handleSubmit} disabled={saving} className="bg-amber-600 hover:bg-amber-700 text-white px-8 rounded-xl gap-2 shadow-lg shadow-amber-600/20 font-bold">
-                        <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu sản phẩm'}
-                    </Button>
-                </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Content Area */}
-                <div className="lg:col-span-2 space-y-6">
-                    <BasicInfo form={form} setForm={setForm} />
-                    
-                    <ProductDescription 
-                        form={form} 
-                        setForm={setForm} 
-                        quillModules={quillModules}
-                        quillFormats={quillFormats}
-                    />
-
-                    <ProductSpecifications form={form} setForm={setForm} />
-                </div>
-
-                {/* Sidebar Area */}
-                <div className="space-y-6">
-                    <ProductPricing form={form} setForm={setForm} />
-
-                    <ProductCategorization 
-                        form={form} 
-                        setForm={setForm} 
-                        brands={brands} 
-                        categories={categories} 
-                    />
-
-                    <ProductImages 
-                        imagePreview={imagePreview}
-                        imageRef={imageRef}
-                        handleImageChange={handleImageChange}
-                        galleryPreviews={allGalleryPreviews}
-                        galleryRef={galleryRef}
-                        handleGalleryChange={handleGalleryChange}
-                        removeGalleryItem={removeGalleryItem}
-                    />
-                </div>
-            </form>
+        <div className="min-w-0 space-y-4">
+          <ProductCategorization
+            form={form}
+            setField={setField}
+            errors={errors}
+            brands={brands}
+            categories={categories}
+          />
+          <ProductPricing form={form} setField={setField} errors={errors} />
+          <ProductImages
+            imagePreview={imagePreview}
+            imageInputRef={imageInputRef}
+            pickImage={pickImage}
+            galleryPreviews={galleryPreviews}
+            galleryInputRef={galleryInputRef}
+            addGalleryFiles={addGalleryFiles}
+            removeGalleryItem={removeGalleryItem}
+            existingCount={existingGallery.length}
+          />
+          {isEdit && <ProductPerformance product={product} />}
         </div>
-    );
+      </form>
+    </div>
+  );
 };
 
 export default ProductEditorPage;

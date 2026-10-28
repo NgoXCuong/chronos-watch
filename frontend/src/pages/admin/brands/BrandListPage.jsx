@@ -1,183 +1,233 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
-import brandApi from '../../../api/brand.api';
-import { toast } from 'sonner';
+import { useEffect, useRef, useState } from "react";
+import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import brandApi from "../../../api/brand.api";
+import useDebounce from "../../../hooks/useDebounce";
+import useBulkSelection from "../../../hooks/useBulkSelection";
+import AdminHeader from "../../../components/admin/Common/AdminHeader";
+import SearchBanner from "../../../components/admin/Common/SearchBanner";
+import SelectionActions from "../../../components/admin/Common/SelectionActions";
+import FilterSelect from "../../../components/admin/Common/FilterSelect";
+import BrandTable from "../../../components/admin/Brand/BrandTable";
+import BrandFormModal from "../../../components/admin/Brand/BrandFormModal";
+import { Button } from "../../../components/ui/button";
+import { VISIBILITY_FILTER_OPTIONS } from "../../../constants/taxonomyForm";
 
-import AdminHeader from '../../../components/admin/Common/AdminHeader';
-import SearchBanner from '../../../components/admin/Common/SearchBanner';
-import BrandTable from '../../../components/admin/Brand/BrandTable';
-import BrandFormModal from '../../../components/admin/Brand/BrandFormModal';
-import AdminPagination from '../../../components/admin/Common/AdminPagination';
-
-import useDebounce from '../../../hooks/useDebounce';
-
-const EMPTY_FORM = { name: '', slug: '', description: '', country: '' };
+const PAGE_SIZE = 10;
+const DEFAULT_SORT = { key: "name", dir: "asc" };
+const BULK_ICON = "h-3.5 w-3.5";
 
 const BrandListPage = () => {
-    const [brands, setBrands] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editingBrand, setEditingBrand] = useState(null);
-    const [form, setForm] = useState(EMPTY_FORM);
-    const [logoFile, setLogoFile] = useState(null);
-    const [logoPreview, setLogoPreview] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const debouncedSearch = useDebounce(searchTerm, 400);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
-    const limit = 10;
-    const fileRef = useRef();
+  const [brands, setBrands] = useState([]);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [visibility, setVisibility] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState(DEFAULT_SORT);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingBrand, setEditingBrand] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const debouncedSearch = useDebounce(searchTerm, 400);
+  const isFirstQuery = useRef(true);
 
-    const fetchBrands = async () => {
-        setLoading(true);
-        try {
-            const data = await brandApi.getAll({ 
-                search: debouncedSearch, 
-                page: currentPage, 
-                limit: limit 
-            });
-            setBrands(data.rows || []);
-            setTotalCount(data.count || 0);
-        } catch {
-            toast.error('Không thể tải danh sách thương hiệu');
-        } finally {
-            setLoading(false);
+  const fetchBrands = async () => {
+    setLoading(true);
+    try {
+      // all=true: trang quản trị cần thấy cả thương hiệu đang ẩn để bật lại
+      const data = await brandApi.getAll({
+        all: true,
+        search: debouncedSearch,
+        is_active: visibility,
+        page: currentPage,
+        limit: PAGE_SIZE,
+        sort: sort.key,
+        dir: sort.dir,
+      });
+      setBrands(data.rows || []);
+      setCount(data.count || 0);
+    } catch {
+      toast.error("Không thể tải danh sách thương hiệu");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBrands();
+  }, [currentPage, debouncedSearch, visibility, sort]);
+
+  useEffect(() => {
+    if (isFirstQuery.current) {
+      isFirstQuery.current = false;
+      return;
+    }
+    setCurrentPage(1);
+  }, [debouncedSearch, visibility, sort]);
+
+  const openCreate = () => {
+    setEditingBrand(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (brand) => {
+    setEditingBrand(brand);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingBrand(null);
+  };
+
+  const handleSubmit = async (formData) => {
+    setSaving(true);
+    try {
+      if (editingBrand) {
+        await brandApi.update(editingBrand.id, formData);
+        toast.success("Cập nhật thương hiệu thành công!");
+      } else {
+        await brandApi.create(formData);
+        toast.success("Thêm thương hiệu thành công!");
+      }
+      closeModal();
+      fetchBrands();
+    } catch (err) {
+      toast.error(err?.message || "Có lỗi xảy ra khi lưu thương hiệu");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggle = async (brand) => {
+    try {
+      await brandApi.toggleStatus(brand.id);
+      toast.success(
+        brand.is_active ? "Đã ẩn thương hiệu" : "Đã cho hiển thị lại",
+      );
+      fetchBrands();
+    } catch (err) {
+      toast.error(err?.message || "Không đổi được trạng thái");
+    }
+  };
+
+  const handleDelete = async (brand) => {
+    if (
+      !window.confirm(
+        `Xóa thương hiệu "${brand.name}"? Hành động này không hoàn tác.`,
+      )
+    )
+      return;
+    try {
+      await brandApi.delete(brand.id);
+      toast.success("Đã xóa thương hiệu");
+      // Xóa dòng cuối của trang thì lùi về trang trước để không thành trang trống
+      if (brands.length === 1 && currentPage > 1)
+        setCurrentPage((page) => page - 1);
+      else fetchBrands();
+    } catch (err) {
+      toast.error(
+        err?.message || "Không xóa được (thương hiệu đang có sản phẩm)",
+      );
+    }
+  };
+
+  const bulk = useBulkSelection({
+    rows: brands,
+    label: "thương hiệu",
+    onDone: fetchBrands,
+  });
+
+  const bulkActions = [
+    {
+      key: "show",
+      label: "Cho hiển thị",
+      icon: <Eye className={BULK_ICON} strokeWidth={2} />,
+      onClick: () => bulk.run((ids) => brandApi.bulkSetVisibility(ids, true)),
+    },
+    {
+      key: "hide",
+      label: "Ẩn",
+      icon: <EyeOff className={BULK_ICON} strokeWidth={2} />,
+      onClick: () => bulk.run((ids) => brandApi.bulkSetVisibility(ids, false)),
+    },
+    {
+      key: "delete",
+      label: "Xóa đã chọn",
+      variant: "destructive",
+      icon: <Trash2 className={BULK_ICON} strokeWidth={2} />,
+      onClick: () =>
+        bulk.run(
+          (ids) => brandApi.bulkDelete(ids),
+          `Xóa vĩnh viễn ${bulk.selectedIds.length} thương hiệu? Hành động này không hoàn tác.`,
+        ),
+    },
+  ];
+
+  return (
+    <div className="space-y-3 pb-8">
+      <AdminHeader
+        title="Quản lý thương hiệu"
+        subtitle="Thông tin và danh mục các hãng đồng hồ"
+        actions={
+          <Button
+            onClick={openCreate}
+            className="h-9 gap-2 rounded-lg px-4 text-[13px] font-semibold"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            Thêm thương hiệu mới
+          </Button>
         }
-    };
+      />
 
-    const isFirstFilter = useRef(true);
-    useEffect(() => {
-        if (isFirstFilter.current) {
-            isFirstFilter.current = false;
-            return;
+      <SearchBanner
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        placeholder="Tìm theo tên, đường dẫn hoặc quốc gia..."
+        onRefresh={fetchBrands}
+        loading={loading}
+        count={count}
+        countLabel="thương hiệu"
+      >
+        <FilterSelect
+          label="Trạng thái"
+          value={visibility}
+          onChange={setVisibility}
+          options={VISIBILITY_FILTER_OPTIONS}
+        />
+      </SearchBanner>
+
+      <BrandTable
+        brands={brands}
+        loading={loading}
+        sort={sort}
+        onSortChange={setSort}
+        onEdit={openEdit}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
+        selectedRowKeys={bulk.selectedIds}
+        onSelectionChange={bulk.setSelectedIds}
+        selectionActions={
+          <SelectionActions busy={bulk.busy} actions={bulkActions} />
         }
-        if (currentPage !== 1) {
-            setCurrentPage(1);
-        }
-    }, [debouncedSearch]);
+        pagination={{
+          currentPage,
+          totalPages: Math.ceil(count / PAGE_SIZE),
+          totalCount: count,
+          countLabel: "thương hiệu",
+          onPageChange: (page) => setCurrentPage(page),
+        }}
+      />
 
-    useEffect(() => { 
-        fetchBrands(); 
-    }, [currentPage, debouncedSearch]);
-
-    const openCreate = () => {
-        setEditingBrand(null);
-        setForm(EMPTY_FORM);
-        setLogoFile(null); setLogoPreview(null);
-        setModalOpen(true);
-    };
-
-    const openEdit = (brand) => {
-        setEditingBrand(brand);
-        setForm({ name: brand.name || '', slug: brand.slug || '', description: brand.description || '', country: brand.country || '' });
-        setLogoFile(null); setLogoPreview(brand.logo_url || null);
-        setModalOpen(true);
-    };
-
-    const closeModal = () => { setModalOpen(false); setEditingBrand(null); };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!form.name.trim()) return toast.error('Tên thương hiệu không được để trống');
-        setSaving(true);
-        try {
-            const fd = new FormData();
-            Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-            if (logoFile) fd.append('logo', logoFile);
-            if (editingBrand) {
-                await brandApi.update(editingBrand.id, fd);
-                toast.success('Cập nhật thương hiệu thành công!');
-            } else {
-                await brandApi.create(fd);
-                toast.success('Thêm thương hiệu thành công!');
-            }
-            closeModal();
-            fetchBrands();
-        } catch (err) {
-            toast.error(err?.message || 'Có lỗi xảy ra');
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    const handleToggle = async (brand) => {
-        try {
-            await brandApi.toggleStatus(brand.id);
-            toast.success('Đã cập nhật trạng thái');
-            fetchBrands();
-        } catch {
-            toast.error('Không thể thay đổi trạng thái');
-        }
-    };
-
-    const handleDelete = async (brand) => {
-        if (!window.confirm(`Xóa thương hiệu "${brand.name}"?`)) return;
-        try {
-            await brandApi.delete(brand.id);
-            toast.success('Đã xóa thương hiệu');
-            fetchBrands();
-        } catch {
-            toast.error('Không thể xóa thương hiệu');
-        }
-    };
-
-    // Remove client-side filter since we use backend search
-    // const filtered = brands.filter(b => b.name?.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return (
-        <div className="space-y-6 pb-10 font-roboto">
-            <AdminHeader
-                title="Quản lý thương hiệu"
-                subtitle="Quản lý các thương hiệu đồng hồ"
-                actions={
-                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95">
-                        <Plus className="h-4 w-4" /> Thêm thương hiệu mới
-                    </Button>
-                }
-            />
-
-            <SearchBanner
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                placeholder="Tìm kiếm thương hiệu..."
-                onRefresh={fetchBrands}
-                loading={loading}
-                count={totalCount}
-                countLabel="Thương hiệu"
-            />
-
-            <BrandTable
-                brands={brands}
-                loading={loading}
-                onEdit={openEdit}
-                onDelete={handleDelete}
-                onToggle={handleToggle}
-                pagination={{
-                    currentPage: currentPage,
-                    totalPages: Math.ceil(totalCount / limit),
-                    totalCount: totalCount,
-                    countLabel: "thương hiệu",
-                    onPageChange: (page) => setCurrentPage(page)
-                }}
-            />
-
-            <BrandFormModal
-                isOpen={modalOpen}
-                onClose={closeModal}
-                onSubmit={handleSubmit}
-                form={form}
-                setForm={setForm}
-                logoPreview={logoPreview}
-                setLogoFile={setLogoFile}
-                setLogoPreview={setLogoPreview}
-                fileRef={fileRef}
-                saving={saving}
-                editingBrand={editingBrand}
-            />
-        </div>
-    );
+      <BrandFormModal
+        open={modalOpen}
+        brand={editingBrand}
+        saving={saving}
+        onSubmit={handleSubmit}
+        onClose={closeModal}
+      />
+    </div>
+  );
 };
 
 export default BrandListPage;

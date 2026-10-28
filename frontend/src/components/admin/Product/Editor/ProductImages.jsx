@@ -1,74 +1,116 @@
-import React from 'react';
-import { Image as ImageIcon, Upload, X, Plus } from 'lucide-react';
-import { Label, SectionTitle, EditorCard } from '../EditorUI';
+import { Image as ImageIcon, Plus, Upload, X } from "lucide-react";
+import { Badge } from "../../../ui/badge";
+import FormField from "../../Common/FormField";
+import FormSection from "../../Common/FormSection";
+import { IMAGE_MAX_MB } from "../../../../constants/upload";
 
+// products.image_url (1 ảnh chính) · products.image_gallery (JSON mảng path Cloudinary)
 const ProductImages = ({
-    imagePreview,
-    imageRef,
-    handleImageChange,
-    galleryPreviews,
-    galleryRef,
-    handleGalleryChange,
-    removeGalleryItem
-}) => {
-    return (
-        <EditorCard className="space-y-5">
-            <SectionTitle icon={ImageIcon}>Hình ảnh</SectionTitle>
+  imagePreview,
+  imageInputRef,
+  pickImage,
+  galleryPreviews,
+  galleryInputRef,
+  addGalleryFiles,
+  removeGalleryItem,
+  existingCount,
+}) => (
+  <FormSection
+    title="Hình ảnh"
+    hint={`JPG/PNG/WebP, tối đa ${IMAGE_MAX_MB}MB mỗi file`}
+    icon={ImageIcon}
+    actions={
+      galleryPreviews.length > 0 ? (
+        <Badge variant="muted" className="shrink-0 tabular-nums">
+          {galleryPreviews.length}
+        </Badge>
+      ) : null
+    }
+  >
+    <FormField label="Ảnh đại diện">
+      <button
+        type="button"
+        onClick={() => imageInputRef.current?.click()}
+        className="group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-border bg-navy-50/60 transition-colors hover:border-navy-300 focus-visible:shadow-[0_0_0_3px_rgba(15,42,74,0.14)] focus-visible:outline-none dark:bg-navy-500/8"
+      >
+        {imagePreview ? (
+          <>
+            <img
+              src={imagePreview}
+              alt="Ảnh đại diện"
+              className="h-full w-full object-cover"
+            />
+            <span className="absolute inset-0 flex items-center justify-center bg-navy-900/55 opacity-0 transition-opacity group-hover:opacity-100">
+              <Upload className="h-5 w-5 text-white" strokeWidth={2} />
+            </span>
+          </>
+        ) : (
+          <span className="flex flex-col items-center gap-1.5 text-muted-foreground">
+            <Upload className="h-6 w-6" strokeWidth={1.8} />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.02em]">
+              Tải ảnh lên
+            </span>
+          </span>
+        )}
+      </button>
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={pickImage}
+      />
+    </FormField>
 
-            {/* Main Image */}
-            <div>
-                <Label>Ảnh đại diện (Thumbnail)</Label>
-                <div
-                    onClick={() => imageRef.current.click()}
-                    className="aspect-square rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 overflow-hidden flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition-all relative group"
-                >
-                    {imagePreview ? (
-                        <>
-                            <img src={imagePreview} alt="Thumbnail" className="h-full w-full object-cover" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                                <Upload className="h-6 w-6 text-white" />
-                            </div>
-                        </>
-                    ) : (
-                        <>
-                            <Upload className="h-8 w-8 text-slate-600 mb-2" />
-                            <span className="text-xs text-slate-400 font-medium ">Tải lên ảnh 1x1</span>
-                        </>
-                    )}
-                </div>
-                <input ref={imageRef} type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+    <FormField label="Bộ sưu tập ảnh">
+      <div className="grid grid-cols-4 gap-2">
+        {galleryPreviews.map((url, index) => {
+          const pending = index >= existingCount;
+          return (
+            <div
+              key={`${url}-${index}`}
+              className="group relative aspect-square overflow-hidden rounded-lg border border-border bg-navy-50"
+            >
+              <img
+                src={url}
+                alt={`Ảnh ${index + 1}`}
+                className="h-full w-full object-cover"
+              />
+              {pending && (
+                <span className="absolute bottom-0 left-0 rounded-tr-md bg-warning px-1 py-0.5 text-[11px] font-bold uppercase text-white">
+                  Mới
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => removeGalleryItem(index)}
+                aria-label={`Xóa ảnh ${index + 1}`}
+                className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-md bg-navy-900/70 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-sale"
+              >
+                <X className="h-3 w-3" strokeWidth={2.5} />
+              </button>
             </div>
+          );
+        })}
 
-            {/* Gallery */}
-            <div>
-                <div className="flex items-center justify-between mb-2">
-                    <Label>Bố sưu tập ảnh</Label>
-                    <button type="button" onClick={() => galleryRef.current.click()} className="text-[10px] font-bold text-amber-600 uppercase ">+ Thêm ảnh</button>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                    {galleryPreviews.map((url, idx) => (
-                        <div key={idx} className="aspect-square rounded-xl bg-slate-100 border border-slate-200 relative overflow-hidden group">
-                            <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
-                            <button
-                                type="button"
-                                onClick={() => removeGalleryItem(idx)}
-                                className="absolute top-1 right-1 h-5 w-5 bg-rose-500 text-white rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100"
-                            >
-                                <X className="h-3 w-3" />
-                            </button>
-                        </div>
-                    ))}
-                    <div
-                        onClick={() => galleryRef.current.click()}
-                        className="aspect-square rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-600 hover:text-amber-500 hover:border-amber-300 cursor-pointer transition-all"
-                    >
-                        <Plus className="h-5 w-5" />
-                    </div>
-                </div>
-                <input ref={galleryRef} type="file" className="hidden" accept="image/*" multiple onChange={handleGalleryChange} />
-            </div>
-        </EditorCard>
-    );
-};
+        <button
+          type="button"
+          onClick={() => galleryInputRef.current?.click()}
+          className="flex aspect-square items-center justify-center rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-navy-300 hover:text-navy-600 focus-visible:shadow-[0_0_0_3px_rgba(15,42,74,0.14)] focus-visible:outline-none"
+        >
+          <Plus className="h-5 w-5" strokeWidth={2} />
+        </button>
+      </div>
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={addGalleryFiles}
+      />
+    </FormField>
+  </FormSection>
+);
 
 export default ProductImages;

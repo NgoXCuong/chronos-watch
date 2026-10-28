@@ -1,177 +1,255 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
-import AdminHeader from '../../../components/admin/Common/AdminHeader';
-import SearchBanner from '../../../components/admin/Common/SearchBanner';
-import VoucherTable from '../../../components/admin/Voucher/VoucherTable';
-import AdminPagination from '../../../components/admin/Common/AdminPagination';
-import VoucherFormModal from '../../../components/admin/Voucher/VoucherFormModal';
-import voucherApi from '../../../api/voucher.api';
-import { toast } from 'sonner';
-import useDebounce from '../../../hooks/useDebounce';
+import { useEffect, useRef, useState } from "react";
+import { Plus, Power, PowerOff, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import voucherApi from "../../../api/voucher.api";
+import useDebounce from "../../../hooks/useDebounce";
+import useBulkSelection from "../../../hooks/useBulkSelection";
+import AdminHeader from "../../../components/admin/Common/AdminHeader";
+import SearchBanner from "../../../components/admin/Common/SearchBanner";
+import SelectionActions from "../../../components/admin/Common/SelectionActions";
+import FilterSelect from "../../../components/admin/Common/FilterSelect";
+import VoucherTable from "../../../components/admin/Voucher/VoucherTable";
+import VoucherFormModal from "../../../components/admin/Voucher/VoucherFormModal";
+import { Button } from "../../../components/ui/button";
+import {
+  STATUS_FILTER_OPTIONS,
+  TYPE_FILTER_OPTIONS,
+  WINDOW_FILTER_OPTIONS,
+} from "../../../constants/voucherForm";
 
-const EMPTY_FORM = {
-    code: '', discount_type: 'percentage', discount_value: '',
-    max_discount: '', min_order_value: '', start_date: '', end_date: '', usage_limit: ''
-};
+const PAGE_SIZE = 10;
+const DEFAULT_SORT = { key: "created_at", dir: "desc" };
+const BULK_ICON = "h-3.5 w-3.5";
 
 const VoucherListPage = () => {
-    const [vouchers, setVouchers] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [editingVoucher, setEditingVoucher] = useState(null);
-    const [form, setForm] = useState(EMPTY_FORM);
-    const [saving, setSaving] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const debouncedSearch = useDebounce(searchTerm, 400);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
-    const limit = 10;
+  const [vouchers, setVouchers] = useState([]);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [type, setType] = useState("");
+  const [status, setStatus] = useState("");
+  const [timeWindow, setTimeWindow] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState(DEFAULT_SORT);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingVoucher, setEditingVoucher] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const debouncedSearch = useDebounce(searchTerm, 400);
+  // Mốc "bây giờ" tính một lần cho cả trang: badge trạng thái và ô lọc khớp nhau
+  const [now] = useState(() => new Date());
+  const isFirstQuery = useRef(true);
 
-    const formatCurrency = (amt) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amt || 0);
+  const fetchVouchers = async () => {
+    setLoading(true);
+    try {
+      const data = await voucherApi.getAll({
+        search: debouncedSearch,
+        discount_type: type,
+        status,
+        window: timeWindow,
+        page: currentPage,
+        limit: PAGE_SIZE,
+        sort: sort.key,
+        dir: sort.dir,
+      });
+      setVouchers(data.rows || []);
+      setCount(data.count || 0);
+    } catch {
+      toast.error("Không thể tải danh sách mã giảm giá");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchVouchers = async () => {
-        setLoading(true);
-        try {
-            const data = await voucherApi.getAll({ 
-                search: debouncedSearch, 
-                page: currentPage, 
-                limit: limit 
-            });
-            setVouchers(data.rows || []);
-            setTotalCount(data.count || 0);
-        } catch {
-            toast.error('Không thể tải mã giảm giá');
-        } finally {
-            setLoading(false);
+  useEffect(() => {
+    fetchVouchers();
+  }, [currentPage, debouncedSearch, type, status, timeWindow, sort]);
+
+  useEffect(() => {
+    if (isFirstQuery.current) {
+      isFirstQuery.current = false;
+      return;
+    }
+    setCurrentPage(1);
+  }, [debouncedSearch, type, status, timeWindow, sort]);
+
+  const openCreate = () => {
+    setEditingVoucher(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (voucher) => {
+    setEditingVoucher(voucher);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingVoucher(null);
+  };
+
+  const handleSubmit = async (payload) => {
+    setSaving(true);
+    try {
+      if (editingVoucher) {
+        await voucherApi.update(editingVoucher.id, payload);
+        toast.success("Cập nhật voucher thành công!");
+      } else {
+        await voucherApi.create(payload);
+        toast.success("Tạo voucher thành công!");
+      }
+      closeModal();
+      fetchVouchers();
+    } catch (err) {
+      toast.error(err?.message || "Có lỗi xảy ra khi lưu voucher");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggle = async (voucher) => {
+    const next = voucher.status === "active" ? "inactive" : "active";
+    try {
+      await voucherApi.toggleStatus(voucher.id, next);
+      toast.success(
+        next === "active" ? "Đã bật mã giảm giá" : "Đã tạm ngưng mã giảm giá",
+      );
+      fetchVouchers();
+    } catch (err) {
+      toast.error(err?.message || "Không đổi được trạng thái");
+    }
+  };
+
+  const handleDelete = async (voucher) => {
+    if (
+      !window.confirm(
+        `Xóa mã voucher "${voucher.code}"? Lịch sử đã dùng vẫn còn, nhưng khách sẽ không nhập lại mã này được.`,
+      )
+    )
+      return;
+    try {
+      await voucherApi.delete(voucher.id);
+      toast.success("Đã xóa voucher");
+      // Xóa dòng cuối của trang thì lùi về trang trước để không thành trang trống
+      if (vouchers.length === 1 && currentPage > 1)
+        setCurrentPage((page) => page - 1);
+      else fetchVouchers();
+    } catch (err) {
+      toast.error(err?.message || "Không xóa được voucher");
+    }
+  };
+
+  const bulk = useBulkSelection({
+    rows: vouchers,
+    label: "mã giảm giá",
+    onDone: fetchVouchers,
+  });
+
+  const bulkActions = [
+    {
+      key: "active",
+      label: "Cho dùng lại",
+      icon: <Power className={BULK_ICON} strokeWidth={2} />,
+      onClick: () => bulk.run((ids) => voucherApi.bulkSetStatus(ids, "active")),
+    },
+    {
+      key: "inactive",
+      label: "Tạm ngưng",
+      icon: <PowerOff className={BULK_ICON} strokeWidth={2} />,
+      onClick: () =>
+        bulk.run((ids) => voucherApi.bulkSetStatus(ids, "inactive")),
+    },
+    {
+      key: "delete",
+      label: "Xóa đã chọn",
+      variant: "destructive",
+      icon: <Trash2 className={BULK_ICON} strokeWidth={2} />,
+      onClick: () =>
+        bulk.run(
+          (ids) => voucherApi.bulkDelete(ids),
+          `Xóa vĩnh viễn ${bulk.selectedIds.length} mã giảm giá? Mã đã dùng vẫn còn lịch sử trong đơn hàng.`,
+        ),
+    },
+  ];
+
+  return (
+    <div className="space-y-3 pb-8">
+      <AdminHeader
+        title="Quản lý mã giảm giá"
+        subtitle="Chương trình ưu đãi và voucher khuyến mãi"
+        actions={
+          <Button
+            onClick={openCreate}
+            className="h-9 gap-2 rounded-lg px-4 text-[13px] font-semibold"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            Tạo voucher mới
+          </Button>
         }
-    };
+      />
 
-    const isFirstFilter = useRef(true);
-    useEffect(() => {
-        if (isFirstFilter.current) {
-            isFirstFilter.current = false;
-            return;
+      <SearchBanner
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        placeholder="Tìm theo mã voucher..."
+        onRefresh={fetchVouchers}
+        loading={loading}
+        count={count}
+        countLabel="voucher"
+      >
+        <FilterSelect
+          label="Loại"
+          value={type}
+          onChange={setType}
+          options={TYPE_FILTER_OPTIONS}
+        />
+        <FilterSelect
+          label="Hiệu lực"
+          value={timeWindow}
+          onChange={setTimeWindow}
+          options={WINDOW_FILTER_OPTIONS}
+        />
+        <FilterSelect
+          label="Trạng thái"
+          value={status}
+          onChange={setStatus}
+          options={STATUS_FILTER_OPTIONS}
+        />
+      </SearchBanner>
+
+      <VoucherTable
+        vouchers={vouchers}
+        now={now}
+        loading={loading}
+        searchTerm={searchTerm}
+        sort={sort}
+        onSortChange={setSort}
+        onEdit={openEdit}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
+        selectedRowKeys={bulk.selectedIds}
+        onSelectionChange={bulk.setSelectedIds}
+        selectionActions={
+          <SelectionActions busy={bulk.busy} actions={bulkActions} />
         }
-        if (currentPage !== 1) {
-            setCurrentPage(1);
-        }
-    }, [debouncedSearch]);
+        pagination={{
+          currentPage,
+          totalPages: Math.ceil(count / PAGE_SIZE),
+          totalCount: count,
+          countLabel: "voucher",
+          onPageChange: (page) => setCurrentPage(page),
+        }}
+      />
 
-    useEffect(() => { 
-        fetchVouchers(); 
-    }, [currentPage, debouncedSearch]);
-
-    const openCreate = () => { setEditingVoucher(null); setForm(EMPTY_FORM); setModalOpen(true); };
-    const openEdit = (v) => {
-        setEditingVoucher(v);
-        setForm({
-            code: v.code || '', discount_type: v.discount_type || 'percentage',
-            discount_value: v.discount_value || '', max_discount: v.max_discount || '',
-            min_order_value: v.min_order_value || '',
-            start_date: v.start_date ? v.start_date.split('T')[0] : '',
-            end_date: v.end_date ? v.end_date.split('T')[0] : '',
-            usage_limit: v.usage_limit || ''
-        });
-        setModalOpen(true);
-    };
-    const closeModal = () => { setModalOpen(false); setEditingVoucher(null); };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!form.code.trim()) return toast.error('Mã voucher không được để trống');
-        if (!form.discount_value) return toast.error('Giá trị giảm không được để trống');
-        setSaving(true);
-        try {
-            const payload = {
-                code: form.code.trim().toUpperCase(),
-                discount_type: form.discount_type,
-                discount_value: Number(form.discount_value),
-                max_discount: form.max_discount ? Number(form.max_discount) : null,
-                min_order_value: form.min_order_value ? Number(form.min_order_value) : null,
-                start_date: form.start_date || null,
-                end_date: form.end_date || null,
-                usage_limit: form.usage_limit ? Number(form.usage_limit) : null
-            };
-            if (editingVoucher) {
-                await voucherApi.update(editingVoucher.id, payload);
-                toast.success('Cập nhật voucher thành công!');
-            } else {
-                await voucherApi.create(payload);
-                toast.success('Tạo voucher thành công!');
-            }
-            closeModal(); fetchVouchers();
-        } catch (err) {
-            const errorMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
-            toast.error(errorMsg);
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    const handleDelete = async (v) => {
-        if (!window.confirm(`Xóa mã voucher "${v.code}"?`)) return;
-        try {
-            await voucherApi.delete(v.id);
-            toast.success('Đã xóa voucher');
-            fetchVouchers();
-        } catch {
-            toast.error('Không thể xóa voucher');
-        }
-    };
-
-    const isExpired = (endDate) => endDate && new Date(endDate) < new Date();
-
-    return (
-        <div className="space-y-6 pb-10 font-roboto">
-            <AdminHeader
-                title="Quản lý mã giảm giá"
-                subtitle="Tạo và quản lý các voucher khuyến mãi"
-                actions={
-                    <Button onClick={openCreate} className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95">
-                        <Plus className="h-4 w-4" /> Tạo voucher mới
-                    </Button>
-                }
-            />
-
-            <SearchBanner
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                placeholder="Tìm kiếm mã voucher..."
-                onRefresh={fetchVouchers}
-                loading={loading}
-                count={totalCount}
-                countLabel="Hiện có"
-            />
-
-            <VoucherTable
-                vouchers={vouchers}
-                loading={loading}
-                searchTerm={searchTerm}
-                formatCurrency={formatCurrency}
-                isExpired={isExpired}
-                onEdit={openEdit}
-                onDelete={handleDelete}
-                pagination={{
-                    currentPage: currentPage,
-                    totalPages: Math.ceil(totalCount / limit),
-                    totalCount: totalCount,
-                    countLabel: "voucher",
-                    onPageChange: (page) => setCurrentPage(page)
-                }}
-            />
-
-            <VoucherFormModal
-                isOpen={modalOpen}
-                onClose={closeModal}
-                onSubmit={handleSubmit}
-                form={form}
-                setForm={setForm}
-                saving={saving}
-                editingVoucher={editingVoucher}
-            />
-        </div>
-    );
+      <VoucherFormModal
+        open={modalOpen}
+        voucher={editingVoucher}
+        saving={saving}
+        onSubmit={handleSubmit}
+        onClose={closeModal}
+      />
+    </div>
+  );
 };
 
 export default VoucherListPage;

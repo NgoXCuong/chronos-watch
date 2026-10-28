@@ -1,39 +1,32 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
-import ProductCard from "../../ui/ProductCard";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+import ProductCard from '../../market/ProductCard';
 
-const RelatedProducts = ({ relatedProducts, isDark }) => {
-  if (relatedProducts.length === 0) return null;
+/** Gợi ý cùng hãng — dùng đúng thẻ sản phẩm chuẩn thị trường, không có bản "luxury" riêng. */
+const RelatedProducts = ({ relatedProducts }) => {
+    if (relatedProducts.length === 0) return null;
 
-  return (
-    <div className="mt-4">
-      <div className="flex flex-col md:flex-row items-end justify-between mb-4 gap-4">
-        <div>
-          <h4 className="text-amber-500 text-[10px] uppercase font-bold mb-1">
-            Gợi ý từ chuyên gia
-          </h4>
-          <h2
-            className={`text-xl md:text-2xl  ${isDark ? "text-white" : "text-zinc-900"}`}
-          >
-            Sản phẩm liên quan bạn có thể thích
-          </h2>
-        </div>
-        <Link
-          to="/products"
-          className={`group flex items-center gap-3 text-[10px] uppercase font-bold ${isDark ? "text-zinc-500 hover:text-white" : "text-zinc-400 hover:text-zinc-900"} transition-all`}
-        >
-          Xem tất cả
-          <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
-        </Link>
-      </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-        {relatedProducts.map((p) => (
-          <ProductCard key={p.id || p._id} product={p} />
-        ))}
-      </div>
-    </div>
-  );
+    return (
+        <section className="mt-12 border-t border-border pt-8">
+            <div className="mb-5 flex items-end justify-between gap-4">
+                <div>
+                    <h2 className="text-lg font-bold text-foreground md:text-xl">Sản phẩm cùng thương hiệu</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">Thêm lựa chọn để so sánh giá và thông số.</p>
+                </div>
+                <Link to="/products" className="flex shrink-0 items-center gap-1 text-[13px] font-semibold text-navy-600 transition-colors hover:text-navy-700">
+                    Xem tất cả
+                    <ChevronRight size={15} strokeWidth={2} aria-hidden="true" />
+                </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {relatedProducts.map((product) => (
+                    <ProductCard key={product.id ?? product._id} product={product} compact />
+                ))}
+            </div>
+        </section>
+    );
 };
 
 export default RelatedProducts;

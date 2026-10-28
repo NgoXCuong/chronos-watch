@@ -1,35 +1,83 @@
-import React from 'react';
-import HeroBanner from '../../../components/home/HeroBanner';
-import FeaturedBrands from '../../../components/home/FeaturedBrands';
-import CategorySection from '../../../components/home/CategorySection';
-import FeaturedProducts from '../../../components/home/FeaturedProducts';
-import Newsletter from '../../../components/home/Newsletter';
-import { useTheme } from '../../../context/ThemeContext';
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import HeroBanner from "../../../components/home/HeroBanner";
+import ProductRail from "../../../components/home/ProductRail";
+import Newsletter from "../../../components/home/Newsletter";
+import BrandStrip from "../../../components/home/BrandStrip";
+import Testimonials from "../../../components/home/Testimonials";
+import CategorySidebar from "../../../components/market/CategorySidebar";
+import TrustBar from "../../../components/market/TrustBar";
+import CategoryCircleRow from "../../../components/market/CategoryCircleRow";
+import FlashSalePanel from "../../../components/market/FlashSalePanel";
+import PromoBanner from "../../../components/market/PromoBanner";
+import SectionHead from "../../../components/market/SectionHead";
+import { useCategories } from "../../../hooks/useCategories";
 
+/** Trang chủ bố cục sàn TMĐT: hero+sidebar → tin cậy → danh mục → flash sale → bán chạy → mới về → hãng → promo → đánh giá → newsletter. */
 const HomePage = () => {
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
+  const { categories, loading } = useCategories();
+  const { hash } = useLocation();
 
-    return (
-        <div className={`min-h-screen transition-colors duration-500 ${isDark ? 'bg-[#080808]' : 'bg-white'}`}>
-            {/* Hero Banner — full screen, sits under fixed header */}
+  useEffect(() => {
+    if (hash === "#flash-sale") {
+      document
+        .getElementById("flash-sale")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [hash]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto w-full space-y-10 px-12 py-10 md:px-16 lg:px-24">
+        {/* Sidebar danh mục + hero carousel */}
+        <div className="flex items-start gap-4">
+          <CategorySidebar
+            categories={categories}
+            loading={loading}
+            className="hidden lg:block"
+          />
+          <div className="min-w-0 flex-1 overflow-hidden rounded-xl border border-border shadow-card">
             <HeroBanner />
-
-            {/* Brands strip */}
-            <FeaturedBrands />
-
-            {/* Categories & Products */}
-            <div className={`transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a]' : 'bg-zinc-50/50'}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-                    <CategorySection />
-                    <FeaturedProducts />
-                </div>
-            </div>
-
-            {/* Newsletter */}
-            <Newsletter />
+          </div>
         </div>
-    );
+
+        <TrustBar />
+
+        <section>
+          <SectionHead
+            eyebrow="Danh mục"
+            title="Mua theo phong cách"
+            to={null}
+          />
+          <CategoryCircleRow categories={categories} loading={loading} />
+        </section>
+
+        <FlashSalePanel />
+
+        <ProductRail
+          eyebrow="Bán chạy"
+          title="Được mua nhiều nhất"
+          sort="sold_count"
+          dir="desc"
+        />
+
+        <ProductRail
+          eyebrow="Nổi bật"
+          title="Sản phẩm chọn lọc"
+          sort="created_at"
+          dir="desc"
+        />
+
+        <BrandStrip />
+
+        <PromoBanner />
+
+        <Testimonials />
+      </div>
+
+      <Newsletter />
+    </div>
+  );
 };
 
 export default HomePage;
