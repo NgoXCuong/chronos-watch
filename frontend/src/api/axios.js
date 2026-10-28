@@ -11,7 +11,11 @@ const api = axios.create({
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const isUnauthorized = error.response?.status === 401;
+        const isForbiddenNoToken = error.response?.status === 403 && 
+            (error.response?.data?.message?.includes('token') || error.response?.data?.message?.includes('đăng nhập'));
+
+        if (isUnauthorized || isForbiddenNoToken) {
             const url = error.config?.url || '';
             const isAuthCheck = url.includes('/auth/profile') || 
                                 url.includes('/auth/login') || 

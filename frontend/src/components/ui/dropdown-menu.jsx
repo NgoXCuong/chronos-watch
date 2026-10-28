@@ -33,7 +33,7 @@ function DropdownMenuContent({
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
-        className="isolate z-50 outline-none"
+        className="isolate z-150 outline-none"
         align={align}
         alignOffset={alignOffset}
         side={side}
@@ -61,15 +61,19 @@ function DropdownMenuLabel({
   inset,
   ...props
 }) {
+  // Bọc Group quanh GroupLabel: base-ui throw khi label đứng ngoài Menu.Group,
+  // mà throw trong portal lúc mở menu thì React unmount cả cây → trang trắng.
   return (
-    <MenuPrimitive.GroupLabel
-      data-slot="dropdown-menu-label"
-      data-inset={inset}
-      className={cn(
-        "px-1.5 py-1 text-xs font-medium text-muted-foreground data-inset:pl-7",
-        className
-      )}
-      {...props} />
+    <MenuPrimitive.Group>
+      <MenuPrimitive.GroupLabel
+        data-slot="dropdown-menu-label"
+        data-inset={inset}
+        className={cn(
+          "px-1.5 py-1 text-xs font-medium text-muted-foreground data-inset:pl-7",
+          className
+        )}
+        {...props} />
+    </MenuPrimitive.Group>
   );
 }
 

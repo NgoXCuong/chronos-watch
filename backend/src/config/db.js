@@ -14,8 +14,8 @@ const sequelize = new Sequelize(
     logging: false, // Tắt log SQL ra console cho sạch, bật lên nếu muốn debug
     timezone: "+07:00", // Khớp với múi giờ Việt Nam
     pool: {
-      max: parseInt(process.env.DB_POOL_MAX || "10", 10),
-      min: parseInt(process.env.DB_POOL_MIN || "2", 10),
+      max: parseInt(process.env.DB_POOL_MAX || "30", 10),
+      min: parseInt(process.env.DB_POOL_MIN || "5", 10),
       acquire: 30000,
       idle: 10000,
     },
@@ -35,6 +35,8 @@ const checkConnection = async () => {
   }
 };
 
-checkConnection();
+if (process.env.NODE_ENV !== 'test') {
+  checkConnection();
+}
 
 export default sequelize;

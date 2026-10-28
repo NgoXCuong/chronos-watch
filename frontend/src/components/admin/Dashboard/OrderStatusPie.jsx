@@ -1,97 +1,166 @@
-import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { PieChart as PieIcon, ShoppingBag } from "lucide-react";
+import DashboardPanel from "../Common/DashboardPanel";
+import {
+  ORDER_STATUS_TOKEN,
+  STATUS_FALLBACK_TOKEN,
+  useChartTokens,
+} from "../../../utils/chartTokens";
 
-const COLORS = [
-  "#10B981",
-  "#F59E0B",
-  "#3B82F6",
-  "#8B5CF6",
-  "#F43F5E",
-  "#94A3B8",
-];
+const RADIAN = Math.PI / 180;
+const LABEL_GAP = 14;
+// Lát cắt quá nhỏ thì nhãn ngoài dễ chồng nhau → chỉ để legend liệt kê
+const MIN_LABEL_SHARE = 0.04;
 
-const OrderStatusPie = ({ data, totalOrders }) => {
+// Nhãn % đặt ngoài vòng tròn kèm đường dẫn (leader line)
+const makeOutsideLabel = (fill, lineColor) =>
+  function OutsideLabel({ cx, cy, midAngle, outerRadius, percent }) {
+    if (percent < MIN_LABEL_SHARE) return null;
+    const cos = Math.cos(-midAngle * RADIAN);
+    const sin = Math.sin(-midAngle * RADIAN);
+    const isRight = cos >= 0;
+    const startX = cx + (outerRadius + 2) * cos;
+    const startY = cy + (outerRadius + 2) * sin;
+    const bendX = cx + (outerRadius + LABEL_GAP) * cos;
+    const bendY = cy + (outerRadius + LABEL_GAP) * sin;
+    const textX = bendX + (isRight ? 8 : -8);
+    return (
+      <g>
+        <polyline
+          points={`${startX},${startY} ${bendX},${bendY} ${textX},${bendY}`}
+          fill="none"
+          stroke={lineColor}
+          strokeWidth={1}
+        />
+        <text
+          x={textX + (isRight ? 2 : -2)}
+          y={bendY}
+          fill={fill}
+          fontSize={11.5}
+          fontWeight={700}
+          textAnchor={isRight ? "start" : "end"}
+          dominantBaseline="central"
+        >
+          {`${Math.round(percent * 100)}%`}
+        </text>
+      </g>
+    );
+  };
+
+const StatusTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const entry = payload[0].payload;
   return (
-    <div className="bg-white p-8 border border-slate-100 shadow-sm">
-      <div className="mb-6">
-        <div className="flex items-center gap-2">
-          <PieIcon size={18} className="text-blue-500" />
-          <h3 className="text-base font-bold text-slate-900 uppercase">
-            Trạng thái đơn hàng
-          </h3>
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-hover">
+      <p className="text-[11px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
+        {entry.name}
+      </p>
+      <p className="text-sm font-extrabold text-navy-600 tabular-nums dark:text-navy-100">
+        {entry.value} đơn · {Math.round(entry.share * 100)}%
+      </p>
+    </div>
+  );
+};
+
+// Phân bổ đơn hàng theo trạng thái — tính trên MỌI trạng thái (kể cả hủy/hoàn)
+const OrderStatusPie = ({ data }) => {
+  const rows = [...(data || [])].sort((a, b) => b.value - a.value);
+  const total = rows.reduce((sum, entry) => sum + entry.value, 0);
+  const slices = rows.map((entry) => ({
+    ...entry,
+    share: total > 0 ? entry.value / total : 0,
+  }));
+
+  const chart = useChartTokens([
+    ...new Set(
+      rows.map(
+        (entry) => ORDER_STATUS_TOKEN[entry.status] ?? STATUS_FALLBACK_TOKEN,
+      ),
+    ),
+    "card-foreground",
+    "navy-200",
+    "card",
+    "muted-foreground",
+    "border",
+    "muted",
+  ]);
+  const colorOf = (entry) =>
+    chart[ORDER_STATUS_TOKEN[entry.status] ?? STATUS_FALLBACK_TOKEN];
+  const renderOutsideLabel = makeOutsideLabel(
+    chart["card-foreground"],
+    chart["navy-200"],
+  );
+
+  return (
+    <DashboardPanel
+      icon={PieIcon}
+      title="Trạng thái đơn hàng"
+      subtitle={`${total} đơn · mọi trạng thái`}
+      bodyClassName="flex flex-col"
+    >
+      {rows.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/40 py-10">
+          <ShoppingBag className="mb-1 h-7 w-7 text-muted-foreground" />
+          <p className="text-sm font-semibold text-muted-foreground">
+            Chưa có dữ liệu
+          </p>
         </div>
-        <p className="text-[10px] text-slate-500 font-black uppercase mt-1 pl-6">
-          Phân bổ vận hành
-        </p>
-      </div>
-      <div
-        style={{ width: "100%", height: 256, overflow: "hidden" }}
-        className="relative"
-      >
-        {data && data.length > 0 ? (
-          <>
-            <ResponsiveContainer width="100%" height="100%">
+      ) : (
+        <>
+          <div className="relative h-60 w-full">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <PieChart>
                 <Pie
-                  data={data}
+                  data={slices}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={54}
+                  outerRadius={78}
+                  paddingAngle={2}
+                  cornerRadius={5}
                   dataKey="value"
-                  animationDuration={1500}
+                  nameKey="name"
+                  stroke="none"
+                  labelLine={false}
+                  label={renderOutsideLabel}
+                  animationDuration={800}
                 >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
+                  {slices.map((entry) => (
+                    <Cell key={entry.status} fill={colorOf(entry)} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<StatusTooltip />} />
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-slate-900">
-                {totalOrders}
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-2xl font-extrabold text-navy-600 tabular-nums dark:text-navy-100">
+                {total}
               </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Đơn hàng
               </span>
             </div>
-          </>
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-50/50 rounded-full border-2 border-dashed border-slate-100 mx-auto w-48 h-48">
-            <ShoppingBag className="h-8 w-8 text-slate-500 mb-1" />
-            <p className="text-md font-bold text-slate-400">Trống</p>
           </div>
-        )}
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
-        {data && data.length > 0 ? (
-          data.map((entry, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: COLORS[index % COLORS.length] }}
-              />
-              <span className="text-[10px] font-bold text-slate-500 uppercase">
-                {entry.name}
-              </span>
-              <span className="text-[10px] font-bold text-slate-900 ml-auto">
-                {entry.value}
-              </span>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-2 text-center text-sm text-slate-500  mt-1">
-            Chưa có phân bổ trạng thái
-          </div>
-        )}
-      </div>
-    </div>
+
+          <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+            {slices.map((entry) => (
+              <li
+                key={entry.status}
+                className="flex min-w-0 items-center gap-2"
+              >
+                <span
+                  className="h-2.5 w-2.5 shrink-0 rounded-sm"
+                  style={{ backgroundColor: colorOf(entry) }}
+                />
+                <span className="truncate text-[12.5px] font-medium text-card-foreground">
+                  {entry.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </DashboardPanel>
   );
 };
 

@@ -1,202 +1,137 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-    Search,
-    ArrowRight,
-    Clock,
-    ShieldCheck,
-    Award,
-    History
-} from 'lucide-react';
-import brandApi from '../../api/brand.api';
-import { toast } from 'sonner';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronRight, RefreshCw, SearchX, Store } from 'lucide-react';
 
+import NoticeCard from '../../components/client/NoticeCard';
+import BrandCard from '../../components/client/brands/BrandCard';
+import BrandToolbar from '../../components/client/brands/BrandToolbar';
+import TrustBar from '../../components/market/TrustBar';
+import { Button, buttonVariants } from '../../components/ui/button';
+import { useBrandCatalog } from '../../hooks/useBrandCatalog';
+import { countriesOf, filterBrands, totalProductsOf } from '../../utils/brandCatalog';
+
+const Stat = ({ value, label }) => (
+    <div className="text-right">
+        <dd className="text-2xl font-bold tabular-nums text-white">{value}</dd>
+        <dt className="text-[12px] uppercase tracking-[0.02em] text-navy-200">{label}</dt>
+    </div>
+);
+
+const CardSkeleton = () => (
+    <div className="h-56 animate-pulse rounded-xl border border-border bg-card p-4">
+        <div className="h-24 rounded-lg bg-navy-50" />
+        <div className="mt-3 h-4 w-1/2 rounded bg-navy-50" />
+        <div className="mt-2 h-3 w-full rounded bg-navy-50" />
+        <div className="mt-1.5 h-3 w-4/5 rounded bg-navy-50" />
+    </div>
+);
+
+/** Trang danh sách thương hiệu: lưới card + lọc quốc gia tại chỗ, số liệu lấy thẳng `/brands`. */
 const BrandListPage = () => {
-    const [brands, setBrands] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const navigate = useNavigate();
-    const { theme } = useTheme();
+    const { brands, loading, failed, refresh } = useBrandCatalog();
+    const [search, setSearch] = useState('');
+    const [country, setCountry] = useState('all');
 
-    useEffect(() => {
-        fetchBrands();
-    }, []);
-
-    const fetchBrands = async () => {
-        setLoading(true);
-        try {
-            const response = await brandApi.getAll();
-            // Handle different response formats: { rows, count }, [ ... ], or { data: [...] }
-            const brandsData = response.rows || (Array.isArray(response) ? response : response.data || []);
-            setBrands(brandsData);
-        } catch (error) {
-            console.error('Lỗi lấy danh sách thương hiệu:', error);
-            toast.error('Không thể tải danh sách thương hiệu');
-        } finally {
-            setLoading(false);
-        }
+    const countries = useMemo(() => countriesOf(brands), [brands]);
+    const visible = useMemo(() => filterBrands(brands, { search, country }), [brands, search, country]);
+    const clearFilters = () => {
+        setSearch('');
+        setCountry('all');
     };
 
-    const filteredBrands = brands.filter(brand =>
-        brand.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        brand.is_active !== false
-    );
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center space-y-6 bg-zinc-50 dark:bg-zinc-950">
-                <div className="relative flex items-center justify-center">
-                    <div className="absolute w-16 h-16 border-l-2 border-amber-600 rounded-full animate-spin"></div>
-                    <Clock size={24} className="text-zinc-300 dark:text-zinc-700" />
-                </div>
-                <p className="text-xs font-medium  text-zinc-600 uppercase">Đang giải mã di sản...</p>
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 selection:bg-amber-500/30">
+        <div className="min-h-screen bg-background">
+            <header className="border-b border-border bg-navy-600 text-white">
+                <div className="mx-auto flex w-full flex-wrap items-end justify-between gap-x-8 gap-y-5 px-12 py-7 md:px-16 lg:px-24">
+                    <div className="min-w-0">
+                        <p className="mb-1.5 flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.02em] text-navy-200">
+                            <Link to="/" className="transition-colors hover:text-white">
+                                Trang chủ
+                            </Link>
+                            <ChevronRight size={12} strokeWidth={2.5} aria-hidden="true" />
+                            <span>Thương hiệu</span>
+                        </p>
+                        <h1 className="text-2xl font-bold leading-tight md:text-3xl">Thương hiệu Chronos phân phối</h1>
+                        <p className="mt-2 max-w-2xl text-[13px] leading-relaxed text-navy-100">
+                            Mỗi hãng dưới đây được nhập khẩu chính ngạch kèm phiếu bảo hành điện tử kích hoạt theo đơn hàng. Bấm vào hãng để xem toàn bộ sản phẩm đang bán.
+                        </p>
+                    </div>
 
-            {/* HERO SECTION - EDITORIAL LUXURY */}
-            <section className="relative pt-6 pb-6 px-6 border-b border-zinc-200/50 dark:border-zinc-900 bg-white dark:bg-zinc-950">
-                <div className="max-w-7xl mx-auto text-center space-y-6 relative z-10">
-                    <span className="text-xs font-semibold  text-amber-600 dark:text-amber-500 uppercase">
-                        The Chronos Archives
-                    </span>
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif text-zinc-900 dark:text-white leading-tight">
-                        Tinh Hoa <br className="md:hidden" />
-                        <span className="italic font-light text-zinc-700 dark:text-zinc-600">Chế Tác</span>
-                    </h1>
-                    <p className="text-zinc-700 dark:text-zinc-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-                        Tập hợp những nhà chế tác vĩ đại nhất. Mỗi thương hiệu là một chương hào hùng trong lịch sử đo lường thời gian của nhân loại.
-                    </p>
+                    <dl className="flex items-end gap-8">
+                        <Stat value={loading ? '—' : brands.length} label="Thương hiệu" />
+                        <span className="h-10 w-px bg-navy-500" aria-hidden="true" />
+                        <Stat value={loading ? '—' : countries.length} label="Quốc gia" />
+                        <span className="h-10 w-px bg-navy-500" aria-hidden="true" />
+                        <Stat value={loading ? '—' : totalProductsOf(brands)} label="Sản phẩm đang bán" />
+                    </dl>
                 </div>
+            </header>
 
-                {/* Background Accent */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-amber-500/5 dark:bg-amber-500/10 blur-[100px] pointer-events-none"></div>
-            </section>
+            <div className="mx-auto w-full space-y-6 px-12 py-8 md:px-16 lg:px-24">
+                <BrandToolbar
+                    search={search}
+                    onSearch={setSearch}
+                    country={country}
+                    countries={countries}
+                    onCountry={setCountry}
+                    shown={visible.length}
+                    total={brands.length}
+                />
 
-            {/* MAIN CONTENT */}
-            <div className="max-w-7xl mx-auto py-6 px-6 space-y-6">
-
-                {/* Search & Meta */}
-                <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-8 border-b border-zinc-200 dark:border-zinc-800">
-                    <div className="relative w-full md:max-w-md group">
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600 group-focus-within:text-amber-600 transition-colors" />
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm thương hiệu..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-14 pr-6 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-sm focus:outline-none focus:border-amber-500 dark:focus:border-amber-500 transition-all placeholder:text-zinc-600 shadow-sm"
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-12 text-center">
-                        <div>
-                            <p className="text-2xl text-zinc-900 dark:text-white">{brands.length}</p>
-                            <p className="text-[10px]  text-zinc-700 dark:text-zinc-400 uppercase mt-1">Thương Hiệu</p>
-                        </div>
-                        <div className="w-px h-8 bg-zinc-200 dark:bg-zinc-800"></div>
-                        <div>
-                            <p className="text-2xl  text-zinc-900 dark:text-white">100%</p>
-                            <p className="text-[10px] text-zinc-700 dark:text-zinc-400 uppercase mt-1">Chính Hãng</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Brand Grid */}
-                {filteredBrands.length === 0 ? (
-                    <div className="text-center py-24 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-                        <History size={48} strokeWidth={1} className="mx-auto mb-4 text-zinc-300 dark:text-zinc-700" />
-                        <h3 className="text-lg font-serif text-zinc-900 dark:text-white">Không tìm thấy kết quả</h3>
-                        <p className="text-sm text-zinc-700 mt-2">Vui lòng thử lại với từ khóa khác.</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredBrands.map((brand) => (
-                            <div
-                                key={brand.id}
-                                onClick={() => navigate(`/products?brand=${brand.id}`)}
-                                className="group bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 rounded-2xl cursor-pointer hover:border-amber-500/50 dark:hover:border-amber-500/50 hover:shadow-xl hover:shadow-zinc-200/40 dark:hover:shadow-none transition-all duration-500 flex flex-col justify-between h-full"
-                            >
-                                <div className="space-y-6">
-                                    <div className="h-24 w-full flex items-center justify-center p-2 mb-4">
-                                        <img
-                                            src={brand.logo_url}
-                                            alt={brand.name}
-                                            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-all duration-500"
-                                        />
-                                    </div>
-                                    <div className="text-center space-y-2">
-                                        <h3 className="text-xl font-serif text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
-                                            {brand.name}
-                                        </h3>
-                                        <p className="text-xs text-zinc-700 dark:text-zinc-400 leading-relaxed line-clamp-2">
-                                            {brand.description || "Thương hiệu đồng hồ cao cấp với bề dày lịch sử và nghệ thuật chế tác đỉnh cao."}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-800/50 flex items-center justify-between group-hover:border-amber-100 dark:group-hover:border-amber-900/30 transition-colors">
-                                    <span className="text-[10px] font-semibold  uppercase text-zinc-600 dark:text-zinc-400 group-hover:text-amber-600 dark:group-hover:text-amber-500 transition-colors">
-                                        Khám phá
-                                    </span>
-                                    <ArrowRight size={16} className="text-zinc-300 dark:text-zinc-400 group-hover:text-amber-600 dark:group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
-                                </div>
-                            </div>
+                {loading && (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {[0, 1, 2, 3].map((i) => (
+                            <CardSkeleton key={i} />
                         ))}
                     </div>
                 )}
-            </div>
 
-            {/* CURATED SECTION - EDITORIAL STYLE */}
-            <section className="max-w-7xl mx-auto pb-12 px-6">
-                <div className="bg-zinc-900 dark:bg-zinc-950 border border-zinc-800 rounded-3xl overflow-hidden flex flex-col md:flex-row">
+                {!loading && failed && (
+                    <NoticeCard icon={RefreshCw} tone="error" title="Không tải được danh sách thương hiệu" description="Máy chủ tạm ngừng phản hồi. Thử lại sau ít phút.">
+                        <Button variant="buy" size="sm" onClick={refresh}>
+                            <RefreshCw size={14} strokeWidth={2} aria-hidden="true" />
+                            Tải lại
+                        </Button>
+                    </NoticeCard>
+                )}
 
-                    {/* Content Half */}
-                    <div className="p-12 md:p-16 lg:p-20 flex-1 flex flex-col justify-center space-y-8 relative">
-                        <Award size={120} className="absolute top-10 right-10 text-zinc-800/50 pointer-events-none" strokeWidth={0.5} />
+                {!loading && !failed && visible.length === 0 && (
+                    <NoticeCard icon={SearchX} title="Không tìm thấy thương hiệu phù hợp" description="Thử từ khóa khác hoặc bỏ bộ lọc quốc gia đang chọn.">
+                        <Button variant="buy" size="sm" onClick={clearFilters}>
+                            Xóa bộ lọc
+                        </Button>
+                    </NoticeCard>
+                )}
 
-                        <div className="space-y-4 relative z-10">
-                            <span className="text-xs font-semibold  text-amber-500 uppercase">
-                                Tiêu Chuẩn Chronos
+                {!loading && !failed && visible.length > 0 && (
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {visible.map((brand) => (
+                            <BrandCard key={brand.id} brand={brand} />
+                        ))}
+                    </div>
+                )}
+
+                <section className="space-y-6 pt-2">
+                    <TrustBar />
+
+                    <div className="flex flex-col items-start justify-between gap-4 rounded-xl border border-border bg-navy-50/70 p-5 md:flex-row md:items-center">
+                        <div className="flex items-start gap-3">
+                            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-navy-600 text-white">
+                                <Store size={18} strokeWidth={2} aria-hidden="true" />
                             </span>
-                            <h2 className="text-3xl md:text-4xl lg:text-5xl text-white leading-tight">
-                                Tôn vinh <br />
-                                <span className="italic text-zinc-200">Nghệ thuật đích thực</span>
-                            </h2>
-                            <p className="text-zinc-200 font-light leading-relaxed max-w-md pt-4">
-                                Không chỉ là cỗ máy đếm thời gian, mỗi sản phẩm tại Chronos là một kiệt tác vi cơ học được kiểm định nghiêm ngặt về nguồn gốc và độ hoàn thiện.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-6 pt-6 border-t border-zinc-800 relative z-10">
-                            <div className="space-y-3">
-                                <Clock size={24} className="text-amber-500" />
-                                <h4 className="text-white text-sm font-medium">Chính xác tuyệt đối</h4>
-                                <p className="text-xs text-zinc-200">Hiệu chuẩn theo tiêu chuẩn Thụy Sĩ</p>
-                            </div>
-                            <div className="space-y-3">
-                                <ShieldCheck size={24} className="text-amber-500" />
-                                <h4 className="text-white text-sm font-medium">Bảo chứng toàn cầu</h4>
-                                <p className="text-xs text-zinc-200">Đầy đủ giấy tờ chứng nhận quốc tế</p>
+                            <div>
+                                <p className="text-[15px] font-bold text-navy-800">Chronos làm việc với các hãng như thế nào?</p>
+                                <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
+                                    Nguồn hàng, kiểm định và chế độ hậu mãi được mô tả ở trang Về chúng tôi.
+                                </p>
                             </div>
                         </div>
+                        <Link to="/about" className={buttonVariants({ variant: 'buy', size: 'sm', className: 'shrink-0' })}>
+                            Về Chronos
+                        </Link>
                     </div>
-
-                    {/* Image Half */}
-                    <div className="w-full md:w-5/12 lg:w-1/2 min-h-[400px] relative">
-                        <img
-                            src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=800"
-                            alt="Watchmaking craftsmanship"
-                            className="absolute inset-0 w-full h-full object-cover grayscale opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-1000"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 to-transparent md:hidden"></div>
-                    </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </div>
     );
 };

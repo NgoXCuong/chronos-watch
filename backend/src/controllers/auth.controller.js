@@ -8,7 +8,7 @@ const authController = {
         const user = await authService.register(req.body);
         res.status(201).json({
             message: "Đăng ký thành công!",
-            user: { id: user.id, username: user.username, email: user.email }
+            user: { id: user.id, username: user.username, email: user.email, role: user.role }
         });
     }),
 
@@ -36,6 +36,7 @@ const authController = {
 
         res.json({
             message: "Đăng nhập thành công!",
+            token: result.token,
             user: result.user
         });
     }),

@@ -31,15 +31,18 @@ export const WishlistProvider = ({ children }) => {
         try {
           const res = await wishlistApi.getWishlist();
           // Assuming the API returns an array of products
-          const formattedWishlist = res.map(item => ({
-            id: item.product_id,
-            name: item.product?.name,
-            price: item.product?.price,
-            old_price: item.product?.old_price,
-            image_url: item.product?.image_url,
-            slug: item.product?.slug,
-            brand: item.product?.brand
-          }));
+          const formattedWishlist = res
+            .filter((item) => item.product)
+            .map((item) => ({
+              id: item.product_id,
+              name: item.product?.name,
+              price: item.product?.price,
+              old_price: item.product?.old_price,
+              image_url: item.product?.image_url,
+              slug: item.product?.slug,
+              status: item.product?.status,
+              brand: item.product?.brand,
+            }));
           setWishlist(formattedWishlist);
         } catch (err) {
           console.error('Failed to fetch wishlist', err);
@@ -54,6 +57,12 @@ export const WishlistProvider = ({ children }) => {
   const toggleWishlist = async (product) => {
     const productId = product.id || product._id;
     const isExist = wishlist.find(item => item.id === productId);
+
+    // Chỉ chặn THÊM mới; nếu món đã lưu thì vẫn cho phép bỏ lưu dù sản phẩm ngừng bán.
+    if (!isExist && product.status && product.status !== 'active') {
+      toast.error('Sản phẩm đã ngừng bán');
+      return;
+    }
 
     if (isAuthenticated) {
       try {

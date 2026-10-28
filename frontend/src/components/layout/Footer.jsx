@@ -1,24 +1,30 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
-// Inline SVG social icons (lucide-react removed brand icons)
-const FacebookIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+const FacebookIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
   </svg>
 );
 
-const InstagramIcon = ({ size = 16 }) => (
+const InstagramIcon = () => (
   <svg
-    width={size}
-    height={size}
+    width="16"
+    height="16"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
+    aria-hidden="true"
   >
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
     <circle cx="12" cy="12" r="4" />
@@ -26,200 +32,156 @@ const InstagramIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const YoutubeIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+const YoutubeIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
-    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="white" />
+    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0C1D33" />
   </svg>
 );
 
-const TwitterXIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+const TwitterXIcon = () => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
   </svg>
 );
 
-const Footer = () => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+const PRODUCT_LINKS = [
+  { label: "Đồng hồ nam", to: "/products?category=nam" },
+  { label: "Đồng hồ nữ", to: "/products?category=nu" },
+  { label: "Automatic", to: "/products?category=automatic" },
+  { label: "Smartwatch", to: "/products?category=smartwatch" },
+  { label: "Limited Edition", to: "/products?limited=true" },
+];
 
-  // Tạo mảng chứa thông tin mạng xã hội sử dụng inline SVG icons
-  const socialLinks = [
-    { id: "fb", icon: <FacebookIcon size={16} />, url: "#" },
-    { id: "ig", icon: <InstagramIcon size={16} />, url: "#" },
-    { id: "yt", icon: <YoutubeIcon size={16} />, url: "#" },
-    { id: "tw", icon: <TwitterXIcon size={16} />, url: "#" },
-  ];
+const SUPPORT_LINKS = [
+  { label: "Về chúng tôi", to: "/about" },
+  { label: "Thương hiệu", to: "/brands" },
+  { label: "Đơn hàng của tôi", to: "/orders" },
+  { label: "Giỏ hàng", to: "/cart" },
+  { label: "Yêu thích", to: "/wishlist" },
+];
 
-  return (
-    <footer
-      className={`transition-all duration-500 border-t ${isDark ? "bg-[#050505] border-white/5 text-zinc-500" : "bg-stone-50 border-stone-200 text-stone-600"}`}
-    >
-      <div className="max-w-[1400px] mx-auto px-6 md:px-16">
-        {/* Main footer content */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 py-6">
-          {/* Brand */}
-          <div className="col-span-2">
-            <Link to="/" className="inline-block mb-4">
-              <span
-                className={`text-xl font-bold uppercase ${isDark ? "text-white" : "text-stone-900"}`}
-                style={{ fontFamily: "Georgia, serif" }}
+const CONTACT = [
+  { icon: MapPin, text: "Phan Tây Nhạc, Xuân Phương, Nam Từ Liêm, Hà Nội" },
+  { icon: Phone, text: "Hotline: 1900 8888 66" },
+  { icon: Mail, text: "Email: contact@chronos.com" },
+  { icon: Clock, text: "T2–CN: 9:00 – 21:00" },
+];
+
+const SOCIALS = [
+  { id: "fb", icon: <FacebookIcon />, url: "#" },
+  { id: "ig", icon: <InstagramIcon />, url: "#" },
+  { id: "yt", icon: <YoutubeIcon />, url: "#" },
+  { id: "tw", icon: <TwitterXIcon />, url: "#" },
+];
+
+const ColHead = ({ children }) => (
+  <h3 className="mb-4 text-sm font-extrabold uppercase tracking-[0.08em] text-white">
+    {children}
+  </h3>
+);
+
+const LinkCol = ({ title, links }) => (
+  <div>
+    <ColHead>{title}</ColHead>
+    <ul className="space-y-2.5 text-sm">
+      {links.map(({ label, to }) => (
+        <li key={label}>
+          <Link to={to} className="transition-colors hover:text-white">
+            {label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+/** Footer 4 cột nền navy-900 theo khung sàn TMĐT. */
+const Footer = () => (
+  <footer className="bg-navy-900 text-navy-100">
+    <div className="mx-auto w-full px-12 md:px-16 lg:px-24">
+      <div className="grid grid-cols-2 gap-8 py-12 md:grid-cols-4 lg:gap-12">
+        {/* Brand */}
+        <div>
+          <Link to="/" className="mb-4 inline-block">
+            <span className="text-xl font-extrabold uppercase tracking-[0.14em] text-white">
+              Chronos
+            </span>
+            <span className="mt-0.5 block text-[10px] uppercase tracking-[0.2em] text-navy-300">
+              Timepieces
+            </span>
+          </Link>
+          <p className="text-sm leading-relaxed text-navy-100/80">
+            Thương hiệu đồng hồ chính hãng hàng đầu. Mỗi chiếc đồng hồ là một
+            câu chuyện về thời gian và sự hoàn hảo.
+          </p>
+          <div className="mt-5 flex items-center gap-2.5">
+            {SOCIALS.map((s) => (
+              <a
+                key={s.id}
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Chronos trên ${s.id}`}
+                className="flex size-8 items-center justify-center rounded-lg border border-navy-700 text-navy-100 transition-colors hover:border-navy-300 hover:bg-navy-800 hover:text-white"
               >
-                CHRONOS
-              </span>
-              <div className="h-px bg-gradient-to-r from-amber-500/60 to-transparent mt-0.5"></div>
-              <span
-                className={`text-[10px] uppercase block mt-0.5 ${isDark ? "text-zinc-600" : "text-stone-400"}`}
-              >
-                TIMEPIECES
-              </span>
-            </Link>
-            <p
-              className={`text-sm leading-relaxed max-w-xs mt-4 ${isDark ? "text-zinc-600" : "text-stone-500"}`}
-            >
-              Thương hiệu đồng hồ cao cấp hàng đầu. Mỗi chiếc đồng hồ là một câu
-              chuyện về thời gian và sự hoàn hảo.
-            </p>
-
-            {/* Social Icons Updated Here */}
-            <div className="flex items-center gap-3 mt-6">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.id}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-8 h-8 border flex items-center justify-center transition-all duration-300 ${isDark ? "border-white/10 text-zinc-600 hover:text-amber-500 hover:border-amber-500/40" : "border-stone-200 text-stone-400 hover:text-amber-600 hover:border-amber-500/40"}`}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div>
-            <h4
-              className={`text-lg uppercase mb-5 font-semibold ${isDark ? "text-white/60" : "text-stone-900/60"}`}
-            >
-              Sản Phẩm
-            </h4>
-            <ul className="space-y-3 text-sm">
-              {[
-                { label: "Đồng hồ nam", to: "/products?category=nam" },
-                { label: "Đồng hồ nữ", to: "/products?category=nu" },
-                { label: "Automatic", to: "/products?category=automatic" },
-                { label: "Smartwatch", to: "/products?category=smartwatch" },
-                { label: "Limited Edition", to: "/products?limited=true" },
-              ].map((item) => (
-                <li key={item.label}>
-                  <Link
-                    to={item.to}
-                    className={`transition-colors duration-300 ${isDark ? "hover:text-amber-500" : "hover:text-amber-600"}`}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4
-              className={`text-lg uppercase mb-5 font-semibold ${isDark ? "text-white/60" : "text-stone-900/60"}`}
-            >
-              Hỗ Trợ
-            </h4>
-            <ul className="space-y-3 text-sm">
-              {[
-                "Bảo hành & Sửa chữa",
-                "Chính sách đổi trả",
-                "Hướng dẫn sử dụng",
-                "Câu hỏi thường gặp",
-                "Liên hệ chúng tôi",
-              ].map((item) => (
-                <li key={item}>
-                  <span
-                    className={`transition-colors duration-300 cursor-pointer ${isDark ? "hover:text-amber-500" : "hover:text-amber-600"}`}
-                  >
-                    {item}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4
-              className={`text-lg uppercase mb-5 font-semibold ${isDark ? "text-white/60" : "text-stone-900/60"}`}
-            >
-              Liên Hệ
-            </h4>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <span
-                  className={`mt-0.5 shrink-0 ${isDark ? "text-amber-500/60" : "text-amber-600/60"}`}
-                >
-                  ✦
-                </span>
-                <span>
-                  Phan Tây Nhạc, Xuân Phương, Quận Nam Từ Liêm, Hà Nội
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span
-                  className={`mt-0.5 shrink-0 ${isDark ? "text-amber-500/60" : "text-amber-600/60"}`}
-                >
-                  ✦
-                </span>
-                <span>Hotline: 1900 8888 66</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span
-                  className={`mt-0.5 shrink-0 ${isDark ? "text-amber-500/60" : "text-amber-600/60"}`}
-                >
-                  ✦
-                </span>
-                <span>Email: contact@chronos.com</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span
-                  className={`mt-0.5 shrink-0 ${isDark ? "text-amber-500/60" : "text-amber-600/60"}`}
-                >
-                  ✦
-                </span>
-                <span>T2–CN: 9:00 AM – 21:00 PM</span>
-              </li>
-            </ul>
+                {s.icon}
+              </a>
+            ))}
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div
-          className={`border-t py-2 flex flex-col md:flex-row items-center justify-between gap-4 ${isDark ? "border-white/5" : "border-stone-200"}`}
-        >
-          <p
-            className={`text-[10px] uppercase ${isDark ? "text-zinc-700" : "text-stone-400"}`}
-          >
-            © {new Date().getFullYear()} Chronos Watch. All rights reserved.
-          </p>
-          <div
-            className={`flex items-center gap-6 text-[10px] uppercase ${isDark ? "text-zinc-700" : "text-stone-400"}`}
-          >
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Chính Sách Bảo Mật
-            </a>
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Điều Khoản
-            </a>
-            <a href="#" className="hover:text-amber-600 transition-colors">
-              Cookie
-            </a>
-          </div>
+        <LinkCol title="Sản phẩm" links={PRODUCT_LINKS} />
+        <LinkCol title="Hỗ trợ" links={SUPPORT_LINKS} />
+
+        <div>
+          <ColHead>Liên hệ</ColHead>
+          <ul className="space-y-3 text-sm">
+            {CONTACT.map(({ icon: Icon, text }) => (
+              <li key={text} className="flex items-start gap-2.5">
+                <Icon
+                  size={15}
+                  strokeWidth={2}
+                  className="mt-0.5 shrink-0 text-navy-300"
+                  aria-hidden="true"
+                />
+                <span>{text}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-    </footer>
-  );
-};
+
+      <div className="flex flex-col items-center justify-between gap-3 border-t border-navy-800 py-5 text-xs md:flex-row">
+        <p className="uppercase tracking-wide text-navy-300">
+          © {new Date().getFullYear()} Chronos Watch. All rights reserved.
+        </p>
+        <div className="flex items-center gap-6 uppercase text-navy-300">
+          <a href="#" className="transition-colors hover:text-white">
+            Chính sách bảo mật
+          </a>
+          <a href="#" className="transition-colors hover:text-white">
+            Điều khoản
+          </a>
+          <a href="#" className="transition-colors hover:text-white">
+            Cookie
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
 
 export default Footer;

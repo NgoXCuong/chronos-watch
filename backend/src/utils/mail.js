@@ -62,6 +62,39 @@ export const sendResetPasswordEmail = async (to, token) => {
     }
 };
 
-export default {
-    sendResetPasswordEmail
+/**
+ * Gửi email xác nhận đặt hàng thành công
+ * @param {object} orderData - Dữ liệu đơn hàng { id, customer_name, email, total_amount }
+ */
+export const sendOrderConfirmationEmail = async (orderData) => {
+    const { id, email, total_amount } = orderData;
+    const mailOptions = {
+        from: `"Chronos Watch" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: `Xác nhận đơn hàng #${id} - Chronos Watch`,
+        html: `
+            <div style="font-family: sans-serif; padding: 20px;">
+                <h2>Đặt hàng thành công!</h2>
+                <p>Cảm ơn Quý khách đã đặt hàng tại Chronos Watch.</p>
+                <p>Mã đơn hàng: <strong>#${id}</strong></p>
+                <p>Tổng thanh toán: <strong>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total_amount)}</strong></p>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        return true;
+    } catch (error) {
+        console.error('Error sending order confirmation email:', error);
+        throw new Error('Không thể gửi email xác nhận đơn hàng. Vui lòng thử lại sau.');
+    }
 };
+
+export { transporter };
+export default {
+    sendResetPasswordEmail,
+    sendOrderConfirmationEmail,
+    transporter
+};
+

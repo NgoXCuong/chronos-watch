@@ -49,7 +49,10 @@ const Review = sequelize.define('Review', {
     underscored: true,
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    indexes: [
+        { unique: true, fields: ['user_id', 'product_id'], name: 'unique_review_user_product' }
+    ]
 });
 
 // Associations

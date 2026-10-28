@@ -3,18 +3,23 @@ import { cva } from "class-variance-authority"
 import { cn } from "../../lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-none border border-zinc-200 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 dark:border-zinc-800 dark:focus:ring-zinc-300",
+  "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-zinc-900 text-zinc-50 hover:bg-zinc-900/80 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/80",
-        secondary:
-          "border-transparent bg-zinc-100 text-zinc-900 hover:bg-zinc-100/80 dark:bg-zinc-800 dark:text-zinc-50 dark:hover:bg-zinc-800/80",
-        destructive:
-          "border-transparent bg-red-500 text-zinc-50 hover:bg-red-500/80 dark:bg-red-900 dark:text-zinc-50 dark:hover:bg-red-900/80",
-        outline: "text-zinc-950 dark:text-zinc-50",
-        luxury: "border-amber-500/30 text-amber-500 bg-transparent uppercase text-[12px] font-bold",
+        default: "border-transparent bg-primary text-primary-foreground",
+        brand: "border-transparent bg-navy-100 text-navy-700 uppercase tracking-[0.02em]",
+        sale: "border-transparent bg-sale-soft text-sale",
+        success: "border-transparent bg-success-soft text-success",
+        warning: "border-transparent bg-warning-soft text-warning",
+        info: "border-transparent bg-info-soft text-info",
+        teal: "border-transparent bg-teal-100 text-teal-700 dark:bg-teal-500/15 dark:text-teal-200",
+        violet: "border-transparent bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-200",
+        secondary: "border-transparent bg-secondary text-secondary-foreground",
+        destructive: "border-transparent bg-sale-soft text-sale",
+        "destructive-soft": "border-sale-soft/80 bg-sale-soft/60 text-sale dark:border-sale/30 dark:bg-sale/15 dark:text-sale-soft",
+        muted: "border-border bg-muted text-muted-foreground",
+        outline: "border-border text-foreground",
       },
     },
     defaultVariants: {
@@ -24,8 +29,10 @@ const badgeVariants = cva(
 )
 
 function Badge({ className, variant, ...props }) {
+  // <span> chứ không phải <div>: Badge hay nằm trong <p>/<h*> (cell tên, dòng
+  // bảng) — div trong <p> là HTML sai, React 19 báo hydration error.
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <span className={cn(badgeVariants({ variant }), className)} {...props} />
   )
 }
 

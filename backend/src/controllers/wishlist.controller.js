@@ -5,7 +5,7 @@ import AppError from "../utils/AppError.js";
 const wishlistController = {
     toggle: asyncHandler(async (req, res) => {
         const userId = req.user.id;
-        const productId = req.body.product_id;
+        const productId = req.body.product_id || req.body.productId;
         if (!productId) throw new AppError(400, "product_id là bắt buộc.");
         
         const result = await wishlistService.toggleWishlist(userId, productId);

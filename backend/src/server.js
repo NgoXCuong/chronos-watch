@@ -35,7 +35,7 @@ app.use((req, res, next) => {
 // Rate limiting chung cho toàn bộ API
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút
-    max: 300,
+    max: process.env.NODE_ENV === "production" ? 300 : 5000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: "Quá nhiều yêu cầu. Vui lòng thử lại sau 15 phút." },
@@ -44,7 +44,7 @@ const apiLimiter = rateLimit({
 // Rate limiting chặt hơn cho Auth (chống brute force)
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 phút
-    max: 20,
+    max: process.env.NODE_ENV === "production" ? 20 : 1000, // Thoải mái chạy toàn bộ test suite và nhiều lần test liên tục
     standardHeaders: true,
     legacyHeaders: false,
     message: { message: "Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau 15 phút." },

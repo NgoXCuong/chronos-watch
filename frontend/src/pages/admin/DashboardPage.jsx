@@ -1,6 +1,3 @@
-import React, { useEffect, useState } from "react";
-import { Users, ShoppingBag, DollarSign, CreditCard } from "lucide-react";
-import adminApi from "../../api/admin.api";
 import { useNavigate } from "react-router-dom";
 import AdminHeader from "../../components/admin/Common/AdminHeader";
 import StatsGrid from "../../components/admin/Common/StatsGrid";
@@ -8,193 +5,85 @@ import RevenueChart from "../../components/admin/Dashboard/RevenueChart";
 import OrderStatusPie from "../../components/admin/Dashboard/OrderStatusPie";
 import TopSellingProducts from "../../components/admin/Dashboard/TopSellingProducts";
 import OperationBrief from "../../components/admin/Dashboard/OperationBrief";
-import { formatCurrency } from "../../utils/formatCurrency.js";
+import KpiStrip from "../../components/admin/Dashboard/KpiStrip";
+import DailyTrendChart from "../../components/admin/Dashboard/DailyTrendChart";
+import RevenueMixChart from "../../components/admin/Dashboard/RevenueMixChart";
+import UserGrowthChart from "../../components/admin/Dashboard/UserGrowthChart";
+import ReviewPulse from "../../components/admin/Dashboard/ReviewPulse";
+import RecentOrdersPanel from "../../components/admin/Dashboard/RecentOrdersPanel";
+import { useDashboardStats } from "../../hooks/useDashboardStats";
+import {
+  buildKpiItems,
+  buildPieData,
+  buildRevenueMix,
+  buildStatCards,
+} from "../../utils/dashboardMetrics";
+
+const DashboardSkeleton = () => (
+  <div className="space-y-3">
+    <div className="h-20 animate-pulse rounded-xl bg-muted" />
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="h-36 animate-pulse rounded-xl bg-muted" />
+      ))}
+    </div>
+    <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+      <div className="h-96 animate-pulse rounded-xl bg-muted xl:col-span-2" />
+      <div className="h-96 animate-pulse rounded-xl bg-muted" />
+    </div>
+  </div>
+);
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { stats, loading } = useDashboardStats();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await adminApi.getDashboard();
-        setStats(data);
-      } catch (error) {
-        console.error("Lỗi lấy thống kê:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
-
-  //   const formatCurrency = (amt) =>
-  //     new Intl.NumberFormat("vi-VN", {
-  //       style: "currency",
-  //       currency: "VND",
-  //     }).format(amt || 0);
-
-  if (loading) {
-    return (
-      <div className="space-y-6 animate-pulse">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 bg-slate-100 rounded-3xl" />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-96 bg-slate-100 rounded-3xl" />
-          <div className="h-96 bg-slate-100 rounded-3xl" />
-        </div>
-      </div>
-    );
-  }
-
-  // Tính % tăng giảm thực tế so với tháng trước
-  const computeTrend = (current, previous) => {
-    if (!previous || previous === 0) return current > 0 ? '+100%' : '0%';
-    const pct = ((current - previous) / previous) * 100;
-    return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
-  };
-  const trendColor = (current, previous, reverse = false) => {
-    if (!previous || previous === 0) return "bg-slate-50 text-slate-400 border-slate-100";
-    const up = current >= previous;
-    const isPositive = reverse ? !up : up;
-    return isPositive
-      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-      : "bg-rose-50 text-rose-600 border-rose-100";
-  };
-
-  const statCards = [
-    {
-      label: "Doanh thu tháng này",
-      value: formatCurrency(stats?.monthly_revenue),
-      icon: DollarSign,
-      trend: computeTrend(stats?.monthly_revenue, stats?.last_month_revenue),
-      trendColor: trendColor(stats?.monthly_revenue, stats?.last_month_revenue),
-      color: "text-emerald-600",
-      bg: "bg-white",
-      dot: "bg-emerald-500",
-      pulse: true,
-      hist: [
-        stats?.last_month_revenue * 0.7,
-        stats?.last_month_revenue * 0.85,
-        stats?.last_month_revenue * 0.9,
-        stats?.last_month_revenue,
-        stats?.monthly_revenue * 0.85,
-        stats?.monthly_revenue,
-      ],
-      chartColor: "#10B981",
-    },
-    {
-      label: "Tổng đơn hàng",
-      value: stats?.total_orders || 0,
-      icon: ShoppingBag,
-      trend: computeTrend(stats?.total_orders, stats?.last_month_orders),
-      trendColor: trendColor(stats?.total_orders, stats?.last_month_orders),
-      color: "text-blue-600",
-      bg: "bg-white",
-      dot: "bg-blue-500",
-      pulse: true,
-      hist: [
-        stats?.last_month_orders * 0.6,
-        stats?.last_month_orders * 0.8,
-        stats?.last_month_orders,
-        stats?.total_orders * 0.7,
-        stats?.total_orders * 0.9,
-        stats?.total_orders || 0,
-      ],
-      chartColor: "#3B82F6",
-    },
-    {
-      label: "Giá trị TB đơn (AOV)",
-      value: formatCurrency(stats?.aov),
-      icon: CreditCard,
-      trend: computeTrend(stats?.aov, stats?.last_month_aov),
-      trendColor: trendColor(stats?.aov, stats?.last_month_aov),
-      color: "text-indigo-600",
-      bg: "bg-white",
-      dot: "bg-indigo-500",
-      hist: [
-        stats?.last_month_aov * 0.8,
-        stats?.last_month_aov * 0.9,
-        stats?.last_month_aov,
-        stats?.aov * 0.8,
-        stats?.aov * 0.9,
-        stats?.aov || 0,
-      ],
-      chartColor: "#6366F1",
-    },
-    {
-      label: "Khách hàng mới",
-      value: stats?.users_this_month || 0,
-      icon: Users,
-      trend: computeTrend(stats?.users_this_month, stats?.users_last_month),
-      trendColor: trendColor(stats?.users_this_month, stats?.users_last_month),
-      color: "text-amber-600",
-      bg: "bg-white",
-      dot: "bg-amber-500",
-      hist: [
-        stats?.users_last_month * 0.7,
-        stats?.users_last_month * 0.85,
-        stats?.users_last_month,
-        stats?.users_this_month * 0.8,
-        stats?.users_this_month * 0.95,
-        stats?.users_this_month || 0,
-      ],
-      chartColor: "#F59E0B",
-    },
-  ];
-
-  // Prepare chart data
-  const revenueData =
-    stats?.revenue_history?.map((h) => ({
-      name: `Tháng ${h.month}`,
-      revenue: parseFloat(h.revenue),
-    })) || [];
-
-  const pieData =
-    stats?.order_status_distribution?.map((s) => ({
-      name:
-        s.status === "pending"
-          ? "Chờ duyệt"
-          : s.status === "processing"
-            ? "Đang xử lý"
-            : s.status === "shipped"
-              ? "Đang giao"
-              : s.status === "delivered"
-                ? "Thành công"
-                : s.status === "cancelled"
-                  ? "Đã hủy"
-                  : s.status,
-      value: parseInt(s.count),
-    })) || [];
+  if (loading) return <DashboardSkeleton />;
 
   return (
-    <div className="space-y-6 pb-10 font-roboto">
+    <div className="space-y-3 pb-10">
       <AdminHeader
         title="Tổng quan hệ thống"
-        subtitle="Chào mừng trở lại! Đây là tóm tắt hoạt động kinh doanh hôm nay."
-        showDate
+        subtitle="Doanh thu, đơn hàng, khách hàng và tồn kho theo thời gian thực."
+        className="mb-5"
       />
 
-      <StatsGrid stats={statCards} />
+      <StatsGrid stats={buildStatCards(stats)} />
+      <KpiStrip items={buildKpiItems(stats)} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
         <RevenueChart />
-        <OrderStatusPie data={pieData} totalOrders={stats?.total_orders} />
+        <OrderStatusPie data={buildPieData(stats?.order_status_distribution)} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+        <DailyTrendChart className="xl:col-span-2" />
+        <RevenueMixChart
+          byCategory={buildRevenueMix(stats?.revenue_by_category)}
+          byBrand={buildRevenueMix(stats?.revenue_by_brand)}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+        <RecentOrdersPanel
+          orders={stats?.recent_orders}
+          className="xl:col-span-2"
+        />
+        <UserGrowthChart history={stats?.user_growth_history} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
         <TopSellingProducts
           products={stats?.top_selling_products}
           navigate={navigate}
-          formatCurrency={formatCurrency}
         />
         <OperationBrief
           lowStockProducts={stats?.low_stock_products}
           stats={stats}
+        />
+        <ReviewPulse
+          distribution={stats?.review_distribution}
+          className="lg:col-span-2 xl:col-span-1"
         />
       </div>
     </div>

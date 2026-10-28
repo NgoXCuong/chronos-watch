@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { Check, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const Newsletter = () => {
     const [email, setEmail] = useState('');
     const [submitted, setSubmitted] = useState(false);
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -13,60 +13,52 @@ const Newsletter = () => {
     };
 
     return (
-        <section className={`relative border-t transition-colors duration-500 overflow-hidden ${isDark ? 'bg-[#060606] border-white/5' : 'bg-stone-100 border-stone-200'}`}>
-            {/* Background decoration */}
-            <div className="absolute inset-0">
-                <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full blur-3xl ${isDark ? 'bg-amber-500/[0.03]' : 'bg-amber-500/[0.05]'}`}></div>
-            </div>
-
-            <div className="relative max-w-[1400px] mx-auto px-6 md:px-8 py-5 md:py-8">
-                <div className="max-w-2xl mx-auto text-center">
-                    {/* Label */}
-                    <div className="inline-flex items-center gap-3 mb-2">
-                        <div className="w-6 h-px bg-amber-500/40"></div>
-                        <p className="text-sm text-amber-500 uppercase">Thành Viên VIP</p>
-                        <div className="w-6 h-px bg-amber-500/40"></div>
+        <section className="relative overflow-hidden bg-linear-to-br from-navy-950 via-navy-900 to-navy-800">
+            <div className="relative mx-auto w-full max-w-[1400px] px-4 py-12 sm:px-6 md:py-16">
+                <div className="mx-auto max-w-2xl text-center">
+                    {/* Eyebrow */}
+                    <div className="mb-3 inline-flex items-center gap-3">
+                        <div className="h-px w-6 bg-navy-300/60"></div>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-navy-100">Thành Viên VIP</p>
+                        <div className="h-px w-6 bg-navy-300/60"></div>
                     </div>
 
-                    <h2 className={`text-3xl md:text-5xl font-bold mb-4 leading-tight ${isDark ? 'text-white' : 'text-stone-900'}`} style={{ fontFamily: 'Georgia, serif' }}>
-                        Gia Nhập Giới<br /><span className="text-amber-500">Tinh Hoa</span>
+                    <h2 className="mb-4 text-3xl font-extrabold leading-tight text-white md:text-[40px]">
+                        Gia Nhập Giới<br /><span className="text-navy-300">Tinh Hoa</span>
                     </h2>
-                    <p className={`text-sm md:text-base leading-relaxed mb-4 max-w-lg mx-auto ${isDark ? 'text-zinc-500' : 'text-stone-600'}`}>
+                    <p className="mx-auto mb-6 max-w-lg text-sm leading-relaxed text-navy-100 md:text-base">
                         Đăng ký để nhận thông tin về bộ sưu tập mới, ưu đãi độc quyền và những câu chuyện đằng sau từng tuyệt tác đồng hồ.
                     </p>
 
                     {submitted ? (
                         <div className="flex flex-col items-center gap-3 py-3">
-                            <div className="w-12 h-12 rounded-full border border-amber-500/40 flex items-center justify-center mb-2">
-                                <svg className="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
+                            <div className="mb-2 flex size-12 items-center justify-center rounded-full border border-navy-300/50">
+                                <Check size={20} strokeWidth={2} className="text-white" aria-hidden="true" />
                             </div>
-                            <p className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>Cảm ơn bạn đã đăng ký!</p>
-                            <p className={isDark ? 'text-zinc-500' : 'text-stone-500'}>Chúng tôi sẽ liên hệ với bạn sớm nhất.</p>
+                            <p className="font-semibold text-white">Cảm ơn bạn đã đăng ký!</p>
+                            <p className="text-sm text-navy-100">Chúng tôi sẽ liên hệ với bạn sớm nhất.</p>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row max-w-md mx-auto gap-0">
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                placeholder="Nhập địa chỉ email..."
-                                required
-                                className={`flex-1 border focus:border-amber-500/50 px-5 py-4 text-sm outline-none transition-all duration-300 ${isDark
-                                    ? 'bg-white/5 border-white/10 text-white placeholder:text-zinc-600'
-                                    : 'bg-white border-stone-200 text-stone-900 placeholder:text-stone-400'}`}
-                            />
-                            <button
-                                type="submit"
-                                className="px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold uppercase transition-all duration-300 whitespace-nowrap"
-                            >
+                        <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
+                            <div className="flex-1">
+                                <Input
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    icon={Mail}
+                                    placeholder="Nhập địa chỉ email..."
+                                    aria-label="Email nhận bản tin"
+                                    required
+                                    className="border-navy-300/30 bg-navy-950/40 text-white placeholder:text-navy-300 focus-visible:border-navy-300"
+                                />
+                            </div>
+                            <Button type="submit" variant="buy" className="border-white bg-white text-navy-800 hover:bg-navy-600 hover:border-navy-600 hover:text-white whitespace-nowrap">
                                 Đăng Ký
-                            </button>
+                            </Button>
                         </form>
                     )}
 
-                    <p className={`text-[10px]  uppercase mt-6 ${isDark ? 'text-zinc-700' : 'text-stone-400'}`}>
+                    <p className="mt-6 text-[11px] uppercase tracking-[0.05em] text-navy-300">
                         Không spam · Hủy bất kỳ lúc nào · Dữ liệu bảo mật
                     </p>
                 </div>

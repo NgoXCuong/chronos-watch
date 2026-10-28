@@ -1,219 +1,244 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, RefreshCw } from 'lucide-react';
-import { Button } from '../../../components/ui/button';
-import productApi from '../../../api/product.api';
-import brandApi from '../../../api/brand.api';
-import categoryApi from '../../../api/category.api';
-import { toast } from 'sonner';
-import AdminHeader from '../../../components/admin/Common/AdminHeader';
-import SearchBanner from '../../../components/admin/Common/SearchBanner';
-import ProductTable from '../../../components/admin/Product/ProductTable';
-import AdminPagination from '../../../components/admin/Common/AdminPagination';
-import useDebounce from '../../../hooks/useDebounce';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { PackageCheck, PackageX, Plus } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "../../../components/ui/button";
+import productApi from "../../../api/product.api";
+import brandApi from "../../../api/brand.api";
+import categoryApi from "../../../api/category.api";
+import useDebounce from "../../../hooks/useDebounce";
+import useBulkSelection from "../../../hooks/useBulkSelection";
+import AdminHeader from "../../../components/admin/Common/AdminHeader";
+import SearchBanner from "../../../components/admin/Common/SearchBanner";
+import SelectionActions from "../../../components/admin/Common/SelectionActions";
+import FilterSelect from "../../../components/admin/Common/FilterSelect";
+import ProductTable from "../../../components/admin/Product/ProductTable";
+import {
+  PRODUCT_STATUS,
+  PRODUCT_STATUS_KEYS,
+} from "../../../constants/productStatus";
+
+const PAGE_SIZE = 10;
+const DEFAULT_SORT = { key: "created_at", dir: "desc" };
+const BULK_ICON = "h-3.5 w-3.5";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "Tất cả trạng thái" },
+  ...PRODUCT_STATUS_KEYS.map((key) => ({
+    value: key,
+    label: PRODUCT_STATUS[key].label,
+    dot: PRODUCT_STATUS[key].dot,
+  })),
+];
+
+// /brands trả {count, rows}, /categories trả mảng trần — chuẩn hoá về mảng
+const toRows = (res) => (Array.isArray(res) ? res : res?.rows || []);
+
+const toOptions = (rows, allLabel) => [
+  { value: "", label: allLabel },
+  ...rows.map((row) => ({ value: String(row.id), label: row.name })),
+];
 
 const ProductListPage = () => {
-    const navigate = useNavigate();
-    const [products, setProducts] = useState([]);
-    const [count, setCount] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const debouncedSearch = useDebounce(searchTerm, 400);
-    const [selectedBrand, setSelectedBrand] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [brands, setBrands] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const limit = 10;
+  const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [brandId, setBrandId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState(DEFAULT_SORT);
+  const [brands, setBrands] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const debouncedSearch = useDebounce(searchTerm, 400);
+  const isFirstQuery = useRef(true);
 
-    const formatCurrency = (amt) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amt || 0);
+  const brandOptions = useMemo(
+    () => toOptions(brands, "Tất cả thương hiệu"),
+    [brands],
+  );
+  const categoryOptions = useMemo(
+    () => toOptions(categories, "Tất cả danh mục"),
+    [categories],
+  );
 
-    const [selectedIds, setSelectedIds] = useState([]);
-    const [isAllSelected, setIsAllSelected] = useState(false);
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const data = await productApi.getAdminAll({
+        search: debouncedSearch,
+        brand_id: brandId,
+        category_id: categoryId,
+        status: statusFilter,
+        page: currentPage,
+        limit: PAGE_SIZE,
+        sort: sort.key,
+        dir: sort.dir,
+      });
+      setProducts(data.rows || []);
+      setCount(data.count || 0);
+    } catch {
+      toast.error("Không thể tải danh sách sản phẩm");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const fetchProducts = async () => {
-        setLoading(true);
-        try {
-            const data = await productApi.getAll({ 
-                search: debouncedSearch, 
-                brand_id: selectedBrand,
-                category_id: selectedCategory,
-                page: currentPage, 
-                limit: limit 
-            });
-            setProducts(data.rows || []);
-            setCount(data.count || 0);
-            setSelectedIds([]);
-            setIsAllSelected(false);
-        } catch {
-            toast.error('Không thể tải danh sách sản phẩm');
-        } finally {
-            setLoading(false);
+  const fetchFilterData = async () => {
+    try {
+      const [brandRes, categoryRes] = await Promise.all([
+        brandApi.getAll({ limit: 100 }),
+        categoryApi.getAll({ limit: 100 }),
+      ]);
+      setBrands(toRows(brandRes));
+      setCategories(toRows(categoryRes));
+    } catch {
+      toast.error("Không thể tải dữ liệu lọc");
+    }
+  };
+
+  useEffect(() => {
+    fetchFilterData();
+  }, []);
+
+  useEffect(() => {
+    if (isFirstQuery.current) {
+      isFirstQuery.current = false;
+      return;
+    }
+    setCurrentPage(1);
+  }, [debouncedSearch, brandId, categoryId, statusFilter, sort]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [currentPage, debouncedSearch, brandId, categoryId, statusFilter, sort]);
+
+  const handleDelete = async (product) => {
+    if (!window.confirm(`Xóa sản phẩm "${product.name}"?`)) return;
+    try {
+      await productApi.delete(product.id);
+      toast.success("Đã xóa sản phẩm");
+      fetchProducts();
+    } catch {
+      toast.error("Không thể xóa sản phẩm");
+    }
+  };
+
+  const bulk = useBulkSelection({
+    rows: products,
+    label: "sản phẩm",
+    onDone: fetchProducts,
+  });
+
+  // Sản phẩm không xóa hẳn khỏi CSDL (đơn hàng cũ còn tham chiếu) →
+  // hàng loạt chỉ đổi trạng thái bán, đúng semantics của nút xóa đơn lẻ
+  const bulkActions = [
+    {
+      key: "on",
+      label: "Mở bán",
+      icon: <PackageCheck className={BULK_ICON} strokeWidth={2} />,
+      onClick: () =>
+        bulk.run((ids) => productApi.bulkUpdateStatus(ids, "active")),
+    },
+    {
+      key: "off",
+      label: "Ngừng bán",
+      variant: "destructive",
+      icon: <PackageX className={BULK_ICON} strokeWidth={2} />,
+      onClick: () =>
+        bulk.run(
+          (ids) => productApi.bulkUpdateStatus(ids, "inactive"),
+          `Ngừng bán ${bulk.selectedIds.length} sản phẩm? Khách sẽ không còn mua được các mã này.`,
+        ),
+    },
+  ];
+
+  const hasFilter = Boolean(brandId || categoryId || statusFilter);
+
+  return (
+    <div className="space-y-3 pb-8">
+      <AdminHeader
+        title="Quản lý sản phẩm"
+        subtitle="Danh sách và thông tin chi tiết các mẫu đồng hồ"
+        actions={
+          <Button
+            onClick={() => navigate("/admin/products/create")}
+            className="h-9 gap-2 rounded-lg px-4 text-[13px] font-semibold"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+            Thêm sản phẩm mới
+          </Button>
         }
-    };
+      />
 
-    const fetchFilterData = async () => {
-        try {
-            const [brandRes, categoryRes] = await Promise.all([
-                brandApi.getAll({ limit: 100 }),
-                categoryApi.getAll({ limit: 100 })
-            ]);
-            
-            // Handle both {rows, count} and direct array responses
-            setBrands(brandRes?.rows || (Array.isArray(brandRes) ? brandRes : []));
-            setCategories(categoryRes?.rows || (Array.isArray(categoryRes) ? categoryRes : []));
-        } catch (error) {
-            console.error('Lỗi khi tải dữ liệu lọc:', error);
+      <SearchBanner
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        placeholder="Tìm theo tên hoặc mã SKU..."
+        onRefresh={fetchProducts}
+        loading={loading}
+        count={count}
+        countLabel="sản phẩm"
+      >
+        <FilterSelect
+          label="Danh mục"
+          value={categoryId}
+          onChange={setCategoryId}
+          options={categoryOptions}
+        />
+        <FilterSelect
+          label="Thương hiệu"
+          value={brandId}
+          onChange={setBrandId}
+          options={brandOptions}
+        />
+        <FilterSelect
+          label="Trạng thái"
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={STATUS_OPTIONS}
+        />
+        {hasFilter && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setBrandId("");
+              setCategoryId("");
+              setStatusFilter("");
+            }}
+            className="h-10 px-3 text-[13px] font-semibold text-muted-foreground hover:text-sale"
+          >
+            Xóa lọc
+          </Button>
+        )}
+      </SearchBanner>
+
+      <ProductTable
+        products={products}
+        loading={loading}
+        sort={sort}
+        onSortChange={setSort}
+        selectedRowKeys={bulk.selectedIds}
+        onSelectionChange={bulk.setSelectedIds}
+        selectionActions={
+          <SelectionActions busy={bulk.busy} actions={bulkActions} />
         }
-    };
-
-    useEffect(() => {
-        fetchFilterData();
-    }, []);
-
-    const toggleSelectAll = () => {
-        if (isAllSelected) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(products.map(p => p.id));
-        }
-        setIsAllSelected(!isAllSelected);
-    };
-
-    const toggleSelect = (id) => {
-        setSelectedIds(prev =>
-            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-        );
-    };
-
-    const isFirstFilter = useRef(true);
-    useEffect(() => {
-        if (isFirstFilter.current) {
-            isFirstFilter.current = false;
-            return;
-        }
-        if (currentPage !== 1) {
-            setCurrentPage(1);
-        }
-    }, [debouncedSearch, selectedBrand, selectedCategory]);
-
-    useEffect(() => { 
-        fetchProducts(); 
-    }, [currentPage, debouncedSearch, selectedBrand, selectedCategory]);
-
-    const handleDelete = async (product) => {
-        if (!window.confirm(`Xóa sản phẩm "${product.name}"?`)) return;
-        try {
-            await productApi.delete(product.id);
-            toast.success('Đã xóa sản phẩm');
-            fetchProducts();
-        } catch {
-            toast.error('Không thể xóa sản phẩm');
-        }
-    };
-
-    return (
-        <div className="space-y-6 pb-10 pill-roboto">
-            <AdminHeader
-                title="Quản lý sản phẩm"
-                subtitle="Quản lý toàn bộ kho hàng đồng hồ"
-                actions={
-                    <Button
-                        onClick={() => navigate('/admin/products/create')}
-                        className="bg-amber-600 hover:bg-amber-700 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-amber-600/20 transition-all active:scale-95"
-                    >
-                        <Plus className="h-4 w-4" /> Thêm sản phẩm mới
-                    </Button>
-                }
-            />
-
-            <SearchBanner
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                placeholder="Tìm kiếm sản phẩm..."
-                onRefresh={fetchProducts}
-                loading={loading}
-                count={count}
-                countLabel="Sản phẩm"
-            >
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-px bg-slate-100 mx-1 hidden lg:block" />
-                    
-                    {/* Category Filter */}
-                    <div className="flex items-center gap-2">
-                        <select
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all cursor-pointer min-w-32"
-                        >
-                            <option value="">Tất cả danh mục</option>
-                            {categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Brand Filter */}
-                    <div className="flex items-center gap-2">
-                        <select
-                            value={selectedBrand}
-                            onChange={(e) => setSelectedBrand(e.target.value)}
-                            className="h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all cursor-pointer min-w-32"
-                        >
-                            <option value="">Tất cả thương hiệu</option>
-                            {brands.map(brand => (
-                                <option key={brand.id} value={brand.id}>{brand.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {(selectedBrand || selectedCategory) && (
-                        <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => {
-                                setSelectedBrand('');
-                                setSelectedCategory('');
-                            }}
-                            className="h-10 px-3 text-[10px] font-black uppercase text-rose-600 hover:bg-rose-50 hover:text-rose-700 rounded-lg transition-all"
-                        >
-                            Xóa lọc
-                        </Button>
-                    )}
-                </div>
-
-                {selectedIds.length > 0 && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 rounded-lg border border-amber-100 animate-in fade-in slide-in-from-left-2 transition-all">
-                        <span className="text-xs font-bold text-amber-700">Đã chọn {selectedIds.length}</span>
-                        <div className="w-px h-3 bg-amber-200 mx-1" />
-                        <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold text-rose-600 hover:bg-rose-100 hover:text-rose-700 rounded-md px-2">Xóa bỏ</Button>
-                        <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold text-slate-600 hover:bg-white rounded-md px-2">Ẩn đi</Button>
-                    </div>
-                )}
-            </SearchBanner>
-
-            <ProductTable
-                products={products}
-                loading={loading}
-                selectedIds={selectedIds}
-                toggleSelect={toggleSelect}
-                toggleSelectAll={toggleSelectAll}
-                isAllSelected={isAllSelected}
-                formatCurrency={formatCurrency}
-                onEdit={(id) => navigate(`/admin/products/edit/${id}`)}
-                onView={(slug) => window.open(`/products/${slug}`, '_blank')}
-                onDelete={handleDelete}
-                pagination={{
-                    currentPage: currentPage,
-                    totalPages: Math.ceil(count / limit),
-                    totalCount: count,
-                    countLabel: "sản phẩm",
-                    onPageChange: (page) => setCurrentPage(page)
-                }}
-            />
-        </div>
-    );
+        onView={(slug) => window.open(`/products/${slug}`, "_blank")}
+        onEdit={(id) => navigate(`/admin/products/edit/${id}`)}
+        onDelete={handleDelete}
+        pagination={{
+          currentPage,
+          totalPages: Math.ceil(count / PAGE_SIZE),
+          totalCount: count,
+          countLabel: "sản phẩm",
+          onPageChange: (page) => setCurrentPage(page),
+        }}
+      />
+    </div>
+  );
 };
 
 export default ProductListPage;
-

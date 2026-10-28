@@ -1,9 +1,9 @@
-import React from "react";
 import { Search, RefreshCw } from "lucide-react";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { cn } from "../../../lib/utils";
 
+// Toolbar dùng chung cho mọi trang danh sách: search + refresh + slot bộ lọc
 const SearchBanner = ({
   searchTerm,
   setSearchTerm,
@@ -13,45 +13,47 @@ const SearchBanner = ({
   count,
   countLabel,
   children,
-}) => {
-  return (
-    <div className="bg-white px-5 py-4 border border-slate-100 shadow-sm flex flex-wrap items-center gap-4">
-      <div className="relative flex-1 md:max-w-sm group">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-amber-600 transition-colors z-10" />
-        <Input
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder={placeholder || "Tìm kiếm..."}
-          className="pl-10 bg-white border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 h-10 rounded-lg text-sm transition-all shadow-sm"
-        />
-      </div>
-      {onRefresh && (
-        <Button
-          onClick={onRefresh}
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 rounded-lg shrink-0 
-                   bg-slate-100 hover:bg-blue-100 
-                   transition-all duration-200"
-        >
-          <RefreshCw
-            className={cn(
-              "h-4 w-4 text-blue-500 transition-all duration-300",
-              loading && "animate-spin text-blue-600",
-            )}
-          />
-        </Button>
-      )}
-
-      {children}
-
-      {count !== undefined && count !== null && (
-        <p className="text-xs text-slate-400 ml-auto hidden md:block font-medium">
-          {countLabel || "Hiện có"} {count}
-        </p>
-      )}
+}) => (
+  <div className="flex flex-wrap items-center gap-3 rounded-xl border border-navy-200/70 bg-navy-50/70 px-4 py-3 shadow-card dark:border-navy-500/25 dark:bg-navy-500/10">
+    <div className="group relative flex-1 md:max-w-sm">
+      <Search
+        strokeWidth={2}
+        className={cn(
+          "pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground",
+          "transition-colors group-focus-within:text-navy-600 dark:group-focus-within:text-navy-200",
+        )}
+      />
+      <Input
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+        placeholder={placeholder || "Tìm kiếm..."}
+        className="h-10 rounded-lg border-input pl-9 text-sm shadow-none focus-visible:border-navy-600 focus-visible:ring-0 focus-visible:shadow-[0_0_0_3px_rgba(15,42,74,.18)]"
+      />
     </div>
-  );
-};
+
+    {onRefresh && (
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label="Làm mới danh sách"
+        onClick={onRefresh}
+        className="h-9 w-9 shrink-0 rounded-lg border border-border bg-muted/50 text-muted-foreground hover:bg-navy-50 hover:text-navy-700 dark:hover:bg-navy-500/15 dark:hover:text-navy-100"
+      >
+        <RefreshCw
+          strokeWidth={2}
+          className={cn("h-4 w-4 transition-all", loading && "animate-spin")}
+        />
+      </Button>
+    )}
+
+    {children}
+
+    {count !== undefined && count !== null && (
+      <p className="ml-auto hidden text-xs font-semibold uppercase tracking-[0.02em] text-muted-foreground tabular-nums md:block">
+        {countLabel || "Tổng"} {count}
+      </p>
+    )}
+  </div>
+);
 
 export default SearchBanner;

@@ -12,7 +12,10 @@ router.get("/:id_or_slug", brandController.getDetail);
 // Admin only routes
 router.post("/", verifyToken, isAdmin, upload.single('logo'), brandController.create);
 router.put("/:id", verifyToken, isAdmin, upload.single('logo'), brandController.update);
+router.patch("/status/bulk", verifyToken, isAdmin, brandController.bulkUpdateVisibility);
 router.patch("/:id/toggle-status", verifyToken, isAdmin, brandController.toggleStatus);
+// "bulk" phải đăng ký trước "/:id" nếu không bị match thành id
+router.delete("/bulk", verifyToken, isAdmin, brandController.bulkDelete);
 router.delete("/:id", verifyToken, isAdmin, brandController.delete);
 
 export default router;

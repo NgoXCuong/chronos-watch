@@ -9,12 +9,16 @@ const categoryApi = {
         const { data } = await axios.get(`/categories/${id}`);
         return data;
     },
-    create: async (payload) => {
-        const { data } = await axios.post('/categories', payload);
+    create: async (formData) => {
+        const { data } = await axios.post('/categories', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return data;
     },
-    update: async (id, payload) => {
-        const { data } = await axios.put(`/categories/${id}`, payload);
+    update: async (id, formData) => {
+        const { data } = await axios.put(`/categories/${id}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return data;
     },
     toggleStatus: async (id) => {

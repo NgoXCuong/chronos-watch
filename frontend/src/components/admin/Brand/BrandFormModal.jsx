@@ -1,199 +1,187 @@
-import React from "react";
+import { useState } from "react";
+import { Building2, Save } from "lucide-react";
 import {
-  X,
-  Upload,
-  Award,
-  Type,
-  Link,
-  Globe,
-  FileText,
-  Image as ImageIcon,
-} from "lucide-react";
-import { Button } from "../../ui/button";
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../ui/dialog";
 import { Input } from "../../ui/input";
+import { Textarea } from "../../ui/textarea";
+import { Button } from "../../ui/button";
+import FormField from "../Common/FormField";
+import ImagePickerField from "../Common/ImagePickerField";
+import useImagePicker from "../../../hooks/useImagePicker";
+import useSlugField from "../../../hooks/useSlugField";
+import { TAXONOMY_MAX } from "../../../constants/taxonomyForm";
+import { IMAGE_MAX_MB } from "../../../constants/upload";
+import { buildTaxonomyPayload, validateTaxonomy } from "../../../utils/taxonomyForm";
 
-const Label = ({ children, icon: Icon }) => (
-  <label className="flex items-center gap-2 text-[13px] font-semibold text-slate-900 mb-1.5">
-    {Icon && <Icon className="h-4 w-4 text-amber-600" />}
-    {children}
-  </label>
-);
+// brands: name(100) UNIQUE · slug(100) UNIQUE · country(100) · description TEXT · logo_url
+const EMPTY_FORM = { name: "", slug: "", country: "", description: "" };
 
-const BrandFormModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  form,
-  setForm,
-  logoPreview,
-  setLogoFile,
-  setLogoPreview,
-  fileRef,
-  saving,
-  editingBrand,
-}) => {
-  if (!isOpen) return null;
+const formOf = (brand) =>
+  brand
+    ? {
+        name: brand.name || "",
+        slug: brand.slug || "",
+        country: brand.country || "",
+        description: brand.description || "",
+      }
+    : EMPTY_FORM;
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
-    }
+// Component riêng để state seed từ props khi mở modal (Dialog unmount lúc đóng, không cần effect reset)
+const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
+  const [form, setForm] = useState(() => formOf(brand));
+  const [errors, setErrors] = useState({});
+  const { setName, setSlug, slugTouched } = useSlugField(setForm);
+  const logo = useImagePicker(brand?.logo_url);
+  const {
+    file: logoFile,
+    preview: logoPreview,
+    isNew: logoIsNew,
+    open: openLogo,
+    clear: clearLogo,
+    pick: pickLogo,
+    inputRef: logoInputRef,
+  } = logo;
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const nextErrors = validateTaxonomy(form, { nameLabel: "Tên thương hiệu" });
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+    onSubmit(
+      buildTaxonomyPayload(form, {
+        file: logoFile,
+        fileField: "logo",
+        extras: { country: form.country.trim() },
+      }),
+    );
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 backdrop-blur-md p-4 transition-all duration-300">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-white/20 animate-in fade-in zoom-in duration-300">
-        {/* Header */}
-        <div className="relative px-8 pt-8 pb-6 bg-linear-to-br from-slate-50 to-white border-b border-slate-100">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                <Award className="h-5 w-5 text-amber-600" />
-                {editingBrand ? "Cập nhật thương hiệu" : "Thêm mới thương hiệu"}
-              </h3>
-              <p className="text-[11px] font-bold text-amber-600/80 uppercase">
-                Quản lý thương hiệu
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="rounded-lg h-10 w-10 hover:bg-red-50 hover:text-red-500 transition-all duration-300 border border-transparent hover:border-red-100"
-            >
-              <X className="h-5 w-5" />
-            </Button>
+    <>
+      <DialogHeader>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-navy-600 dark:text-navy-200" strokeWidth={2} />
+              {brand ? "Cập nhật thương hiệu" : "Thêm thương hiệu mới"}
+            </DialogTitle>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Tên và đường dẫn phải duy nhất trong hệ thống
+            </p>
           </div>
+          <DialogCloseButton onClick={onClose} />
+        </div>
+      </DialogHeader>
+
+      <form onSubmit={handleSubmit} className="max-h-[65vh] space-y-4 overflow-y-auto p-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FormField label="Tên thương hiệu" htmlFor="brand-name" required error={errors.name}>
+            <Input
+              id="brand-name"
+              value={form.name}
+              maxLength={TAXONOMY_MAX.name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="VD: Casio"
+              error={errors.name}
+            />
+          </FormField>
+
+          <FormField
+            label="Đường dẫn (slug)"
+            htmlFor="brand-slug"
+            hint={slugTouched ? "Đang dùng slug nhập tay." : "Tự sinh từ tên."}
+            error={errors.slug}
+          >
+            <Input
+              id="brand-slug"
+              value={form.slug}
+              maxLength={TAXONOMY_MAX.slug}
+              onChange={(event) => setSlug(event.target.value)}
+              placeholder="vd: casio"
+              className="font-mono text-[13px]"
+              error={errors.slug}
+            />
+          </FormField>
+
+          <FormField
+            label="Quốc gia"
+            htmlFor="brand-country"
+            hint="Để trống nếu chưa rõ."
+            error={errors.country}
+          >
+            <Input
+              id="brand-country"
+              value={form.country}
+              maxLength={TAXONOMY_MAX.country}
+              onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))}
+              placeholder="VD: Nhật Bản"
+              error={errors.country}
+            />
+          </FormField>
+
+          <ImagePickerField
+            label="Logo"
+            alt="Logo thương hiệu"
+            contain
+            hint={`PNG trong suốt, ≤${IMAGE_MAX_MB}MB · 400×400`}
+            preview={logoPreview}
+            isNew={logoIsNew}
+            onOpen={openLogo}
+            onClear={clearLogo}
+            onSelect={pickLogo}
+            inputRef={logoInputRef}
+          />
         </div>
 
-        <form
-          onSubmit={onSubmit}
-          className="px-8 py-7 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar"
+        <FormField
+          label="Mô tả"
+          htmlFor="brand-description"
+          hint="Hiển thị ở trang danh sách thương hiệu và khối giới thiệu."
         >
-          <div className="grid grid-cols-2 gap-6">
-            <div className="col-span-2">
-              <Label icon={ImageIcon}>Logo thương hiệu</Label>
-              <div
-                className="relative group cursor-pointer"
-                onClick={() => fileRef.current?.click()}
-              >
-                <div className="flex items-center gap-6 p-5 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 group-hover:border-amber-400 group-hover:bg-amber-50/30 transition-all duration-300">
-                  <div className="h-20 w-20 rounded-lg bg-white border border-slate-200 overflow-hidden flex items-center justify-center shadow-md group-hover:shadow-amber-200 transition-all duration-300 relative shrink-0">
-                    {logoPreview ? (
-                      <img
-                        src={logoPreview}
-                        alt="Preview"
-                        className="h-full w-full object-contain p-2 animate-in fade-in duration-500"
-                      />
-                    ) : (
-                      <Upload className="h-6 w-6 text-slate-600 group-hover:text-amber-500 transition-colors" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[13px] font-bold text-slate-700 group-hover:text-amber-600 transition-colors">
-                      {logoPreview
-                        ? "Thay đổi ảnh thương hiệu"
-                        : "Tải lên logo mới"}
-                    </p>
-                    <p className="text-[11px] text-slate-500 mt-1 italic font-medium">
-                      Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 2MB.
-                    </p>
-                  </div>
-                </div>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </div>
-            </div>
+          <Textarea
+            id="brand-description"
+            rows={4}
+            value={form.description}
+            onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+            placeholder="VD: Casio thành lập năm 1946 tại Tokyo, nổi bật với G-Shock chống va đập..."
+          />
+        </FormField>
 
-            <div className="col-span-2 sm:col-span-1">
-              <Label icon={Type}>Tên thương hiệu *</Label>
-              <Input
-                value={form.name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, name: e.target.value }))
-                }
-                placeholder="VD: Rolex"
-                className="h-12 rounded-xl bg-white border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 text-slate-800 shadow-sm transition-all duration-300"
-                required
-              />
-            </div>
+        <DialogFooter className="border-t-0 px-0 pb-0 pt-1">
+          <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+            Hủy
+          </Button>
+          <Button type="submit" loading={saving} className="min-w-[132px] gap-1.5">
+            {!saving && <Save className="h-4 w-4" strokeWidth={2} />}
+            {brand ? "Lưu thay đổi" : "Tạo thương hiệu"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </>
+  );
+};
 
-            <div className="col-span-2 sm:col-span-1">
-              <Label icon={Link}>Slug (Đường dẫn)</Label>
-              <Input
-                value={form.slug}
-                onChange={(e) =>
-                  setForm((f) => ({
-                    ...f,
-                    slug: e.target.value.toLowerCase().replace(/\s+/g, "-"),
-                  }))
-                }
-                placeholder="VD: rolex"
-                className="h-12 rounded-xl bg-slate-50 border-slate-200 text-slate-500 shadow-inner transition-all duration-300"
-              />
-            </div>
+const BrandFormModal = ({ open, brand, saving = false, onSubmit, onClose }) => {
+  if (!open) return null;
 
-            <div className="col-span-2 sm:col-span-1">
-              <Label icon={Globe}>Quốc gia</Label>
-              <Input
-                value={form.country}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, country: e.target.value }))
-                }
-                placeholder="VD: Thụy Sỹ"
-                className="h-12 rounded-xl bg-white border-slate-200 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 text-slate-800 shadow-sm transition-all duration-300"
-              />
-            </div>
-
-            <div className="col-span-2">
-              <Label icon={FileText}>Mô tả thương hiệu</Label>
-              <textarea
-                value={form.description}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, description: e.target.value }))
-                }
-                placeholder="Nhập câu chuyện hoặc mô tả về thương hiệu..."
-                className="w-full h-32 p-5 bg-white border border-slate-200 rounded-xl text-sm text-slate-600 focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all duration-300 shadow-sm resize-none"
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-4 pt-6 border-t border-slate-50">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 h-13 rounded-xl border-slate-200 font-bold text-[13px] text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all duration-300"
-            >
-              Hủy bỏ
-            </Button>
-            <Button
-              type="submit"
-              disabled={saving}
-              className="flex-[1.5] h-13 rounded-xl bg-linear-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-[13px] shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 transition-all duration-300 active:scale-95 disabled:opacity-70"
-            >
-              {saving ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Đang lưu...
-                </div>
-              ) : editingBrand ? (
-                "Cập nhật"
-              ) : (
-                "Xác nhận"
-              )}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+  return (
+    <Dialog open onOpenChange={(next) => !next && onClose?.()}>
+      <DialogContent className="max-w-xl">
+        <BrandFormBody
+          key={brand?.id ?? "new"}
+          brand={brand}
+          saving={saving}
+          onSubmit={onSubmit}
+          onClose={onClose}
+        />
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -14,6 +14,11 @@ const Product = sequelize.define('Product', {
         allowNull: false,
         unique: true
     },
+    sku: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        unique: true
+    },
     description: {
         type: DataTypes.TEXT('long'),
         allowNull: true
@@ -30,6 +35,11 @@ const Product = sequelize.define('Product', {
         type: DataTypes.INTEGER,
         defaultValue: 0,
         validate: { min: 0 }
+    },
+    warranty_months: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 24
     },
     brand_id: {
         type: DataTypes.INTEGER,
@@ -57,6 +67,16 @@ const Product = sequelize.define('Product', {
     },
     sold_count: {
         type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    avg_rating: {
+        type: DataTypes.DECIMAL(2, 1),
+        allowNull: true,
+        defaultValue: 0
+    },
+    review_count: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
         defaultValue: 0
     },
     status: {

@@ -1,4 +1,5 @@
 import orderService from "../services/order.service.js";
+import myOrdersService from "../services/my-orders.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const orderController = {
@@ -16,8 +17,8 @@ const orderController = {
     }),
 
     getMyOrders: asyncHandler(async (req, res) => {
-        const orders = await orderService.getUserOrders(req.user.id);
-        res.json(orders);
+        const result = await myOrdersService.getMyOrders(req.user.id, req.query);
+        res.json(result);
     }),
 
     getDetail: asyncHandler(async (req, res) => {
@@ -27,7 +28,7 @@ const orderController = {
 
     updateStatus: asyncHandler(async (req, res) => {
         const { status, note } = req.body;
-        const order = await orderService.updateOrderStatus(req.params.id, status, note);
+        const order = await orderService.updateOrderStatus(req.params.id, status, note, req.user.id);
         res.json({
             message: "Cập nhật trạng thái đơn hàng thành công",
             order
@@ -35,7 +36,7 @@ const orderController = {
     }),
 
     markAsPaid: asyncHandler(async (req, res) => {
-        const order = await orderService.markAsPaid(req.params.id);
+        const order = await orderService.markAsPaid(req.params.id, req.user.id);
         res.json({ message: "Đã xác nhận thu tiền COD thành công", order });
     }),
 
@@ -51,9 +52,9 @@ const orderController = {
                      req.socket.remoteAddress || 
                      req.connection.socket.remoteAddress;
 
-        const result = await orderService.retryVNPayPayment(req.params.id, req.user.id, ipAddr);
+        const result = await orderService.retryPayment(req.params.id, req.user.id);
         res.json({
-            message: "Tạo liên kết thanh toán lại thành công",
+            message: "Tạo thông tin thanh toán SePay thành công",
             ...result
         });
     }),

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import cartApi from '../api/cart.api';
+import flashSaleApi from '../api/flashSale.api';
+import { indexFlashItemsByProduct } from '../utils/flashSale';
 import { AuthContext } from './AuthContext';
 
 const CartContext = createContext();
@@ -14,8 +16,15 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const { isAuthenticated, user } = useContext(AuthContext);
   const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem('chronos_cart');
-    return savedCart ? JSON.parse(savedCart) : [];
+    try {
+      const savedCart = JSON.parse(localStorage.getItem('chronos_cart') || '[]');
+      // Giỏ tạm có thể còn sản phẩm vừa bị ngừng bán; loại bỏ ngay khi mở lại trang.
+      return Array.isArray(savedCart)
+        ? savedCart.filter((item) => item.status !== 'inactive')
+        : [];
+    } catch {
+      return [];
+    }
   });
 
   const [promoCode, setPromoCode] = useState(null);
@@ -45,7 +54,8 @@ export const CartProvider = ({ children }) => {
             image_url: item.product?.image_url,
             quantity: item.quantity,
             stock: item.product?.stock,
-            slug: item.product?.slug
+            slug: item.product?.slug,
+            status: item.product?.status
           }));
 
           setCart(formattedCart);
@@ -67,7 +77,8 @@ export const CartProvider = ({ children }) => {
             image_url: item.product?.image_url,
             quantity: item.quantity,
             stock: item.product?.stock,
-            slug: item.product?.slug
+            slug: item.product?.slug,
+            status: item.product?.status
           }));
           setCart(formattedCart);
         } catch (err) {
@@ -81,13 +92,20 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product, quantity = 1) => {
     const productId = product.id || product._id;
+
+    if (product.status && product.status !== 'active') {
+      toast.error('Sản phẩm đã ngừng bán');
+      return;
+    }
+
     const existingItem = cart.find(item => item.id === productId);
 
     if (isAuthenticated) {
       try {
         await cartApi.add(productId, quantity);
       } catch (err) {
-        toast.error('Lỗi khi cập nhật giỏ hàng trên máy chủ');
+        toast.error(err.response?.data?.message || 'Lỗi khi cập nhật giỏ hàng trên máy chủ');
+        return;
       }
     }
 
@@ -126,7 +144,8 @@ export const CartProvider = ({ children }) => {
       try {
         await cartApi.update(productId, quantity);
       } catch (err) {
-        console.error('Failed to update server quantity', err);
+        toast.error(err.response?.data?.message || 'Không cập nhật được số lượng sản phẩm');
+        return;
       }
     }
 
@@ -147,12 +166,37 @@ export const CartProvider = ({ children }) => {
     localStorage.removeItem('chronos_cart');
   };
 
-  const cartSubtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  // Giá Flash: backend mới là nơi chốt đơn (order.service tra đợt đang chạy), nhưng
+  // khách cần thấy ĐÚNG số tiền sẽ trả ngay ở giỏ/checkout thay vì bị bất ngờ ở bước sau.
+  const [flashByProduct, setFlashByProduct] = useState({});
+
+  useEffect(() => {
+    let alive = true;
+    flashSaleApi
+      .getCurrent()
+      .then((data) => alive && setFlashByProduct(indexFlashItemsByProduct(data?.items || [])))
+      .catch(() => {}); // không có đợt / lỗi mạng → giỏ tính giá niêm yết
+    return () => {
+      alive = false;
+    };
+  }, [cart.length]);
+
+  const flashOf = (item) => {
+    const flash = flashByProduct[String(item.id)];
+    return flash && !flash.sold_out ? flash : null;
+  };
+  const unitPriceOf = (item) => Number(flashOf(item)?.flash_price ?? item.price);
+
+  const cartSubtotal = cart.reduce((total, item) => total + unitPriceOf(item) * item.quantity, 0);
+  // Tổng theo GIÁ NIÊM YẾT để bảng tóm tắt trừ ra số tiền tiết kiệm mà không
+  // "ăn gian" hai lần (cartSubtotal đã mang giá flash).
+  const listSubtotal = cart.reduce((total, item) => total + Number(item.price || 0) * item.quantity, 0);
+  const flashSavings = listSubtotal - cartSubtotal;
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-  const shippingFee = cartSubtotal > 5000000 ? 0 : 50000;
+  const shippingFee = 0; // Miễn phí vận chuyển toàn quốc
   const discountAmount = promoCode ? (cartSubtotal * promoCode.discount / 100) : 0;
-  const cartTotal = cartSubtotal + shippingFee - discountAmount;
+  const cartTotal = Math.max(0, cartSubtotal + shippingFee - discountAmount);
 
   return (
     <CartContext.Provider value={{
@@ -162,12 +206,16 @@ export const CartProvider = ({ children }) => {
       updateQuantity,
       clearCart,
       cartSubtotal,
+      listSubtotal,
       cartCount,
       shippingFee,
       cartTotal,
       promoCode,
       setPromoCode,
       discountAmount,
+      flashSavings,
+      flashOf,
+      unitPriceOf,
       isSyncing
     }}>
       {children}

@@ -1,11 +1,17 @@
 import productService from "../services/product.service.js";
 import aiService from "../services/ai.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
-import AppError from "../utils/AppError.js";
+import { buildCreateData, buildUpdateData } from "../utils/productPayload.js";
 
 const productController = {
     getAll: asyncHandler(async (req, res) => {
         const result = await productService.getAll(req.query);
+        res.json(result);
+    }),
+
+    // Danh sách cho trang quản trị: gồm cả sản phẩm ngừng bán.
+    getAdminAll: asyncHandler(async (req, res) => {
+        const result = await productService.getAdminAll(req.query);
         res.json(result);
     }),
 
@@ -14,101 +20,41 @@ const productController = {
         res.json(product);
     }),
 
+    // Chi tiết cho form sửa: không chặn sản phẩm inactive và không tăng lượt xem.
+    getAdminDetail: asyncHandler(async (req, res) => {
+        const product = await productService.getDetail(req.params.id, { includeInactive: true });
+        res.json(product);
+    }),
+
+    getFacets: asyncHandler(async (req, res) => {
+        res.json(await productService.getFacets());
+    }),
+
+    // FormData (body chuỗi + files) → payload: xem utils/productPayload.js
     create: asyncHandler(async (req, res) => {
-        const data = { ...req.body };
-        
-        // Xử lý ảnh chính
-        if (req.files && req.files.image) {
-            data.image_url = req.files.image[0].path;
-        }
-        
-        // Xử lý bộ sưu tập ảnh
-        if (req.files && req.files.gallery) {
-            data.image_gallery = req.files.gallery.map(file => file.path);
-        }
-
-        // Parse category_ids và specifications nếu được gửi qua form-data (string)
-        if (typeof data.category_ids === 'string' && data.category_ids.trim() !== "") {
-            try {
-                data.category_ids = JSON.parse(data.category_ids);
-            } catch (e) {
-                throw new AppError(400, "Định dạng category_ids không hợp lệ. Phải là một mảng JSON (vd: [1, 2])");
-            }
-        }
-        if (typeof data.specifications === 'string' && data.specifications.trim() !== "") {
-            try {
-                data.specifications = JSON.parse(data.specifications);
-            } catch (e) {
-                throw new AppError(400, "Định dạng specifications không hợp lệ. Phải là JSON (vd: {\"key\": \"value\"})");
-            }
-        }
-
-        const product = await productService.create(data);
+        const product = await productService.create(buildCreateData(req));
         aiService.clearProductContextCache();
-        res.status(201).json({
-            message: "Tạo sản phẩm thành công!",
-            product
-        });
+        res.status(201).json({ message: "Tạo sản phẩm thành công!", product });
     }),
 
     update: asyncHandler(async (req, res) => {
-        const data = { ...req.body };
-        
-        if (req.files && req.files.image) {
-            data.image_url = req.files.image[0].path;
-        }
-
-        // Xử lý bộ sưu tập ảnh: giữ ảnh cũ được chọn + ghép thêm ảnh mới tải lên
-        let existingGallery = null;
-        if (data.existing_gallery !== undefined) {
-            try {
-                existingGallery = typeof data.existing_gallery === 'string'
-                    ? JSON.parse(data.existing_gallery)
-                    : data.existing_gallery;
-                if (!Array.isArray(existingGallery)) existingGallery = [];
-            } catch (e) {
-                existingGallery = [];
-            }
-        }
-
-        const newGalleryImages = (req.files && req.files.gallery)
-            ? req.files.gallery.map(file => file.path)
-            : [];
-
-        if (existingGallery !== null || newGalleryImages.length > 0) {
-            data.image_gallery = [
-                ...(existingGallery || []),
-                ...newGalleryImages
-            ];
-        }
-
-        if (typeof data.category_ids === 'string' && data.category_ids.trim() !== "") {
-            try {
-                data.category_ids = JSON.parse(data.category_ids);
-            } catch (e) {
-                throw new AppError(400, "Định dạng category_ids không hợp lệ.");
-            }
-        }
-        if (typeof data.specifications === 'string' && data.specifications.trim() !== "") {
-            try {
-                data.specifications = JSON.parse(data.specifications);
-            } catch (e) {
-                throw new AppError(400, "Định dạng specifications không hợp lệ.");
-            }
-        }
-
-        const product = await productService.update(req.params.id, data);
+        const product = await productService.update(req.params.id, buildUpdateData(req));
         aiService.clearProductContextCache();
-        res.json({
-            message: "Cập nhật sản phẩm thành công!",
-            product
-        });
+        res.json({ message: "Cập nhật sản phẩm thành công!", product });
     }),
 
     delete: asyncHandler(async (req, res) => {
         await productService.delete(req.params.id);
         aiService.clearProductContextCache();
         res.json({ message: "Xóa sản phẩm thành công!" });
+    }),
+
+    // Sản phẩm chỉ ngừng bán (không xóa hẳn) — đổi status hàng loạt bằng một UPDATE
+    bulkUpdateStatus: asyncHandler(async (req, res) => {
+        const { ids, status } = req.body || {};
+        const result = await productService.bulkUpdateStatus(ids, status);
+        aiService.clearProductContextCache();
+        res.json({ ...result, message: `Đã cập nhật ${result.updated} sản phẩm` });
     }),
 
     getRelated: asyncHandler(async (req, res) => {

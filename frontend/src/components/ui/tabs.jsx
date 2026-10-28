@@ -8,8 +8,8 @@ const TabsList = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-none bg-zinc-100 p-1 text-zinc-500 dark:bg-zinc-800/50 dark:text-zinc-400",
-      className
+      "inline-flex h-10 items-center justify-center rounded-xl bg-navy-50 p-1 text-muted-foreground dark:bg-navy-500/10",
+      className,
     )}
     {...props}
   />
@@ -20,8 +20,8 @@ const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-zinc-950 data-[state=active]:shadow-sm dark:ring-offset-zinc-950 dark:focus-visible:ring-zinc-300 dark:data-[state=active]:bg-zinc-950 dark:data-[state=active]:text-zinc-50",
-      className
+      "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-semibold text-muted-foreground transition-colors focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_rgba(15,42,74,.18)] disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-navy-700 data-[state=active]:shadow-card dark:data-[state=active]:bg-navy-600 dark:data-[state=active]:text-white",
+      className,
     )}
     {...props}
   />
@@ -31,10 +31,7 @@ TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 const TabsContent = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
-    className={cn(
-      "mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 dark:ring-offset-zinc-950 dark:focus-visible:ring-zinc-300",
-      className
-    )}
+    className={cn("mt-4 focus-visible:outline-none", className)}
     {...props}
   />
 ))

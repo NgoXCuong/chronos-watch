@@ -16,6 +16,10 @@ const Category = sequelize.define('Category', {
         type: DataTypes.TEXT,
         allowNull: true
     },
+    image_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
     parent_id: {
         type: DataTypes.INTEGER,
         allowNull: true,

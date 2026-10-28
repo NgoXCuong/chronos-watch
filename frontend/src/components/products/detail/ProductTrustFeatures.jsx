@@ -1,24 +1,30 @@
 import React from 'react';
-import { Award, Truck, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Award, RefreshCw, ShieldCheck, Truck } from 'lucide-react';
 
-const ProductTrustFeatures = ({ isDark }) => {
-    const trustItems = [
-        { icon: <Award className="w-5 h-5" />, title: "Chất lượng tuyệt mỹ", desc: "Cam kết chính hãng 100%" },
-        { icon: <Truck className="w-5 h-5" />, title: "Đặc quyền vận chuyển", desc: "Giao hàng hỏa tốc toàn cầu" },
-        { icon: <RotateCcw className="w-5 h-5" />, title: "Đổi trả thượng lưu", desc: "7 ngày đổi trả không lý do" },
-        { icon: <ShieldCheck className="w-5 h-5" />, title: "Bảo hiểm thời gian", desc: "2 năm bảo hành quốc tế" }
+/**
+ * Dải cam kết dưới khối mua. Mọi dòng đều ứng với thứ dự án thật sự có:
+ * số tháng bảo hành lấy từ sản phẩm, đổi trả 7 ngày theo chính sách, phiếu bảo hành
+ * điện tử tra cứu ở /warranties — không bịa "bảo hành quốc tế 2 năm".
+ */
+const ProductTrustFeatures = ({ product }) => {
+    const months = Number(product?.warranty_months) || 12;
+    const items = [
+        { icon: ShieldCheck, title: 'Cam kết chính hãng', sub: 'Full box, tem niêm phong' },
+        { icon: Award, title: `Bảo hành ${months} tháng`, sub: 'Phiếu điện tử tra cứu online' },
+        { icon: RefreshCw, title: 'Đổi trả trong 7 ngày', sub: 'Sản phẩm còn nguyên vẹn' },
+        { icon: Truck, title: 'Giao hàng toàn quốc', sub: 'Miễn phí vận chuyển' },
     ];
 
     return (
-        <div className="grid grid-cols-2 gap-6 pt-6 border-t dark:border-white/5 border-zinc-100">
-            {trustItems.map((item, index) => (
-                <div key={index} className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 shrink-0 rounded-full flex items-center justify-center bg-zinc-100 dark:bg-white/5 text-amber-500 group-hover:scale-110 transition-transform duration-500">
-                        {item.icon}
-                    </div>
-                    <div>
-                        <h4 className={`text-[12px] uppercase font-bold ${isDark ? 'text-zinc-200' : 'text-zinc-900'}`}>{item.title}</h4>
-                        <p className={`text-[12px] ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>{item.desc}</p>
+        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border pt-6">
+            {items.map(({ icon: Icon, title, sub }) => (
+                <div key={title} className="flex items-start gap-2.5">
+                    <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-navy-50 text-navy-600">
+                        <Icon size={16} strokeWidth={2} aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0">
+                        <p className="truncate text-[13px] font-bold text-foreground">{title}</p>
+                        <p className="truncate text-xs text-muted-foreground">{sub}</p>
                     </div>
                 </div>
             ))}
