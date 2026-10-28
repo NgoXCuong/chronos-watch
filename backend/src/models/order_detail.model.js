@@ -20,6 +20,25 @@ const OrderDetail = sequelize.define('OrderDetail', {
             key: 'id'
         }
     },
+    product_name: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
+    product_image: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
+    sku: {
+        type: DataTypes.STRING(50),
+        allowNull: true
+    },
+    // Snapshot thời hạn bảo hành (tháng) lúc mua — phiếu bảo hành sau này đọc từ đây,
+    // không đọc products.warranty_months hiện tại (admin đổi giá trị thì quyền lợi
+    // khách của đơn cũ sẽ bị thay đổi theo).
+    warranty_months: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     quantity: {
         type: DataTypes.INTEGER,
         allowNull: false
@@ -27,6 +46,16 @@ const OrderDetail = sequelize.define('OrderDetail', {
     price: {
         type: DataTypes.DECIMAL(15, 0),
         allowNull: false
+    },
+    // NULL = mua giá thường. Khi mua theo suất Flash Sale thì nhớ id dòng ưu đãi
+    // để hủy/hoàn đơn trừ lại quota (association khai báo ở flash_sale_item.model.js).
+    flash_sale_item_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'flash_sale_items',
+            key: 'id'
+        }
     },
     subtotal: {
         type: DataTypes.VIRTUAL,

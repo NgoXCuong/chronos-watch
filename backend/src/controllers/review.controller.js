@@ -21,6 +21,10 @@ const reviewController = {
         });
     }),
 
+    getFeatured: asyncHandler(async (req, res) => {
+        res.json(await reviewService.getFeaturedReviews(req.query.limit));
+    }),
+
     delete: asyncHandler(async (req, res) => {
         const isAdmin = req.user.role === 'admin';
         const userId = req.user.id;

@@ -5,6 +5,7 @@ import verifyToken from '../middlewares/auth.middleware.js';
 const router = express.Router();
 
 // Public routes
+router.get('/featured', reviewController.getFeatured);
 router.get('/product/:productId', reviewController.getByProduct);
 
 // Private routes (requires Login)

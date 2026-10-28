@@ -5,6 +5,11 @@ import Voucher from './voucher.model.js';
 import UserAddress from './user_address.model.js';
 
 const Order = sequelize.define('Order', {
+    order_code: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        unique: true
+    },
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
@@ -79,17 +84,21 @@ const Order = sequelize.define('Order', {
         defaultValue: 'pending'
     },
     payment_method: {
-        type: DataTypes.ENUM('cod', 'vnpay', 'banking'),
+        type: DataTypes.ENUM('cod', 'sepay', 'banking', 'vnpay'),
         defaultValue: 'cod'
     },
     payment_status: {
-        type: DataTypes.ENUM('unpaid', 'paid', 'refunded'),
+        type: DataTypes.ENUM('pending', 'unpaid', 'paid', 'refunded', 'failed'),
         defaultValue: 'unpaid'
+    },
+    cancel_reason: {
+        type: DataTypes.STRING(255),
+        allowNull: true
     }
 }, {
     tableName: 'orders',
     createdAt: 'created_at',
-    updatedAt: false
+    updatedAt: 'updated_at'
 });
 
 Order.belongsTo(User, { foreignKey: 'user_id', as: 'user' });

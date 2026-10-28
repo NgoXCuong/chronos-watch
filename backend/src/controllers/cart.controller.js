@@ -9,7 +9,8 @@ const cartController = {
     }),
 
     addToCart: asyncHandler(async (req, res) => {
-        const { product_id, quantity } = req.body;
+        const product_id = req.body.product_id || req.body.productId;
+        const quantity = req.body.quantity;
         if (!product_id) throw new AppError(400, "Thiếu product_id");
 
         const cartItem = await cartService.addToCart(req.user.id, product_id, quantity || 1);
@@ -20,7 +21,8 @@ const cartController = {
     }),
 
     updateQuantity: asyncHandler(async (req, res) => {
-        const { product_id, quantity } = req.body;
+        const product_id = req.body.product_id || req.body.productId;
+        const quantity = req.body.quantity;
         if (!product_id || !quantity) throw new AppError(400, "Thiếu thông tin cập nhật");
 
         const cartItem = await cartService.updateQuantity(req.user.id, product_id, quantity);

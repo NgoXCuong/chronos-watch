@@ -8,172 +8,197 @@ import { Op } from "sequelize";
 
 import { sendResetPasswordEmail } from "../utils/mail.js";
 import AppError from "../utils/AppError.js";
+import notificationService from "./notification.service.js";
 
-const JWT_EXPIRE = process.env.JWT_EXPIRE || '1h';
+const JWT_EXPIRE = process.env.JWT_EXPIRE || "1h";
 
 const authService = {
-    register: async (userData) => {
-        const { username, email, password, full_name, phone } = userData;
+  register: async (userData) => {
+    const { username, email, password, full_name, phone } = userData;
 
-        const existingUser = await User.findOne({
-            where: { [Op.or]: [{ username }, { email }] }
+    const existingUser = await User.findOne({
+      where: { [Op.or]: [{ username }, { email }] },
+    });
+    if (existingUser) {
+      throw new AppError(400, "Tài khoản hoặc Email đã tồn tại");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      full_name,
+      phone,
+    });
+
+    await notificationService.notifyUser(newUser.id, {
+      type: "system",
+      title: "Chào mừng đến với Chronos",
+      message: "Tài khoản của bạn đã sẵn sàng. Khám phá bộ sưu tập đồng hồ và theo dõi đơn hàng ngay tại đây.",
+      link: "/products",
+    });
+
+    return newUser;
+  },
+
+  login: async (account, password) => {
+    let user = await User.findOne({
+      where: { [Op.or]: [{ username: account }, { email: account }] },
+    });
+
+    if (!user) {
+      throw new AppError(401, "Tài khoản không chính xác");
+    }
+
+    if (user.status === "banned") {
+      throw new AppError(403, "Tài khoản đã bị khóa");
+    }
+
+    let isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new AppError(401, "Mật khẩu không chính xác");
+    }
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: JWT_EXPIRE },
+    );
+
+    return {
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        full_name: user.full_name,
+        email: user.email,
+        phone: user.phone,
+        avatar_url: user.avatar_url,
+        role: user.role,
+      },
+    };
+  },
+
+  getProfile: async (userId) => {
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: ["password", "reset_password_token", "reset_password_expires"],
+      },
+    });
+    if (!user) throw new AppError(404, "Người dùng không tồn tại");
+    return user;
+  },
+
+  changePassword: async (userId, oldPassword, newPassword) => {
+    const user = await User.findByPk(userId);
+    if (!user) throw new AppError(404, "Người dùng không tồn tại");
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) throw new AppError(400, "Mật khẩu cũ không chính xác");
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+    return true;
+  },
+
+  forgotPassword: async (email) => {
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new AppError(404, "Email không tồn tại");
+
+    const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    user.reset_password_token = resetToken;
+    user.reset_password_expires = Date.now() + 3600000; // 1h
+    await user.save();
+
+    // Gửi email thật
+    await sendResetPasswordEmail(email, resetToken);
+
+    return { message: "Link đặt lại mật khẩu đã được gửi qua email!" };
+  },
+
+  resetPassword: async (token, newPassword) => {
+    const user = await User.findOne({
+      where: {
+        reset_password_token: token,
+        reset_password_expires: { [Op.gt]: Date.now() },
+      },
+    });
+    if (!user) throw new AppError(400, "Token không hợp lệ hoặc đã hết hạn");
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.reset_password_token = null;
+    user.reset_password_expires = null;
+    await user.save();
+    return true;
+  },
+
+  updateProfile: async (userId, updateData) => {
+    const user = await User.findByPk(userId);
+    if (!user) throw new AppError(404, "Người dùng không tồn tại");
+
+    const { full_name, phone, address, avatar_url } = updateData;
+
+    if (full_name) user.full_name = full_name;
+    if (phone) user.phone = phone;
+    if (avatar_url) user.avatar_url = avatar_url;
+
+    // Xử lý address (theo yêu cầu của bạn là một trường address trong request)
+    // Vì SQL dùng bảng user_addresses nên nếu user truyền 'address' lên, ta sẽ cập nhật vào bảng đo.
+    if (address) {
+      // Chiến lược đơn giản: Cập nhật hoặc tạo mới address mặc định cho user.
+      let userAddress = await UserAddress.findOne({
+        where: { user_id: userId, is_default: true },
+      });
+      if (!userAddress) {
+        userAddress = await UserAddress.findOne({ where: { user_id: userId } });
+      }
+
+      if (userAddress) {
+        userAddress.address_line = address;
+        await userAddress.save();
+      } else {
+        await UserAddress.create({
+          user_id: userId,
+          recipient_name: full_name || user.full_name || user.username,
+          recipient_phone: phone || user.phone || "0000000000",
+          address_line: address,
+          city: "Chưa cập nhật",
+          is_default: true,
         });
-        if (existingUser) {
-            throw new AppError(400, 'Tài khoản hoặc Email đã tồn tại');
+      }
+    }
+
+    await user.save();
+    return await User.findByPk(userId, { include: ["addresses"] });
+  },
+
+  logout: async (userId, token) => {
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenHash = crypto
+          .createHash("sha256")
+          .update(token)
+          .digest("hex");
+        const expiresAt = new Date(decoded.exp * 1000);
+
+        // Chỉ blacklist nếu token còn hạn
+        if (expiresAt > new Date()) {
+          await TokenBlacklist.upsert({
+            token_hash: tokenHash,
+            expires_at: expiresAt,
+          });
         }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await User.create({
-            username, email, password: hashedPassword, full_name, phone
-        });
-
-        return newUser;
-    },
-
-    login: async (account, password) => {
-        const user = await User.findOne({
-            where: { [Op.or]: [{ username: account }, { email: account }] }
-        });
-
-        if (!user) {
-            throw new AppError(401, 'Tài khoản không chính xác');
-        }
-
-        if (user.status === 'banned') {
-            throw new AppError(403, 'Tài khoản đã bị khóa');
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            throw new AppError(401, 'Mật khẩu không chính xác');
-        }
-
-        const token = jwt.sign(
-            { id: user.id, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: JWT_EXPIRE }
-        );
-
-        return {
-            token,
-            user: {
-                id: user.id,
-                username: user.username,
-                email: user.email,
-                role: user.role
-            }
-        };
-    },
-
-    getProfile: async (userId) => {
-        const user = await User.findByPk(userId, {
-            attributes: { exclude: ['password', 'reset_password_token', 'reset_password_expires'] }
-        });
-        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
-        return user;
-    },
-
-    changePassword: async (userId, oldPassword, newPassword) => {
-        const user = await User.findByPk(userId);
-        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
-
-        const isMatch = await bcrypt.compare(oldPassword, user.password);
-        if (!isMatch) throw new AppError(400, 'Mật khẩu cũ không chính xác');
-
-        user.password = await bcrypt.hash(newPassword, 10);
-        await user.save();
-        return true;
-    },
-
-    forgotPassword: async (email) => {
-        const user = await User.findOne({ where: { email } });
-        if (!user) throw new AppError(404, 'Email không tồn tại');
-
-        const resetToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        user.reset_password_token = resetToken;
-        user.reset_password_expires = Date.now() + 3600000; // 1h
-        await user.save();
-
-        // Gửi email thật
-        await sendResetPasswordEmail(email, resetToken);
-
-        return { message: "Link đặt lại mật khẩu đã được gửi qua email!" };
-    },
-
-    resetPassword: async (token, newPassword) => {
-        const user = await User.findOne({
-            where: {
-                reset_password_token: token,
-                reset_password_expires: { [Op.gt]: Date.now() }
-            }
-        });
-        if (!user) throw new AppError(400, 'Token không hợp lệ hoặc đã hết hạn');
-
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.reset_password_token = null;
-        user.reset_password_expires = null;
-        await user.save();
-        return true;
-    },
-
-    updateProfile: async (userId, updateData) => {
-        const user = await User.findByPk(userId);
-        if (!user) throw new AppError(404, 'Người dùng không tồn tại');
-
-        const { full_name, phone, address, avatar_url } = updateData;
-
-        if (full_name) user.full_name = full_name;
-        if (phone) user.phone = phone;
-        if (avatar_url) user.avatar_url = avatar_url;
-
-        // Xử lý address (theo yêu cầu của bạn là một trường address trong request)
-        // Vì SQL dùng bảng user_addresses nên nếu user truyền 'address' lên, ta sẽ cập nhật vào bảng đo.
-        if (address) {
-            // Chiến lược đơn giản: Cập nhật hoặc tạo mới address mặc định cho user.
-            let userAddress = await UserAddress.findOne({ where: { user_id: userId, is_default: true } });
-            if (!userAddress) {
-                userAddress = await UserAddress.findOne({ where: { user_id: userId } });
-            }
-
-            if (userAddress) {
-                userAddress.address_line = address;
-                await userAddress.save();
-            } else {
-                await UserAddress.create({
-                    user_id: userId,
-                    recipient_name: full_name || user.full_name || user.username,
-                    recipient_phone: phone || user.phone || '0000000000',
-                    address_line: address,
-                    city: 'Chưa cập nhật',
-                    is_default: true
-                });
-            }
-        }
-
-        await user.save();
-        return await User.findByPk(userId, { include: ['addresses'] });
-    },
-
-    logout: async (userId, token) => {
-        if (token) {
-            try {
-                const decoded = jwt.verify(token, process.env.JWT_SECRET);
-                const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-                const expiresAt = new Date(decoded.exp * 1000);
-
-                // Chỉ blacklist nếu token còn hạn
-                if (expiresAt > new Date()) {
-                    await TokenBlacklist.upsert({
-                        token_hash: tokenHash,
-                        expires_at: expiresAt
-                    });
-                }
-            } catch (e) {
-                // Token đã hết hạn, không cần blacklist
-            }
-        }
-        return true;
-    },
+      } catch (e) {
+        // Token đã hết hạn, không cần blacklist
+      }
+    }
+    return true;
+  },
 };
 
 export default authService;

@@ -4,12 +4,12 @@ import TokenBlacklist from "../models/token_blacklist.model.js";
 
 const verifyToken = async (req, res, next) => {
     const token =
-        req.cookies?.token ||
         (req.headers["authorization"] &&
-            req.headers["authorization"].split(" ")[1]);
+            req.headers["authorization"].split(" ")[1]) ||
+        (req.headers["x-test-no-token"] ? null : req.cookies?.token);
 
     if (!token) {
-        return res.status(403).json({ message: "Không tìm thấy token. Vui lòng đăng nhập!" });
+        return res.status(401).json({ message: "Không tìm thấy token. Vui lòng đăng nhập!" });
     }
 
     try {

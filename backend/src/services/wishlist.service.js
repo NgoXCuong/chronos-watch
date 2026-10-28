@@ -16,9 +16,12 @@ const wishlistService = {
             await existing.destroy();
             return { added: false, message: "Đã xóa sản phẩm khỏi danh sách yêu thích." };
         } else {
-            // Check if product exists
+            // Check if product exists and is still sellable
             const product = await Product.findByPk(productId);
             if (!product) throw new AppError(404, "Sản phẩm không tồn tại.");
+            if (product.status !== 'active') {
+                throw new AppError(400, "Sản phẩm đã ngừng bán.");
+            }
 
             await Wishlist.create({
                 user_id: userId,
@@ -32,9 +35,12 @@ const wishlistService = {
         return await Wishlist.findAll({
             where: { user_id: userId },
             include: [
-                { 
-                    model: Product, 
+                {
+                    model: Product,
                     as: 'product',
+                    // Giữ cả sản phẩm inactive để khách biết món đã lưu không còn bán,
+                    // nhưng không join sâu thêm dữ liệu không dùng tới.
+                    attributes: ['id', 'name', 'price', 'old_price', 'image_url', 'slug', 'status'],
                     include: [{ model: Brand, as: 'brand', attributes: ['name'] }]
                 }
             ],

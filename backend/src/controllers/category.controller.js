@@ -1,6 +1,16 @@
 import categoryService from "../services/category.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
+// FormData (multipart) luôn nhận giá trị dạng string -> chuẩn hóa kiểu dữ liệu
+const normalizeBody = (body, file) => {
+    const data = { ...body };
+    if (file) data.image_url = file.path;
+    if (data.parent_id === '' || data.parent_id === 'null') data.parent_id = null;
+    if (data.parent_id !== null && data.parent_id !== undefined) data.parent_id = Number(data.parent_id);
+    if (data.sort_order !== undefined) data.sort_order = Number(data.sort_order) || 0;
+    return data;
+};
+
 const categoryController = {
     getAll: asyncHandler(async (req, res) => {
         const categories = await categoryService.getAll(req.query);
@@ -13,12 +23,12 @@ const categoryController = {
     }),
 
     create: asyncHandler(async (req, res) => {
-        const category = await categoryService.create(req.body);
+        const category = await categoryService.create(normalizeBody(req.body, req.file));
         res.status(201).json(category);
     }),
 
     update: asyncHandler(async (req, res) => {
-        const category = await categoryService.update(req.params.id, req.body);
+        const category = await categoryService.update(req.params.id, normalizeBody(req.body, req.file));
         res.json(category);
     }),
 

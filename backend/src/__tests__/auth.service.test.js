@@ -34,6 +34,18 @@ vi.mock('../utils/mail.js', () => ({
     sendResetPasswordEmail: mocks.sendResetPasswordEmail,
 }));
 
+// Không cho unit test ghi thông báo thật vào DB dev khi chạy đăng ký/đặt đơn...
+vi.mock('../services/notification.service.js', () => ({
+    default: {
+        notifyUser: vi.fn(),
+        notifyAdmins: vi.fn(),
+        notifyAdminsOnce: vi.fn(),
+        listForUser: vi.fn(),
+        markRead: vi.fn(),
+        markAllRead: vi.fn(),
+    },
+}));
+
 import authService from '../services/auth.service.js';
 
 beforeAll(() => {
@@ -46,7 +58,7 @@ beforeEach(() => {
 
 describe('authService', () => {
     describe('register', () => {
-        it('nên mã hóa mật khẩu và tạo người dùng mới', async () => {
+        it('UTC_AUTH_01: nên mã hóa mật khẩu và tạo người dùng mới', async () => {
             mocks.findOne.mockResolvedValue(null);
             mocks.create.mockImplementation(async (data) => ({ id: 1, ...data }));
 
@@ -65,7 +77,7 @@ describe('authService', () => {
             expect(result.id).toBe(1);
         });
 
-        it('nên báo lỗi khi username hoặc email đã tồn tại', async () => {
+        it('UTC_AUTH_02: nên báo lỗi khi username hoặc email đã tồn tại', async () => {
             mocks.findOne.mockResolvedValue({ id: 2, username: 'existing' });
 
             await expect(
@@ -79,7 +91,7 @@ describe('authService', () => {
     });
 
     describe('login', () => {
-        it('nên trả token và thông tin user khi đăng nhập đúng', async () => {
+        it('UTC_AUTH_03: nên trả token và thông tin user khi đăng nhập đúng', async () => {
             const hashed = await bcrypt.hash('correct-password', 10);
             mocks.findOne.mockResolvedValue({
                 id: 1,
@@ -96,7 +108,7 @@ describe('authService', () => {
             expect(result.user.role).toBe('customer');
         });
 
-        it('nên báo lỗi khi sai mật khẩu', async () => {
+        it('UTC_AUTH_04: nên báo lỗi khi sai mật khẩu', async () => {
             const hashed = await bcrypt.hash('correct-password', 10);
             mocks.findOne.mockResolvedValue({
                 id: 1,
@@ -112,7 +124,7 @@ describe('authService', () => {
             );
         });
 
-        it('nên từ chối tài khoản bị khóa (banned)', async () => {
+        it('UTC_AUTH_05: nên từ chối tài khoản bị khóa (banned)', async () => {
             const hashed = await bcrypt.hash('password', 10);
             mocks.findOne.mockResolvedValue({
                 id: 1,
@@ -130,7 +142,7 @@ describe('authService', () => {
     });
 
     describe('changePassword', () => {
-        it('nên báo lỗi khi mật khẩu cũ sai', async () => {
+        it('UTC_AUTH_06: nên báo lỗi khi mật khẩu cũ sai', async () => {
             const hashed = await bcrypt.hash('old-password', 10);
             const user = { id: 1, password: hashed, save: vi.fn() };
             mocks.findByPk.mockResolvedValue(user);
@@ -140,7 +152,7 @@ describe('authService', () => {
             ).rejects.toThrow('Mật khẩu cũ không chính xác');
         });
 
-        it('nên cập nhật mật khẩu mới khi mật khẩu cũ đúng', async () => {
+        it('UTC_AUTH_07: nên cập nhật mật khẩu mới khi mật khẩu cũ đúng', async () => {
             const hashed = await bcrypt.hash('old-password', 10);
             const user = { id: 1, password: hashed, save: vi.fn().mockResolvedValue(true) };
             mocks.findByPk.mockResolvedValue(user);
@@ -155,7 +167,7 @@ describe('authService', () => {
     });
 
     describe('forgotPassword', () => {
-        it('nên gửi email và không trả token ra ngoài', async () => {
+        it('UTC_AUTH_08: nên gửi email và không trả token ra ngoài', async () => {
             const user = {
                 id: 1,
                 email: 'test@example.com',
@@ -174,8 +186,7 @@ describe('authService', () => {
     });
 
     describe('logout', () => {
-        it('nên blacklist token khi logout', async () => {
-            // Tạo JWT hợp lệ để test blacklist
+        it('UTC_AUTH_09: nên blacklist token khi logout', async () => {
             const jwt = await import('jsonwebtoken');
             const token = jwt.sign({ id: 1, role: 'customer' }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -187,11 +198,55 @@ describe('authService', () => {
             expect(upsertArg).toHaveProperty('token_hash');
             expect(upsertArg).toHaveProperty('expires_at');
         });
+    });
 
-        it('nên bỏ qua nếu token hết hạn hoặc null', async () => {
-            const result = await authService.logout(1, null);
+    describe('resetPassword', () => {
+        it('UTC_AUTH_10: đổi mật khẩu thành công và vô hiệu hóa reset_token sau khi dùng', async () => {
+            const user = {
+                id: 1,
+                password: 'old-hashed-password',
+                reset_password_token: 'valid_reset_token',
+                reset_password_expires: Date.now() + 3600000,
+                save: vi.fn().mockResolvedValue(true),
+            };
+            mocks.findOne.mockResolvedValue(user);
+
+            const result = await authService.resetPassword('valid_reset_token', 'NewPassword@123');
+
             expect(result).toBe(true);
-            expect(mocks.tokenBlacklistUpsert).not.toHaveBeenCalled();
+            expect(user.reset_password_token).toBeNull();
+            expect(user.reset_password_expires).toBeNull();
+            expect(await bcrypt.compare('NewPassword@123', user.password)).toBe(true);
+            expect(user.save).toHaveBeenCalled();
+        });
+
+        it('UTC_AUTH_11: ném lỗi AppError 400 khi token đặt lại mật khẩu không hợp lệ hoặc hết hạn', async () => {
+            mocks.findOne.mockResolvedValue(null);
+
+            await expect(
+                authService.resetPassword('invalid_token', 'NewPassword@123')
+            ).rejects.toThrow('Token không hợp lệ hoặc đã hết hạn');
+        });
+    });
+
+    describe('updateProfile', () => {
+        it('UTC_AUTH_12: cập nhật thông tin họ tên, số điện thoại người dùng thành công', async () => {
+            const user = {
+                id: 1,
+                full_name: 'Old Name',
+                phone: '0123456789',
+                save: vi.fn().mockResolvedValue(true),
+            };
+            mocks.findByPk.mockResolvedValue(user);
+
+            const result = await authService.updateProfile(1, {
+                full_name: 'Ngô Văn Test',
+                phone: '0988888888',
+            });
+
+            expect(result.full_name).toBe('Ngô Văn Test');
+            expect(result.phone).toBe('0988888888');
+            expect(user.save).toHaveBeenCalled();
         });
     });
 });

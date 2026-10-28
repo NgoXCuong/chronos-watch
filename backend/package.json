@@ -8,7 +8,10 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "migrate": "node src/migrate.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:summary": "vitest run --reporter=default",
+    "test:html": "vitest run --reporter=html",
+    "test:ui": "vitest --ui"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +34,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@vitest/ui": "^4.1.11",
     "nodemon": "^3.1.14",
     "vitest": "^4.1.11"
   }

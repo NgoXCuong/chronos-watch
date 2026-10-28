@@ -35,6 +35,7 @@ const userAddressService = {
 
             const newAddress = await UserAddress.create({
                 ...addressData,
+                recipient_phone: addressData.recipient_phone || addressData.phone,
                 user_id: userId,
                 is_default: shouldBeDefault
             }, { transaction });
@@ -66,7 +67,11 @@ const userAddressService = {
                 );
             }
 
-            await address.update(addressData, { transaction });
+            const dataToUpdate = {
+                ...addressData,
+                ...(addressData.phone && !addressData.recipient_phone ? { recipient_phone: addressData.phone } : {})
+            };
+            await address.update(dataToUpdate, { transaction });
             await transaction.commit();
             return address;
         } catch (error) {

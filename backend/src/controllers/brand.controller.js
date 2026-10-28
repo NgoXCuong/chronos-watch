@@ -31,9 +31,28 @@ const brandController = {
         res.json({ message: "Xóa thương hiệu thành công" });
     }),
 
+    // Xóa nhiều: thành công một phần là hợp lệ → trả số dòng đã xóa + lý do từng dòng lỗi
+    bulkDelete: asyncHandler(async (req, res) => {
+        const { done, failed } = await brandService.bulkDelete(req.body?.ids);
+        res.json({
+            deleted: done.length,
+            failed,
+            message: `Đã xóa ${done.length} thương hiệu${failed.length ? `, ${failed.length} dòng không xóa được` : ""}`,
+        });
+    }),
+
     toggleStatus: asyncHandler(async (req, res) => {
         const brand = await brandService.toggleStatus(req.params.id);
         res.json({ message: "Cập nhật trạng thái thành công", brand });
+    }),
+
+    bulkUpdateVisibility: asyncHandler(async (req, res) => {
+        const { ids, is_active: isActive } = req.body || {};
+        const result = await brandService.bulkSetVisibility(ids, isActive);
+        res.json({
+            ...result,
+            message: `Đã ${result.is_active ? "cho hiển thị" : "ẩn"} ${result.updated} thương hiệu`,
+        });
     })
 };
 

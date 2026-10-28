@@ -1,37 +1,47 @@
+import sepayService from "../services/sepay.service.js";
 import orderService from "../services/order.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 const paymentController = {
-    handleVNPayReturn: asyncHandler(async (req, res) => {
-        const vnp_Params = req.query;
-        const result = await orderService.finishPayment(vnp_Params);
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-
-        if (result.success) {
-            res.redirect(`${frontendUrl}/checkout/success?orderId=${result.order.id}`);
-        } else {
-            res.redirect(`${frontendUrl}/checkout/fail?orderId=${result.order?.id}`);
-        }
+    // Xử lý Webhook gửi tự động từ SePay khi có biến động số dư
+    handleSePayWebhook: asyncHandler(async (req, res) => {
+        const payload = req.body;
+        const authHeader = req.headers.authorization;
+        const result = await sepayService.processWebhook(payload, authHeader);
+        // Trả về JSON theo đúng chuẩn SePay mong đợi
+        res.status(200).json({ success: true, ...result });
     }),
 
-    handleVNPayIPN: asyncHandler(async (req, res) => {
-        const vnp_Params = req.query;
-        const result = await orderService.finishPayment(vnp_Params);
-
-        if (result.success) {
-            res.status(200).json({ RspCode: '00', Message: 'Thành công' });
-        } else {
-            res.status(200).json({ RspCode: '01', Message: 'Không tìm thấy đơn hàng hoặc chữ ký không hợp lệ' });
-        }
+    // API Mô phỏng thanh toán SePay thành công (Test Mode khi chạy localhost không có ngrok)
+    mockSePayPayment: asyncHandler(async (req, res) => {
+        const { orderId } = req.params;
+        const result = await sepayService.mockPayment(orderId);
+        res.status(200).json({
+            message: "Giả lập thanh toán SePay thành công",
+            ...result
+        });
     }),
 
-    getBankConfig: asyncHandler(async (req, res) => {
+    // Lấy thông tin thanh toán VietQR SePay của đơn hàng
+    getSePayPaymentInfo: asyncHandler(async (req, res) => {
+        const { orderId } = req.params;
+        const order = await orderService.getOrderDetail(orderId, req.user?.id, req.user?.role);
+        const paymentData = sepayService.getPaymentData(order);
         res.json({
-            bankId: process.env.BANK_ID || 'vietcombank',
-            accountNo: process.env.ACCOUNT_NO || '0123456789',
-            accountName: process.env.ACCOUNT_NAME || 'CHRONOS WATCH VIETNAM',
-            template: process.env.VIETQR_TEMPLATE || 'compact',
-            qrBaseUrl: process.env.VIETQR_BASE_URL || 'https://img.vietqr.io/image'
+            order,
+            paymentData
+        });
+    }),
+
+    // Cung cấp thông tin cấu hình ngân hàng hiển thị
+    getBankConfig: asyncHandler(async (req, res) => {
+        const config = sepayService.getConfig();
+        res.json({
+            bankId: config.bank,
+            accountNo: config.accountNo,
+            accountName: config.accountName,
+            template: config.template,
+            qrBaseUrl: "https://qr.sepay.vn/img"
         });
     })
 };
