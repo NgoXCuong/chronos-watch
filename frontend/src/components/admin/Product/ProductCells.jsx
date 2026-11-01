@@ -1,5 +1,7 @@
 import { ImageOff } from "lucide-react";
 import { Badge } from "../../ui/badge";
+import { Button } from "../../ui/button";
+import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "../../ui/popover";
 import { cn } from "@/lib/utils";
 import { PRODUCT_STATUS, LOW_STOCK_THRESHOLD } from "../../../constants/productStatus";
 
@@ -19,7 +21,7 @@ export const ProductInfoCell = ({ product }) => (
       )}
     </div>
     <div className="min-w-0">
-      <p className="truncate text-[13px] font-semibold text-card-foreground">
+      <p title={product.name} className="line-clamp-2 text-[13px] font-semibold leading-snug text-card-foreground">
         {product.name}
       </p>
       <p className="truncate text-[11px] text-muted-foreground">
@@ -43,12 +45,32 @@ export const ProductCategoriesCell = ({ categories = [] }) =>
   categories.length === 0 ? (
     <span className="text-[13px] text-muted-foreground">—</span>
   ) : (
-    <div className="flex flex-wrap gap-1">
-      {categories.map((cat) => (
-        <Badge key={cat.id} variant="brand">
-          {cat.name}
-        </Badge>
-      ))}
+    <div className="flex max-w-[188px] items-center gap-1.5 whitespace-nowrap">
+      <Badge variant="brand" className="min-w-0" title={categories[0].name}>
+        <span className="truncate">{categories[0].name}</span>
+      </Badge>
+      {categories.length > 1 && (
+        <Popover>
+          <PopoverTrigger render={
+            <Button variant="secondary" size="sm"
+              className="h-7 shrink-0 px-2 text-[11px] tabular-nums normal-case"
+              aria-label={`Xem tất cả ${categories.length} danh mục`}
+            />
+          }>
+            +{categories.length - 1}
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverTitle>Danh mục sản phẩm ({categories.length})</PopoverTitle>
+            <ul className="mt-2 space-y-1.5">
+              {categories.map(cat => (
+                <li key={cat.id} className="text-xs leading-relaxed text-popover-foreground break-words">
+                  {cat.name}
+                </li>
+              ))}
+            </ul>
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   );
 

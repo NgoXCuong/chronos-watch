@@ -3,6 +3,8 @@ import Product from "../models/product.model.js";
 import Brand from "../models/brand.model.js";
 import Category from "../models/category.model.js";
 import dotenv from "dotenv";
+import { getFallbackResponse } from './chat-products.service.js';
+import { generateGroqResponse } from './groq.service.js';
 
 dotenv.config();
 
@@ -77,9 +79,9 @@ const clearProductContextCache = () => {
 
 const generateChatResponse = async (userMessage, history = []) => {
   const ai = getAiClient();
-  if (!ai) {
+  if (!ai && !process.env.GROQ_API_KEY) {
     throw new Error(
-      "Gemini API is not configured on the server. Missing GEMINI_API_KEY or GOOGLE_GENAI_API_KEY.",
+      "Chưa cấu hình GROQ_API_KEY hoặc GEMINI_API_KEY trên server.",
     );
   }
 
@@ -94,13 +96,22 @@ QUY TẮC BẮT BUỘC (NẾU VI PHẠM SẼ GÂY LỖI NGHIÊM TRỌNG):
 1. Bạn CHỈ ĐƯỢC TƯ VĂN VÀ GỢI Ý các sản phẩm nằm trong "DANH SÁCH SẢN PHẨM HIỆN CÓ" bên dưới.
 2. KHÔNG TỰ BỊA RA TÊN ĐỒNG HỒ KHÔNG CÓ TRONG DANH SÁCH. Nếu khách tìm mẫu không có, hãy xin lỗi và gợi ý mẫu GẦN GIỐNG NHẤT có trong danh sách.
 3. Khi nhắc đến tên một sản phẩm, LUÔN ĐƯA KÈM ĐƯỜNG LINK theo đúng cú pháp Markdown chuẩn xác: [Tên sản phẩm](Link).
-4. NÊN ĐƯA KÈM HÌNH ẢNH của sản phẩm khi giới thiệu chi tiết bằng cú pháp: ![Tên sản phẩm](Ảnh) (ví dụ: ![Đồng hồ Orient](/images/watch1.jpg)). Hãy đặt hình ảnh ngay sau hoặc ngay trước link sản phẩm.
+4. Không chèn ảnh Markdown. Giao diện tự hiển thị thẻ ảnh, giá và nút xem chi tiết từ link sản phẩm. Chỉ gợi ý tối đa 3 sản phẩm mỗi lần.
 5. Văn phong: Sang trọng, lịch sự, chuyên nghiệp. Xưng "tôi" và gọi khách là "Quý khách". 
 6. Cố gắng trả lời súc tích, chia gạch đầu dòng rõ ràng để dễ đọc.
 
 ---
 ${productContext}
 ---`;
+
+    if (process.env.GROQ_API_KEY) {
+      try {
+        return await generateGroqResponse(systemInstruction, userMessage, history);
+      } catch {
+        console.warn('Groq tạm không khả dụng, chuyển sang nguồn dự phòng.');
+        if (!ai) return getFallbackResponse();
+      }
+    }
 
     // Map frontend history format to Gemini GenAI SDK format
     // GenAI SDK expects { role: 'user' | 'model', parts: [{ text: '...' }] }
@@ -139,13 +150,7 @@ ${productContext}
         "⚠️ Gemini API trả về lỗi, kích hoạt phản hồi dự phòng từ dữ liệu CSDL MySQL:",
         geminiErr.message || geminiErr,
       );
-      return (
-        `Chào Quý khách! Trợ lý Chronos AI xin gợi ý các mẫu đồng hồ cao cấp nổi bật hiện có sẵn tại cửa hàng:\n\n` +
-        `- [Đồng Hồ Casio Nam MTP-1183A-7ADF](/products/dong-ho-casio-nam-mtp-1183a-7adf) - Giá: 1.000.800 ₫\n` +
-        `- [Đồng Hồ Citizen Nam BI5000-87L](/products/dong-ho-citizen-nam-bi5000-87l) - Giá: 3.004.000 ₫\n` +
-        `- [Đồng Hồ Orient Nam RA-AA0B02R39B](/products/dong-ho-orient-nam-ra-aa0b02r39b) - Giá: 8.058.000 ₫\n\n` +
-        `Quý khách vui lòng chọn mẫu yêu thích để xem chi tiết hoặc liên hệ tư vấn viên để được phục vụ tốt nhất!`
-      );
+      return getFallbackResponse();
     }
   } catch (error) {
     console.error("Gemini Service Error:", error);

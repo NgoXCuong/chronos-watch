@@ -1,208 +1,133 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Watch, Loader2, Sparkles, User } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import { Link } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { ArrowUp, ArrowUpRight, MessageCircle, Watch, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import aiApi from '../../../api/ai.api';
-import { useTheme } from '../../../context/ThemeContext';
-import logo from '../../../assets/logo.jpg'
+import ChatMessage from './ChatMessage';
 
-const Chatbot = () => {
+const SUGGESTIONS = ['Tư vấn đồng hồ dưới 5 triệu', 'Đồng hồ phù hợp đi làm', 'Chính sách bảo hành'];
+
+export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Xin chào! Tôi là Chronos AI, trợ lý tư vấn đồng hồ cao cấp. Tôi có thể giúp gì cho Quý khách hôm nay?' }
+        { role: 'assistant', content: 'Chào bạn, mình là Chronos AI. Bạn đang tìm một chiếc đồng hồ như thế nào? Hãy chia sẻ phong cách hoặc ngân sách để mình tư vấn nhé.' },
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+    const inputRef = useRef(null);
+    const launcherRef = useRef(null);
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages, isOpen]);
+        messagesEndRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+    }, [messages, isOpen, isLoading]);
 
-    const handleSend = async (e) => {
-        e?.preventDefault();
-        if (!input.trim() || isLoading) return;
-
-        const userMessage = input.trim();
-        setInput('');
-
-        // Add user message
-        const newMessages = [...messages, { role: 'user', content: userMessage }];
-        setMessages(newMessages);
-        setIsLoading(true);
-
-        try {
-            // Get history (excluding the greeting to save tokens, or just send all)
-            const history = messages.length > 1 ? messages.slice(1) : [];
-            const response = await aiApi.chat(userMessage, history);
-
-            if (response.data && response.data.data) {
-                setMessages(prev => [...prev, { role: 'assistant', content: response.data.data }]);
-            } else {
-                setMessages(prev => [...prev, { role: 'assistant', content: 'Xin lỗi, tôi đang gặp trục trặc khi kết nối với hệ thống. Quý khách vui lòng thử lại sau.' }]);
+    useEffect(() => {
+        if (!isOpen) return;
+        inputRef.current?.focus({ preventScroll: true });
+        const onEscape = (event) => {
+            if (event.key === 'Escape') {
+                setIsOpen(false);
+                launcherRef.current?.focus();
             }
-        } catch (error) {
-            console.error('Chat error:', error);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Xin lỗi, hệ thống của tôi đang tạm thời bị gián đoạn. Quý khách vui lòng thử lại sau.' }]);
+        };
+        document.addEventListener('keydown', onEscape);
+        return () => document.removeEventListener('keydown', onEscape);
+    }, [isOpen]);
+
+    const closeChat = () => {
+        setIsOpen(false);
+        launcherRef.current?.focus();
+    };
+
+    const sendMessage = async (text) => {
+        const userMessage = text.trim();
+        if (!userMessage || isLoading) return;
+        const history = messages.length > 1 ? messages.slice(1) : [];
+        setInput('');
+        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+        setIsLoading(true);
+        try {
+            const response = await aiApi.chat(userMessage, history);
+            const content = response.data?.data || 'Mình chưa kết nối được với hệ thống. Bạn vui lòng gửi lại câu hỏi sau nhé.';
+            setMessages(prev => [...prev, { role: 'assistant', content, products: response.data?.products || [] }]);
+        } catch {
+            setMessages(prev => [...prev, { role: 'assistant', content: 'Kết nối đang bị gián đoạn. Bạn vui lòng thử lại sau nhé.' }]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
-
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-            {/* Chat Window */}
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end sm:bottom-6 sm:right-6">
             {isOpen && (
-                <div className={`mb-4 w-[300px] sm:w-[350px] h-[550px] max-h-[80vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300 border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200'}`}>
-
-                    {/* Header */}
-                    <div className="h-16 flex items-center justify-between px-5 bg-black text-white shrink-0">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center relative">
-                                <Sparkles className="w-5 h-5 text-amber-500" />
-                                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-green-500 ring-2 ring-black"></div>
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-sm ">Chronos AI</h3>
-                                <p className="text-[10px] text-white/60 uppercase ">Trợ lý tư vấn</p>
-                            </div>
+                <section id="chronos-chat" role="dialog" aria-modal="false" aria-labelledby="chronos-chat-title"
+                    className="mb-3 flex h-[min(600px,calc(100dvh-108px))] w-[calc(100vw-32px)] max-w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-navy sm:h-[min(640px,calc(100dvh-120px))]">
+                    <header className="flex shrink-0 items-center gap-3 bg-primary px-4 py-3 text-primary-foreground">
+                        <div className="flex size-9 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10">
+                            <Watch className="size-5" />
                         </div>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="p-2 hover:bg-white/10 rounded-full transition-colors text-white hover:text-red-500"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
+                        <div className="min-w-0 flex-1">
+                            <h2 id="chronos-chat-title" className="text-base font-semibold">Chronos AI</h2>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={closeChat} aria-label="Đóng trò chuyện"
+                            className="shrink-0 text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                            <X className="size-5" />
+                        </Button>
+                    </header>
 
-                    {/* Chat Area */}
-                    <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${isDark ? 'bg-zinc-950/50' : 'bg-zinc-50'}`}>
-                        {messages.map((msg, idx) => (
-                            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} gap-2 group`}>
-                                {msg.role === 'assistant' && (
-                                    <div className="w-8 h-8 shrink-0 rounded-full bg-black flex items-center justify-center mt-1 overflow-hidden">
-                                        <img
-                                            src={logo}
-                                            alt="Logo"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                )}
-
-                                <div className={`max-w-[70%] rounded-[15px] px-4 py-3 text-sm ${msg.role === 'user'
-                                    ? 'bg-amber-600 text-white rounded-tr-sm'
-                                    : `${isDark ? 'bg-zinc-900 text-zinc-300 border border-zinc-800' : 'bg-white text-zinc-700 border border-zinc-200 shadow-sm'} rounded-tl-sm`
-                                    }`}>
-                                    {msg.role === 'user' ? (
-                                        <p>{msg.content}</p>
-                                    ) : (
-                                        <div className="prose prose-sm dark:prose-invert max-w-none text-[13.5px] leading-relaxed
-                                            prose-a:text-amber-600 dark:prose-a:text-amber-500 prose-a:no-underline hover:prose-a:underline prose-a:font-semibold
-                                            prose-p:my-1 prose-ul:my-1 prose-ul:pl-4 prose-li:my-0 prose-strong:text-amber-700 dark:prose-strong:text-amber-400">
-                                            <ReactMarkdown
-                                                components={{
-                                                    a: ({ node, ...props }) => <Link to={props.href} {...props} onClick={(e) => {
-                                                        // Fallback for external links or handle internally
-                                                        if (!props.href.startsWith('/')) {
-                                                            e.preventDefault();
-                                                            window.open(props.href, '_blank');
-                                                        }
-                                                    }} />,
-                                                    img: ({ node, ...props }) => (
-                                                        <div className="my-3 rounded-lg overflow-hidden border border-zinc-200 shadow-sm">
-                                                            <img
-                                                                {...props}
-                                                                className="w-full h-auto object-cover max-h-[180px] hover:scale-105 transition-transform duration-500"
-                                                                alt={props.alt || 'Product'}
-                                                            />
-                                                        </div>
-                                                    )
-                                                }}
-                                            >
-                                                {msg.content}
-                                            </ReactMarkdown>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {msg.role === 'user' && (
-                                    <div className="w-8 h-8 shrink-0 rounded-full bg-amber-100 flex items-center justify-center mt-1">
-                                        <User className="w-4 h-4 text-amber-700" />
-                                    </div>
-                                )}
+                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-background p-4">
+                        <p className="mb-4 text-center text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Tư vấn cùng Chronos AI</p>
+                        <div role="log" aria-label="Nội dung trò chuyện" aria-live="polite" aria-relevant="additions" className="space-y-4">
+                            {messages.map((message, index) => <ChatMessage key={index} message={message} />)}
+                        </div>
+                        {messages.length === 1 && (
+                            <div className="ml-9 mt-5 space-y-2">
+                                <p className="text-xs text-muted-foreground">Bạn có thể bắt đầu với</p>
+                                {SUGGESTIONS.map(question => (
+                                    <Button key={question} variant="outline" onClick={() => sendMessage(question)} disabled={isLoading}
+                                        className="h-auto w-full justify-between gap-3 px-3 py-2.5 text-left text-xs font-medium normal-case">
+                                        {question}<ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground" />
+                                    </Button>
+                                ))}
                             </div>
-                        ))}
-
+                        )}
                         {isLoading && (
-                            <div className="flex justify-start gap-2">
-                                <div className="w-6 h-6 shrink-0 rounded-full bg-black flex items-center justify-center">
-                                    <Sparkles className="w-3 h-3 text-amber-500" />
-                                </div>
-                                <div className={`max-w-[85%] rounded-2xl rounded-tl-sm px-4 py-3 border ${isDark ? 'bg-zinc-900 border-zinc-800' : 'bg-white border-zinc-200 shadow-sm'}`}>
-                                    <div className="flex space-x-1.5 h-5 items-center">
-                                        <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                        <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                                        <div className="w-1.5 h-1.5 bg-zinc-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                                    </div>
-                                </div>
+                            <div role="status" className="ml-9 mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                                <span className="flex gap-1" aria-hidden="true">
+                                    {[0, 1, 2].map(dot => <span key={dot} className="size-1.5 rounded-full bg-primary/50 motion-safe:animate-pulse" />)}
+                                </span>
+                                Chronos AI đang soạn trả lời
                             </div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Input Area */}
-                    <div className={`p-2 ${isDark ? 'bg-zinc-900 border-t border-zinc-800' : 'bg-white border-t border-zinc-200'}`}>
-                        <form onSubmit={handleSend} className="relative flex items-end gap-2">
-                            <textarea
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="Nhập câu hỏi tại đây..."
-                                className={`flex-1 max-h-32 min-h-[44px] resize-none rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-all ${isDark ? 'bg-zinc-950 text-white placeholder-zinc-500' : 'bg-zinc-100 text-zinc-900 placeholder-zinc-400'}`}
-                                rows={1}
-                            />
-                            <button
-                                type="submit"
-                                disabled={!input.trim() || isLoading}
-                                className="absolute right-2 bottom-1.5 p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
-                            >
-                                <Send className="w-5 h-5" />
-                            </button>
+                    <footer className="shrink-0 border-t border-border bg-card p-3">
+                        <form onSubmit={event => { event.preventDefault(); sendMessage(input); }} className="relative">
+                            <Input ref={inputRef} value={input} onChange={event => setInput(event.target.value)}
+                                onKeyDown={event => {
+                                    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+                                        event.preventDefault();
+                                        sendMessage(input);
+                                    }
+                                }}
+                                aria-label="Câu hỏi cho Chronos AI" placeholder="Nhập tin nhắn..."
+                                className="h-11 bg-background pr-14 text-sm font-normal" />
+                            <Button type="submit" size="icon" disabled={!input.trim() || isLoading} aria-label="Gửi câu hỏi" className="absolute right-1.5 top-1.5 size-8">
+                                <ArrowUp className="size-4" />
+                            </Button>
                         </form>
-                        {/* <p className={`text-[10px] text-center mt-3 font-medium ${isDark ? 'text-zinc-600' : 'text-zinc-400'}`}>
-                            Trợ lý AI có thể cung cấp thông tin chưa chính xác.
-                        </p> */}
-                    </div>
-                </div>
+                        <p className="mt-2 text-center text-[10px] leading-relaxed text-muted-foreground">Trợ lý AI · Thông tin tư vấn chỉ mang tính tham khảo</p>
+                    </footer>
+                </section>
             )}
-
-            {/* Toggle Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-14 h-14 rounded-full flex items-center justify-center text-white shadow-[0_0_20px_rgba(245,158,11,0.3)] transition-all duration-300 transform hover:scale-105 active:scale-95 ${isOpen ? 'bg-zinc-800 rotate-90 scale-0 opacity-0' : 'bg-black opacity-100'}`}
-                style={{ position: isOpen ? 'absolute' : 'relative' }}
-            >
-                <div className="absolute inset-0 rounded-full border border-amber-500/30"></div>
-                <MessageCircle className="w-6 h-6 text-amber-500 relative z-10" />
-
-                {/* Notification Badge */}
-                <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 border-2 border-black rounded-full z-20"></span>
-            </button>
+            <Button ref={launcherRef} onClick={() => isOpen ? closeChat() : setIsOpen(true)} aria-label={isOpen ? 'Thu gọn trò chuyện' : 'Mở trợ lý tư vấn Chronos AI'}
+                aria-expanded={isOpen} aria-controls={isOpen ? 'chronos-chat' : undefined}
+                className="h-12 gap-2.5 rounded-full border border-primary-foreground/10 px-4 shadow-hover normal-case sm:h-14 sm:px-5">
+                {isOpen ? <X className="size-5" /> : <MessageCircle className="size-5" />}
+                <span className="text-sm font-semibold">{isOpen ? 'Thu gọn' : 'Tư vấn đồng hồ'}</span>
+            </Button>
         </div>
     );
-};
-
-export default Chatbot;
+}

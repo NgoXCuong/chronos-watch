@@ -8,6 +8,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "migrate": "node src/migrate.js",
+    "seed:catalog": "node scripts/seed-catalog.js",
     "test": "vitest run",
     "test:summary": "vitest run --reporter=default",
     "test:html": "vitest run --reporter=html",

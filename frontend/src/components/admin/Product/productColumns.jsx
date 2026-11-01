@@ -11,7 +11,7 @@ import {
 } from "./ProductCells";
 import { ProductRowActions } from "./ProductRowActions";
 
-// Định nghĩa cột sản phẩm — trang dùng lại mảng này cho menu "Cột" (Rule 3)
+// Định nghĩa cột sản phẩm dùng chung cho DataTable (Rule 3).
 export const getProductColumns = ({
   onView,
   onEdit,
@@ -34,6 +34,7 @@ export const getProductColumns = ({
     id: "categories",
     header: "Danh mục",
     width: "220px",
+    stopRowClick: true,
     cell: ({ row }) => <ProductCategoriesCell categories={row.categories} />,
   },
   {
