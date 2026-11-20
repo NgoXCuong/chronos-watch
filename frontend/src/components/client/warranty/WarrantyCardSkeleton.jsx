@@ -7,7 +7,6 @@ const WarrantyCardSkeleton = () => (
     </div>
     <div className="space-y-1.5">
       <div className="h-3 w-1/2 rounded bg-muted" />
-      <div className="h-3 w-1/3 rounded bg-muted" />
     </div>
     <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/60 px-3 py-2">
       <div className="h-7 rounded bg-muted" />

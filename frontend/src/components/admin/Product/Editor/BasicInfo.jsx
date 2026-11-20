@@ -8,7 +8,7 @@ import { FIELD_MAX } from "../../../../constants/productForm";
 const BasicInfo = ({ form, setField, setSlug, errors, slugTouched }) => (
   <FormSection
     title="Nhận diện sản phẩm"
-    hint="Tên hiển thị, đường dẫn URL và mã kho"
+    hint="Tên hiển thị, đường dẫn URL và mã sản phẩm (SKU) là ba cột định danh quan trọng. Slug và SKU đều phải là duy nhất."
     icon={Fingerprint}
     actions={
       <span className="shrink-0 text-[11px] font-semibold tabular-nums text-muted-foreground">
@@ -16,7 +16,12 @@ const BasicInfo = ({ form, setField, setSlug, errors, slugTouched }) => (
       </span>
     }
   >
-    <FormField label="Tên sản phẩm" htmlFor="field-name" required error={errors.name}>
+    <FormField
+      label="Tên sản phẩm"
+      htmlFor="field-name"
+      required
+      error={errors.name}
+    >
       <Input
         id="field-name"
         value={form.name}
@@ -31,11 +36,9 @@ const BasicInfo = ({ form, setField, setSlug, errors, slugTouched }) => (
       <FormField
         label="Đường dẫn (slug)"
         htmlFor="field-slug"
-        hint={
-          slugTouched
-            ? "Đang dùng slug nhập tay."
-            : "Tự sinh từ tên — nhập tay nếu muốn đặt URL riêng."
-        }
+        hint={slugTouched
+          ? "Đang dùng đường dẫn nhập tay. Chỉ dùng chữ thường, số và dấu gạch nối; không trùng sản phẩm khác."
+          : "Tự tạo từ tên sản phẩm; có thể sửa bằng chữ thường, số và dấu gạch nối."}
         error={errors.slug}
       >
         <Input
@@ -52,7 +55,7 @@ const BasicInfo = ({ form, setField, setSlug, errors, slugTouched }) => (
       <FormField
         label="Mã sản phẩm (SKU)"
         htmlFor="field-sku"
-        hint="Để trống nếu chưa cấp mã — dùng để tìm kiếm trong kho."
+        hint="Để trống để tự cấp mã khi tạo mới; khi sửa sẽ giữ mã cũ. Có thể nhập mã riêng, không trùng sản phẩm khác."
         error={errors.sku}
       >
         <Input
@@ -60,7 +63,7 @@ const BasicInfo = ({ form, setField, setSlug, errors, slugTouched }) => (
           value={form.sku}
           maxLength={FIELD_MAX.sku}
           onChange={(e) => setField("sku", e.target.value.toUpperCase())}
-          placeholder="VD: CAS-MTP-137PD-7B2UF"
+          placeholder="Tự cấp khi lưu sản phẩm"
           className="font-mono text-[13px] uppercase"
           error={errors.sku}
         />

@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import orderApi from '../api/order.api';
 import userAddressApi from '../api/user_address.api';
-import voucherApi from '../api/voucher.api';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../hooks/useCart';
 import { useAuth } from './useAuth';
 
 const emptyAddressForm = (user) => ({
@@ -23,7 +22,9 @@ const emptyAddressForm = (user) => ({
 export function useCheckout() {
     const navigate = useNavigate();
     const { isAuthenticated, user } = useAuth();
-    const { cart, cartSubtotal, shippingFee, clearCart } = useCart();
+    const { cart, cartSubtotal, clearCart, voucherCode, setVoucherCode, appliedVoucher, applyingVoucher, applyVoucher, removeVoucher, discountAmount, revalidateVoucher } = useCart();
+    const refreshVoucher = useEffectEvent(revalidateVoucher);
+    useEffect(() => { refreshVoucher(); }, []);
 
     const [addresses, setAddresses] = useState([]);
     const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -32,11 +33,6 @@ export function useCheckout() {
     const [orderNote, setOrderNote] = useState('');
 
     const [paymentMethod, setPaymentMethod] = useState('cod');
-    const [voucherCode, setVoucherCode] = useState('');
-    const [appliedVoucher, setAppliedVoucher] = useState(null);
-    const [discountAmount, setDiscountAmount] = useState(0);
-    const [applyingVoucher, setApplyingVoucher] = useState(false);
-
     const [submitting, setSubmitting] = useState(false);
     const [orderPlaced, setOrderPlaced] = useState(false);
 
@@ -61,36 +57,9 @@ export function useCheckout() {
         };
     }, [isAuthenticated]);
 
-    const total = Math.max(0, cartSubtotal + shippingFee - discountAmount);
+    const total = Math.max(0, cartSubtotal - discountAmount);
 
     const setFormField = (name) => (event) => setFormData((prev) => ({ ...prev, [name]: event.target.value }));
-
-    const applyVoucher = async () => {
-        const code = voucherCode.trim();
-        if (!code) return toast.error('Vui lòng nhập mã ưu đãi');
-        setApplyingVoucher(true);
-        try {
-            const res = await voucherApi.validate(code, cartSubtotal);
-            if (res.valid) {
-                setAppliedVoucher(res.voucher);
-                setDiscountAmount(res.discount_amount || 0);
-                toast.success('Đã áp dụng mã ưu đãi');
-            }
-        } catch (error) {
-            const msg = error.response?.data?.message || error.message || 'Mã không hợp lệ hoặc đã hết hạn';
-            toast.error(msg);
-            setAppliedVoucher(null);
-            setDiscountAmount(0);
-        } finally {
-            setApplyingVoucher(false);
-        }
-    };
-
-    const removeVoucher = () => {
-        setAppliedVoucher(null);
-        setDiscountAmount(0);
-        setVoucherCode('');
-    };
 
     const validate = () => {
         if (useNewAddress) {
@@ -114,13 +83,13 @@ export function useCheckout() {
             toast.error(`Sản phẩm "${unavailable.name}" đã ngừng bán. Vui lòng xóa khỏi giỏ hàng.`);
             return;
         }
+        if (applyingVoucher) return toast.warning('Vui lòng chờ kiểm tra voucher.');
         if (!validate()) return;
         setSubmitting(true);
         try {
             const res = await orderApi.checkout({
                 order_note: orderNote,
                 payment_method: paymentMethod,
-                shipping_fee: shippingFee,
                 address_id: useNewAddress ? null : selectedAddressId,
                 voucher_code: appliedVoucher ? appliedVoucher.code : undefined,
                 ...(useNewAddress
@@ -152,7 +121,6 @@ export function useCheckout() {
         isAuthenticated,
         cart,
         cartSubtotal,
-        shippingFee,
         discountAmount,
         total,
         addresses,

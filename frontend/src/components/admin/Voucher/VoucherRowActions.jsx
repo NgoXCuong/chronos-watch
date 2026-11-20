@@ -1,4 +1,4 @@
-import { Pencil, Power, Trash2 } from "lucide-react";
+import { Pencil, Power, Trash2, Gift } from "lucide-react";
 import { Button } from "../../ui/button";
 import { cn } from "@/lib/utils";
 
@@ -8,12 +8,13 @@ const NEUTRAL =
 
 // status (active/inactive) đổi qua PATCH /vouchers/:id/status; xóa là hard delete
 // (voucher đã dùng vẫn còn lịch sử trong voucher_usages) nên luôn hỏi trước
-export const VoucherRowActions = ({ voucher, onEdit, onToggle, onDelete }) => {
+export const VoucherRowActions = ({ voucher, onEdit, onGift, onToggle, onDelete }) => {
   const isActive = voucher.status !== "inactive";
   const label = voucher.code || `#${voucher.id}`;
 
   return (
     <div className="flex items-center justify-end gap-1">
+      <Button variant="ghost" size="icon" className={cn(ICON, NEUTRAL)} disabled={Boolean(voucher.is_public)} aria-label={`Tặng voucher ${label}`} title={voucher.is_public ? 'Chuyển sang mã riêng trước khi tặng' : 'Tặng voucher cho khách hàng'} onClick={() => onGift?.(voucher)}><Gift size={16} /></Button>
       <Button
         variant="ghost"
         size="icon"

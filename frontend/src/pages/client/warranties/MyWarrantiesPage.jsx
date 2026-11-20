@@ -9,7 +9,8 @@ import {
   ShoppingBag,
   X,
 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Input } from "@/components/ui/input";
 import AccountLayout from "@/components/client/AccountLayout";
 import FilterSelect from "@/components/admin/Common/FilterSelect";
@@ -75,7 +76,7 @@ const MyWarrantiesPage = () => {
             icon={Search}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Tìm theo mã phiếu, serial, tên sản phẩm…"
+            placeholder="Tìm theo mã phiếu, tên sản phẩm…"
             aria-label="Tìm phiếu bảo hành"
             className="h-10"
           />

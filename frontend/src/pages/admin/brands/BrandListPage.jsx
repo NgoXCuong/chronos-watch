@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import brandApi from "../../../api/brand.api";
@@ -31,7 +31,7 @@ const BrandListPage = () => {
   const debouncedSearch = useDebounce(searchTerm, 400);
   const isFirstQuery = useRef(true);
 
-  const fetchBrands = async () => {
+  const fetchBrands = useCallback(async () => {
     setLoading(true);
     try {
       // all=true: trang quản trị cần thấy cả thương hiệu đang ẩn để bật lại
@@ -51,11 +51,11 @@ const BrandListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, visibility, sort]);
 
   useEffect(() => {
     fetchBrands();
-  }, [currentPage, debouncedSearch, visibility, sort]);
+  }, [fetchBrands]);
 
   useEffect(() => {
     if (isFirstQuery.current) {

@@ -17,7 +17,7 @@ const SpecsPanel = ({ product }) => {
     const rows = [
         ...Object.entries(product.specifications || {}).map(([key, value]) => ({ label: specLabel(key), value })),
         { label: 'Thương hiệu', value: product.brand?.name },
-        { label: 'Mã sản phẩm', value: product.sku },
+        { label: 'Mã sản phẩm (SKU)', value: product.sku },
         { label: 'Bảo hành', value: product.warranty_months ? `${product.warranty_months} tháng` : 'Theo chính sách hãng' },
         { label: 'Xuất xứ', value: product.brand?.country },
     ].filter((row) => String(row.value ?? '').trim());

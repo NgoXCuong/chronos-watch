@@ -18,7 +18,7 @@ const CategorySidebar = ({ categories = [], loading, className }) => {
 
     return (
         <aside className={cn('w-[230px] shrink-0 overflow-hidden rounded-xl border border-border bg-card shadow-card', className)}>
-            <h2 className="flex items-center gap-2 bg-navy-600 px-4 py-3 text-sm font-bold uppercase tracking-wide text-white">
+            <h2 className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-4 text-xs font-bold uppercase tracking-wide text-foreground">
                 <List size={16} strokeWidth={2} aria-hidden="true" />
                 Danh mục sản phẩm
             </h2>
@@ -30,7 +30,7 @@ const CategorySidebar = ({ categories = [], loading, className }) => {
                         <li key={key}>
                             <Link
                                 to={`/products?category=${cat.slug || key}`}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground/90 transition-colors hover:bg-navy-50 hover:text-navy-700"
+                                className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground/90 transition-colors hover:bg-accent hover:text-accent-foreground"
                             >
                                 <Icon size={16} strokeWidth={2} className="shrink-0 text-navy-500" aria-hidden="true" />
                                 <span className="min-w-0 flex-1 truncate">{cat.name}</span>
@@ -47,6 +47,7 @@ const CategorySidebar = ({ categories = [], loading, className }) => {
                     </li>
                 )}
             </ul>
+            <Link to="/products" className="flex items-center justify-between border-t border-border bg-muted/50 px-4 py-4 text-xs font-semibold text-foreground">Khám phá tất cả <ChevronRight size={14} /></Link>
         </aside>
     );
 };

@@ -20,6 +20,7 @@ const ReviewPulse = ({ distribution, className }) => {
       icon={MessageSquare}
       tone="warning"
       className={className}
+      bodyClassName="flex flex-col"
       title="Chất lượng đánh giá"
       subtitle={`${total} lượt đánh giá`}
       action={
@@ -56,7 +57,7 @@ const ReviewPulse = ({ distribution, className }) => {
           Chưa có đánh giá nào
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="flex flex-1 flex-col justify-between gap-2">
           {bars.map((bar, index) => (
             <li key={bar.star} className="flex items-center gap-2">
               {/* Cột hiển thị số sao + Icon Lucide */}

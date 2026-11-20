@@ -1,92 +1,44 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Zap } from 'lucide-react';
-import useFlashSale from '../../hooks/useFlashSale';
-import { formatTimeLeft } from '../../utils/flashSale';
-import FlashSaleCountdown from './FlashSaleCountdown';
-import FlashProductCard from './FlashProductCard';
+import "../../styles/flash-sale-storefront.css";
+import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Zap, ArrowUpRight, Clock } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
+import useFlashSale from "../../hooks/useFlashSale";
+import { formatTimeLeft } from "../../utils/flashSale";
+import FlashSaleCountdown from "./FlashSaleCountdown";
+import FlashSaleRail from "./FlashSaleRail";
 
-const SKELETON = [0, 1, 2, 3];
-
-/**
- * Panel Flash Sale trang chủ: đọc đúng đợt ĐANG CHẠY từ /flash-sales/current
- * (trước đây panel này bịa: lấy 4 sản phẩm mới nhất và đếm ngược về nửa đêm).
- * Đồng hồ theo server_time, suất bán/ còn lại là số thật từ đơn hàng.
- */
-const FlashSalePanel = () => {
-    const { loading, state, sale, items, upcoming, endsInMs, startsInMs } = useFlashSale();
-
-    if (!loading && !sale && !upcoming) return null;
-
-    const visible = (items || []).slice(0, 4);
-
-    return (
-        <section id="flash-sale" className="scroll-mt-28 overflow-hidden rounded-xl border border-border bg-card shadow-card">
-            <div className="flex flex-col lg:flex-row">
-                <div className="flex shrink-0 flex-col justify-center gap-4 bg-linear-to-br from-navy-950 via-navy-900 to-navy-800 p-6 lg:w-[260px]">
-                    <div className="flex items-center gap-2">
-                        <span className="flex size-9 items-center justify-center rounded-lg bg-white/10 text-white">
-                            <Zap size={18} strokeWidth={2} aria-hidden="true" />
-                        </span>
-                        <h2 className="text-xl font-extrabold uppercase tracking-wide text-white">Flash Sale</h2>
-                    </div>
-
-                    {sale ? (
-                        <div>
-                            <p className="mb-1.5 text-[11px] font-semibold uppercase text-navy-100">
-                                {state === 'sold_out' ? 'Suất đã bán hết' : state === 'expired' ? 'Đã kết thúc' : 'Kết thúc trong'}
-                            </p>
-                            <FlashSaleCountdown msLeft={endsInMs} />
-                            <p className="mt-2 text-[11px] text-navy-200">{sale.name}</p>
-                        </div>
-                    ) : (
-                        <div>
-                            <p className="mb-1.5 text-[11px] font-semibold uppercase text-navy-100">Đợt tiếp theo</p>
-                            <p className="text-sm font-bold text-white">
-                                {upcoming?.name}
-                            </p>
-                            <p className="mt-1 text-xs tabular-nums text-navy-200">
-                                bắt đầu sau {formatTimeLeft(startsInMs)}
-                            </p>
-                        </div>
-                    )}
-
-                    <Link
-                        to="/products?sort=discount"
-                        className="inline-flex h-9 w-fit items-center justify-center rounded-lg border border-white bg-white px-4 text-xs font-semibold uppercase text-navy-800 transition-colors hover:border-navy-600 hover:bg-navy-600 hover:text-white"
-                    >
-                        Xem ưu đãi
-                    </Link>
-                </div>
-
-                <div className="min-w-0 flex-1 p-4">
-                    {loading ? (
-                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                            {SKELETON.map((key) => (
-                                <div key={key} className="animate-pulse overflow-hidden rounded-xl border border-border bg-card">
-                                    <div className="aspect-square bg-navy-100" />
-                                    <div className="space-y-2 p-3">
-                                        <div className="h-3 w-3/4 rounded bg-navy-100" />
-                                        <div className="h-4 w-1/2 rounded bg-navy-100" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : visible.length === 0 ? (
-                        <p className="flex min-h-40 items-center justify-center px-6 text-center text-[13px] text-muted-foreground">
-                            Đang chờ mở bán suất Flash — các ưu đãi thường vẫn còn ở mục Xem ưu đãi.
-                        </p>
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                            {visible.map((item) => (
-                                <FlashProductCard key={item.id} item={item} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-export default FlashSalePanel;
+export default function FlashSalePanel() {
+  const { loading, state, sale, items, upcoming, endsInMs, startsInMs } = useFlashSale();
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!loading && hash === "#flash-sale") document.getElementById("flash-sale")?.scrollIntoView({ behavior: "smooth" });
+  }, [loading, hash]);
+  if (!loading && !sale && !upcoming) return null;
+  const ended = state === "expired";
+  const active = !!sale && !ended && state !== "sold_out";
+  const visible = (items || []).filter((item) => item.product);
+  const status = ended ? "Đã kết thúc" : state === "sold_out" ? "Đã hết suất" : sale ? "Đang diễn ra" : "Sắp mở bán";
+  return <section id="flash-sale" className="flash-storefront" aria-labelledby="home-flash-title">
+    <header className="flash-storefront-header">
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sale text-white"><Zap size={22} fill="currentColor" /></span>
+        <div>
+          <div className="flex flex-wrap items-center gap-3"><h2 id="home-flash-title" className="text-xl font-extrabold uppercase tracking-tight text-sale">Flash Sale</h2>
+            {!loading && <span className="rounded-full border border-sale/25 bg-card px-2.5 py-1 text-[10px] font-bold uppercase text-sale">{status}</span>}
+          </div>
+          {loading ? <div className="mt-2 h-3 w-40 animate-pulse rounded bg-muted" /> : <p className="mt-1 text-xs text-muted-foreground">{sale?.name || upcoming?.name} · Ưu đãi theo suất, số lượng có hạn</p>}
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-5">
+        {sale && <div><p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold uppercase text-muted-foreground"><Clock size={12} />{active ? "Kết thúc trong" : status}</p><FlashSaleCountdown msLeft={endsInMs} tone="sale" size="sm" /></div>}
+        {!loading && !sale && upcoming && <p className="text-xs font-semibold text-sale">Mở bán sau {formatTimeLeft(startsInMs)}</p>}
+        <Link to="/products?sort=discount" className={cn(buttonVariants({ variant: "outline", size: "sm" }), "border-sale/30 text-sale hover:bg-sale/10 hover:text-sale")}>Xem ưu đãi <ArrowUpRight size={14} /></Link>
+      </div>
+    </header>
+    {loading ? <div className="flash-storefront-products">{[0,1,2,3].map((key) => <div key={key} className="overflow-hidden rounded-xl border border-border bg-card"><div className="aspect-square animate-pulse bg-muted" /><div className="space-y-2 p-4"><div className="h-3 animate-pulse rounded bg-muted" /><div className="h-5 w-1/2 animate-pulse rounded bg-muted" /></div></div>)}</div>
+      : visible.length ? <FlashSaleRail key={sale?.id || "current"} items={visible} ended={ended} />
+      : <p className="px-6 py-10 text-center text-sm text-muted-foreground">{upcoming ? "Sản phẩm ưu đãi sẽ xuất hiện khi đợt mở bán bắt đầu." : "Các suất ưu đãi hiện đã hết. Khám phá những sản phẩm khác tại Chronos."}</p>}
+  </section>;
+}

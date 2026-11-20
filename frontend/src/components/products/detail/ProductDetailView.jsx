@@ -1,3 +1,4 @@
+import "../../../styles/product-detail.css";
 import React, { useState } from "react";
 import useProductFlash from "../../../hooks/useProductFlash";
 import FlashSaleBox from "../../../components/market/FlashSaleBox";
@@ -34,8 +35,8 @@ const ProductDetailView = ({ product, relatedProducts }) => {
     <div className="min-h-screen bg-background">
       <ProductBreadcrumbs product={product} />
 
-      <div className="mx-auto w-full px-12 py-6 md:px-16 lg:px-24">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-14">
+      <div className="mx-auto w-full px-4 py-6 sm:px-8 md:px-16 lg:px-24">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-14">
           <ProductGallery
             product={product}
             images={images}

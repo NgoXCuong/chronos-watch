@@ -3,6 +3,7 @@ import { countdownParts, formatTimeLeft, padTwo } from '../../utils/flashSale';
 
 const TONE = {
     dark: { cell: 'bg-white/10 text-white', sep: 'text-navy-300' },
+    sale: { cell: 'bg-sale/10 text-sale', sep: 'text-sale/60' },
     light: { cell: 'bg-navy-100 text-navy-800', sep: 'text-navy-300' },
 };
 
@@ -16,10 +17,10 @@ export const FlashSaleCountdown = ({ msLeft, tone = 'dark', size = 'lg', classNa
     const palette = TONE[tone] ?? TONE.dark;
 
     if (parts.total <= 0) {
-        return <span className="text-[11px] font-semibold uppercase text-navy-200">Đã kết thúc</span>;
+        return <span className={`text-[11px] font-semibold uppercase ${tone === 'dark' ? 'text-navy-200' : 'text-muted-foreground'}`}>Đã kết thúc</span>;
     }
     if (parts.days >= 2) {
-        return <span className="text-sm font-bold tabular-nums text-white">còn {formatTimeLeft(parts.total)}</span>;
+        return <span className={`rounded-md px-2 py-1 text-sm font-bold tabular-nums ${palette.cell}`}>còn {formatTimeLeft(parts.total)}</span>;
     }
 
     const cells = [

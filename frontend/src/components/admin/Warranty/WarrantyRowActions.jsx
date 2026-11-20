@@ -26,7 +26,7 @@ export const WarrantyRowActions = ({ warranty, onView, onEdit, onDelete }) => {
         variant="ghost"
         size="icon"
         aria-label={`Sửa phiếu "${label}"`}
-        title="Cập nhật serial, trạng thái hoặc ghi chú"
+        title="Cập nhật trạng thái hoặc ghi chú"
         onClick={() => onEdit?.(warranty)}
         className={cn(ICON, NEUTRAL)}
       >

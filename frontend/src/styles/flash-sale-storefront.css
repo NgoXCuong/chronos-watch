@@ -1,0 +1,164 @@
+.storefront-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  min-height: 48px;
+}
+.storefront-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 48px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+.storefront-nav-item:hover,
+.storefront-nav-item.active {
+  color: var(--primary);
+}
+.storefront-nav-item.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 3px;
+}
+.storefront-product-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.storefront-product-menu .product-menu-chevron {
+  min-height: 32px;
+  height: 32px;
+  width: 24px;
+  padding: 0;
+}
+.storefront-product-menu:has(.active) {
+  box-shadow: inset 0 -3px var(--primary);
+}
+.storefront-product-menu .active::after {
+  display: none;
+}
+.flash-storefront {
+  border: 1px solid var(--color-sale);
+  border-top-width: 4px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--card);
+  scroll-margin-top: 180px;
+}
+.flash-storefront-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--color-sale) 6%, var(--card));
+}
+.flash-storefront-products {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  background: color-mix(in srgb, var(--color-sale) 3%, var(--card));
+}
+.flash-storefront-card {
+  border-color: color-mix(in srgb, var(--color-sale) 25%, var(--border));
+}
+.flash-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 12px;
+  color: var(--color-sale);
+  background: color-mix(in srgb, var(--color-sale) 7%, var(--card));
+  font-size: 10px;
+  font-weight: 800;
+}
+.flash-card-label span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+@media (max-width: 1000px) {
+  .storefront-navigation {
+    gap: 18px;
+  }
+  .storefront-nav-item {
+    font-size: 12px;
+  }
+}
+@media (max-width: 767px) {
+  .flash-storefront-header {
+    padding: 16px;
+  }
+  .flash-storefront-products {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px;
+  }
+}
+
+.flash-carousel {
+  padding: 12px 16px 16px;
+  background: color-mix(in srgb, var(--color-sale) 3%, var(--card));
+  min-width: 0;
+}
+.flash-carousel-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.flash-carousel .swiper {
+  padding: 2px 0 4px;
+}
+.flash-carousel-slide {
+  width: 230px !important;
+  height: auto !important;
+}
+.flash-carousel-slide .flash-storefront-card {
+  height: 100%;
+}
+.flash-carousel-slide .flash-storefront-card > a {
+  height: 200px;
+  aspect-ratio: auto !important;
+}
+.flash-carousel-slide .flash-storefront-card > a img {
+  object-fit: contain;
+}
+.flash-carousel .flash-card-label {
+  padding: 6px 10px;
+  font-size: 9px;
+}
+@media (max-width: 767px) {
+  .flash-carousel {
+    padding: 10px 12px 12px;
+  }
+  .flash-carousel-slide {
+    width: 185px !important;
+  }
+  .flash-carousel-slide .flash-storefront-card > a {
+    height: 165px;
+  }
+  .flash-carousel-toolbar p {
+    max-width: 190px;
+    font-size: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flash-carousel .swiper-wrapper {
+    transition-duration: 0ms !important;
+  }
+}

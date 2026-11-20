@@ -1,10 +1,11 @@
-import { Bell, Heart, Lock, MapPin, ShieldCheck, ShoppingBag, User } from "lucide-react";
+import { Bell, Heart, Lock, MapPin, ShieldCheck, ShoppingBag, User, TicketPercent } from "lucide-react";
 
 /**
  * Menu cụm tài khoản khách — một nguồn cho mọi trang (hồ sơ, địa chỉ, đơn, yêu thích,
  * bảo hành). `hash` dùng cho các trang nhiều tab: mục đang mở phải sáng đúng tab.
  */
 export const ACCOUNT_LINKS = [
+  { to: '/my-vouchers', hash: '', label: 'Voucher của tôi', icon: TicketPercent },
   { to: "/profile", hash: "", label: "Hồ sơ cá nhân", icon: User },
   { to: "/profile", hash: "#addresses", label: "Sổ địa chỉ", icon: MapPin },
   { to: "/profile", hash: "#security", label: "Bảo mật", icon: Lock },

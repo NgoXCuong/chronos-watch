@@ -24,6 +24,3 @@ export const PRODUCT_STATUS_BADGE = Object.fromEntries(
 
 export const productStatusLabel = (status) =>
   PRODUCT_STATUS[status]?.label ?? status;
-
-// Cảnh báo kho theo ngưỡng dùng chung (cell + dashboard)
-export const LOW_STOCK_THRESHOLD = 5;

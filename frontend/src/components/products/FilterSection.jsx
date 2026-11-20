@@ -7,19 +7,19 @@ import { cn } from '@/lib/utils';
  * `open` của DOM) để người dùng gập lại thì lọc thêm vẫn không tự bung mọi nhóm.
  * activeCount > 0 thì nhãn chuyển navy để nhìn thấy nhóm nào đang bật.
  */
-const FilterSection = ({ title, icon: Icon, activeCount = 0, defaultOpen = true, children, className }) => {
+const FilterSection = ({ title, icon: Icon, activeCount = 0, summary, defaultOpen = false, children, className }) => {
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <div className={cn('group border-b border-border px-4 py-3 last:border-b-0', className)}>
+        <div className={cn('catalog-filter-section group border-b border-border px-4 py-3 last:border-b-0', className)}>
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
                 aria-expanded={open}
-                className="flex w-full cursor-pointer items-center gap-2 py-1 text-left text-[13px] font-bold uppercase tracking-[0.02em] text-foreground"
+                className="catalog-filter-toggle flex w-full cursor-pointer items-center gap-2 py-1 text-left text-[13px] font-bold uppercase tracking-[0.02em] text-foreground"
             >
                 {Icon && <Icon size={15} strokeWidth={2} className={cn('shrink-0', activeCount ? 'text-navy-600' : 'text-muted-foreground')} aria-hidden="true" />}
-                <span className={cn('min-w-0 flex-1 truncate', activeCount && 'text-navy-700')}>{title}</span>
+                <span className="min-w-0 flex-1"><span className={cn('block truncate', activeCount && 'text-navy-700')}>{title}</span>{!open && summary && <span className="mt-1 block truncate text-[11px] font-normal normal-case tracking-normal text-muted-foreground">{summary}</span>}</span>
                 {activeCount > 0 && (
                     <span className="shrink-0 rounded-md bg-navy-100 px-1.5 py-0.5 text-[11px] font-extrabold tabular-nums text-navy-700">{activeCount}</span>
                 )}

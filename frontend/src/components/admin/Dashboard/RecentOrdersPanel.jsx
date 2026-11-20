@@ -15,7 +15,7 @@ const firstDetail = (order) => order.details?.[0];
 
 const OrderRow = ({ order, onOpen }) => {
   const detail = firstDetail(order);
-  const image = detail?.product_image || detail?.product?.image_url;
+  const image = detail?.product?.image_url;
   const extraItems = (order.details?.length || 0) - 1;
 
   return (
@@ -51,7 +51,7 @@ const OrderRow = ({ order, onOpen }) => {
             {image ? (
               <img
                 src={image}
-                alt={detail?.product_name || "Sản phẩm"}
+                alt={detail?.product?.name || "Sản phẩm"}
                 className="h-full w-full object-cover"
                 loading="lazy"
               />
@@ -59,8 +59,7 @@ const OrderRow = ({ order, onOpen }) => {
           </span>
           <span className="min-w-0">
             <span className="block truncate text-[12px] font-medium text-card-foreground">
-              {detail?.product_name ||
-                detail?.product?.name ||
+              {detail?.product?.name ||
                 "Không rõ sản phẩm"}
             </span>
             <span className="block text-[11px] text-muted-foreground tabular-nums">

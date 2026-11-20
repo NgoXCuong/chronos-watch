@@ -17,7 +17,7 @@ export const WarrantyStateBadge = ({ state }) => {
   );
 };
 
-// Mã phiếu / serial: chuỗi đối chiếu thủ công nên trình bày mono
+// Mã phiếu: chuỗi đối chiếu thủ công nên trình bày mono
 export const WarrantyMonoCell = ({ value, empty = "—" }) =>
   value ? (
     <span className="block truncate font-mono text-[13px] font-semibold tabular-nums text-navy-700 dark:text-navy-100">

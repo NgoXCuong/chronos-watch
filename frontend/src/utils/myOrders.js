@@ -21,8 +21,8 @@ export const orderItems = (order) =>
   (order?.details || []).map((detail, index) => ({
     key: detail.id ?? `${order?.id}-${index}`,
     id: detail.product_id ?? detail.id,
-    name: detail.product_name || detail.product?.name || "Sản phẩm đã gỡ",
-    image: detail.product_image || detail.product?.image_url || "",
+    name: detail.product?.name || "Sản phẩm đã gỡ",
+    image: detail.product?.image_url || "",
     sku: detail.sku || detail.product?.sku || "",
     slug: detail.product?.slug || "",
     productId: detail.product?.id ?? detail.product_id ?? null,

@@ -74,3 +74,4 @@ export const VoucherStatusBadge = ({ row, now }) => {
   const status = getVoucherStatus(row, now);
   return <Badge variant={status.variant}>{status.label}</Badge>;
 };
+export const VoucherVisibilityCell = ({ visible }) => <Badge variant={visible ? 'brand' : 'muted'}>{visible ? 'Công khai' : 'Mã riêng'}</Badge>;

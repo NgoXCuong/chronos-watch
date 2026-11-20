@@ -1,13 +1,15 @@
+import "../../styles/product-card.css";
+import EditorialProductInfo from "./EditorialProductInfo";
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingCart, Star } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
-import { useWishlist } from '../../context/WishlistContext';
+import { Heart, ShoppingCart, Star, ArrowUpRight } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button-variants';
+import { useWishlist } from '../../hooks/useWishlist';
 import { formatCurrency } from '../../utils/formatCurrency';
 import anhminhhoa from '../../assets/anh-minh-hoa.jpg';
 
 /** Thẻ sản phẩm chuẩn market: badge giảm giá đỏ, wishlist, brand chip, sao navy, giá tabular-nums. */
-const ProductCard = ({ product, compact = false }) => {
+const ProductCard = ({ product, compact = false, editorial = false }) => {
     const name = product?.name || 'Chronos Watch';
     const price = product?.price || 0;
     const originalPrice = product?.old_price || product?.originalPrice;
@@ -20,7 +22,7 @@ const ProductCard = ({ product, compact = false }) => {
     const avgRating = Number(product?.average_rating || 0);
 
     return (
-        <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-hover">
+        <div data-editorial={editorial || undefined} className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-hover">
             {discount > 0 && (
                 <div className="absolute top-3 left-3 z-10 rounded-md bg-sale-soft px-2 py-1 text-[11px] font-extrabold uppercase text-sale">
                     -{discount}%
@@ -30,6 +32,7 @@ const ProductCard = ({ product, compact = false }) => {
             <button
                 onClick={() => toggleWishlist(product)}
                 aria-label={activeWishlist ? 'Bỏ khỏi yêu thích' : 'Thêm vào yêu thích'}
+                aria-pressed={activeWishlist}
                 className={`absolute top-3 right-3 z-10 flex size-8 items-center justify-center rounded-full border backdrop-blur-sm transition-all duration-300 ${
                     activeWishlist
                         ? 'border-navy-600 bg-navy-600 text-white opacity-100'
@@ -48,7 +51,7 @@ const ProductCard = ({ product, compact = false }) => {
                 />
             </Link>
 
-            <div className={`flex flex-1 flex-col ${compact ? 'p-3' : 'p-4'}`}>
+            {editorial ? <EditorialProductInfo product={product} name={name} slug={slug} price={price} originalPrice={originalPrice} /> : <div data-product-info className={`flex flex-1 flex-col ${compact ? 'p-3' : 'p-4'}`}>
                 <span className="mb-1.5 self-start rounded-md bg-navy-100 px-2 py-0.5 text-[11px] font-bold uppercase tracking-[0.05em] text-navy-700">
                     {product?.brand?.name || 'Chronos'}
                 </span>
@@ -81,12 +84,12 @@ const ProductCard = ({ product, compact = false }) => {
                             <p className="text-xs line-through tabular-nums text-muted-foreground">{formatCurrency(originalPrice)}</p>
                         )}
                     </div>
-                    <Link to={`/products/${slug}`} className={buttonVariants({ variant: 'buy', size: compact ? 'sm' : 'default' })}>
-                        <ShoppingCart size={14} strokeWidth={2} aria-hidden="true" />
-                        <span>Mua</span>
+                    <Link to={`/products/${slug}`} className={buttonVariants({ variant: editorial ? 'ghost' : 'buy', size: compact ? 'sm' : 'default' })}>
+                        {editorial ? <ArrowUpRight size={17} aria-hidden="true" /> : <ShoppingCart size={14} strokeWidth={2} aria-hidden="true" />}
+                        <span>{editorial ? "Chi tiết" : "Mua"}</span>
                     </Link>
                 </div>
-            </div>
+            </div>}
         </div>
     );
 };

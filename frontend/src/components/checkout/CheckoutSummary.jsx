@@ -1,6 +1,6 @@
-import { ArrowRight, BadgePercent, ShoppingBag, X } from 'lucide-react';
+import { ArrowRight, ShoppingBag } from 'lucide-react';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import VoucherControl from '../vouchers/VoucherControl';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { cn } from '../../lib/utils';
 
@@ -11,46 +11,8 @@ const Row = ({ label, value, tone }) => (
     </div>
 );
 
-const VoucherField = ({ voucherCode, setVoucherCode, appliedVoucher, applyingVoucher, applyVoucher, removeVoucher }) => {
-    if (appliedVoucher) {
-        return (
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-navy-200 bg-navy-50 px-3 py-2">
-                <span className="flex min-w-0 items-center gap-2 text-[13px] font-bold uppercase tracking-[0.02em] text-navy-700">
-                    <BadgePercent size={15} strokeWidth={2} className="shrink-0" aria-hidden="true" />
-                    {appliedVoucher.code}
-                </span>
-                <Button type="button" variant="ghost" size="sm" className="h-7 gap-1 px-2 text-sale" onClick={removeVoucher}>
-                    <X size={13} strokeWidth={2} aria-hidden="true" />
-                    Bỏ mã
-                </Button>
-            </div>
-        );
-    }
-
-    return (
-        <form
-            onSubmit={(event) => {
-                event.preventDefault();
-                applyVoucher();
-            }}
-            className="flex gap-2"
-        >
-            <Input
-                value={voucherCode}
-                onChange={(event) => setVoucherCode(event.target.value)}
-                placeholder="Mã ưu đãi"
-                className="h-10 flex-1"
-                autoComplete="off"
-            />
-            <Button type="submit" variant="buy" size="sm" disabled={applyingVoucher} className="h-10 shrink-0 rounded-lg px-4">
-                {applyingVoucher ? 'Đang kiểm tra...' : 'Áp dụng'}
-            </Button>
-        </form>
-    );
-};
-
 /** Bảng tóm tắt bên phải trang thanh toán: danh sách hàng, số tiền, mã ưu đãi và nút đặt đơn. */
-const CheckoutSummary = ({ cart, unitPriceOf, cartSubtotal, shippingFee, discountAmount, total, submitting, onSubmit, ...voucher }) => (
+const CheckoutSummary = ({ cart, unitPriceOf, cartSubtotal, discountAmount, total, submitting, onSubmit, ...voucher }) => (
     <aside className="rounded-xl border border-border bg-card p-5 shadow-card">
         <h2 className="border-b border-border pb-3 text-[13px] font-bold uppercase tracking-[0.02em] text-navy-700">Đơn hàng của bạn</h2>
 
@@ -71,7 +33,7 @@ const CheckoutSummary = ({ cart, unitPriceOf, cartSubtotal, shippingFee, discoun
 
         <div className="space-y-2.5 border-t border-border pt-4">
             <Row label="Tạm tính" value={formatCurrency(cartSubtotal)} />
-            <Row label="Phí vận chuyển" value={shippingFee > 0 ? formatCurrency(shippingFee) : 'Miễn phí'} tone={shippingFee > 0 ? undefined : 'text-success'} />
+            <Row label="Phí vận chuyển" value="Miễn phí" tone="text-success" />
             {discountAmount > 0 && <Row label="Mã ưu đãi" value={`− ${formatCurrency(discountAmount)}`} tone="text-sale" />}
         </div>
 
@@ -83,10 +45,10 @@ const CheckoutSummary = ({ cart, unitPriceOf, cartSubtotal, shippingFee, discoun
         </div>
 
         <div className="mt-4">
-            <VoucherField {...voucher} />
+            <VoucherControl />
         </div>
 
-        <Button onClick={onSubmit} loading={submitting} size="full" className="mt-4 w-full gap-2">
+        <Button onClick={onSubmit} disabled={voucher.applyingVoucher} loading={submitting} size="full" className="mt-4 w-full gap-2">
             <ShoppingBag size={16} strokeWidth={2} aria-hidden="true" />
             Xác nhận đặt hàng
             <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />

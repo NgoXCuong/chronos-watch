@@ -18,9 +18,7 @@ export const parseBannerTitle = (title) => {
     .filter(Boolean);
   return {
     titleLines: rawLines.map((line) =>
-      line.startsWith(BANNER_TITLE_ACCENT_PREFIX)
-        ? line.slice(1).trim()
-        : line,
+      line.startsWith(BANNER_TITLE_ACCENT_PREFIX) ? line.slice(1).trim() : line,
     ),
     accentLines: rawLines.map((line) =>
       line.startsWith(BANNER_TITLE_ACCENT_PREFIX),

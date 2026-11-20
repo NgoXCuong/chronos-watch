@@ -7,7 +7,7 @@ const toRows = (data) =>
   data?.rows || (Array.isArray(data) ? data : data?.products || data?.data || []);
 
 const Skeleton = ({ count }) => (
-  <section>
+  <section className="home-products">
     <div className="mb-5 h-[52px]" />
     <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
       {[...Array(count)].map((_, i) => (
@@ -49,11 +49,11 @@ const ProductRail = ({ eyebrow, title, to, label, sort, dir = "desc", limit = 8 
   if (products.length === 0) return null;
 
   return (
-    <section>
+    <section className="home-products">
       <SectionHead eyebrow={eyebrow} title={title} to={to} label={label} />
       <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         {products.map((product) => (
-          <ProductCard key={product.id ?? product._id} product={product} />
+          <ProductCard editorial key={product.id ?? product._id} product={product} />
         ))}
       </div>
     </section>

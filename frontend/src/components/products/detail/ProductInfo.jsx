@@ -63,7 +63,7 @@ const ProductInfo = ({ product, flash }) => {
                 <span className="hidden h-3 w-px bg-border sm:block" />
                 <span className={cn('flex items-center gap-1.5 text-xs font-bold', stock.text)}>
                     <StockIcon size={14} strokeWidth={2} aria-hidden="true" />
-                    {stock.label}
+                    {stock.key === "in" ? `Còn ${Number(product.stock)} sản phẩm` : stock.label}
                 </span>
                 {product.sku && (
                     <>

@@ -1,7 +1,9 @@
+import BrandMark from "./BrandMark";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Pause, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import brandApi from "../../api/brand.api";
-import SectionHead from "../market/SectionHead";
 
 const LIMIT = 6;
 
@@ -11,33 +13,16 @@ const toRows = (data) =>
 const BrandTile = ({ brand }) => (
   <Link
     to={`/products?brand=${brand.id}`}
-    className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-3 py-4 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-navy-300 hover:shadow-hover"
+    className="home-brand"
+    aria-label={`Khám phá đồng hồ ${brand.name}`}
   >
-    <span className="flex size-14 items-center justify-center overflow-hidden rounded-full bg-navy-50 ring-1 ring-navy-500/10">
-      {brand.logo_url ? (
-        <img
-          src={brand.logo_url}
-          alt={brand.name}
-          loading="lazy"
-          className="size-11 object-contain transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : (
-        <span className="text-lg font-extrabold text-navy-600">
-          {brand.name.charAt(0).toUpperCase()}
-        </span>
-      )}
-    </span>
-    <span className="w-full truncate text-center text-[13px] font-bold text-navy-900">
-      {brand.name}
-    </span>
-    <span className="text-[11px] text-muted-foreground">
-      {brand.product_count ? `${brand.product_count} sản phẩm` : brand.country || "Chronos"}
-    </span>
+    <BrandMark brand={brand} />
   </Link>
 );
 
 /** Dải thương hiệu nổi bật — logo thật từ /brands, click lọc sản phẩm theo hãng. */
 const BrandStrip = () => {
+  const [paused, setPaused] = useState(false);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,20 +60,37 @@ const BrandStrip = () => {
   if (brands.length === 0) return null;
 
   return (
-    <section>
-      <SectionHead
-        eyebrow="Thương hiệu"
-        title="Phân phối chính hãng"
-        to="/brands"
-        label="Xem tất cả"
-      />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        {brands.map((brand) => (
-          <BrandTile key={brand.id} brand={brand} />
-        ))}
+    <section className="home-brand-strip" aria-label="Thương hiệu tại Chronos">
+      <div className="home-brand-intro">
+        <span className="home-eyebrow">THE BRAND SELECTION</span>
+        <Link to="/brands">Khám phá thương hiệu →</Link>
       </div>
+      <div className="brand-marquee" data-paused={paused || undefined}>
+        <div className="brand-track">
+          <div className="brand-run-group">
+            {brands.map((brand) => (
+              <BrandTile key={brand.id} brand={brand} />
+            ))}
+          </div>
+          <div className="brand-run-group" aria-hidden="true">
+            {brands.map((brand) => (
+              <div key={brand.id} className="home-brand">
+                <BrandMark brand={brand} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-8 shrink-0"
+        aria-label={paused ? "Chạy dải thương hiệu" : "Dừng dải thương hiệu"}
+        onClick={() => setPaused(!paused)}
+      >
+        {paused ? <Play size={14} /> : <Pause size={14} />}
+      </Button>
     </section>
   );
 };
-
 export default BrandStrip;

@@ -16,9 +16,24 @@ const MoneyLine = ({ label, value, tone }) => (
 );
 
 // Đối chiếu tiền trong phiên xử lý: số phải thu + cấu phần + trạng thái thu
-export const OrderMoneyPanel = ({ order }) => {
-  const shippingFree = Number(order.shipping_fee) === 0;
+export const OrderMoneyPanel = ({ order, compact = false }) => {
   const discount = Number(order.discount_amount) || 0;
+
+  if (compact) return (
+    <div className="grid content-center gap-3 bg-navy-50/70 px-5 py-4 dark:bg-navy-500/12">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-[22px] font-bold tabular-nums text-foreground">{formatCurrency(order.total_amount)}</p>
+        <span className={cn("text-xs font-semibold", order.payment_status === "paid" ? "text-success" : "text-warning")}>
+          {order.payment_status === "paid" ? "Đã thu tiền" : "Chờ thu tiền"}
+        </span>
+      </div>
+      <div className="space-y-1 border-t border-border pt-2">
+        <MoneyLine label="Tiền hàng" value={formatCurrency(order.subtotal)} />
+        <MoneyLine label="Vận chuyển" value="Miễn phí" />
+        {discount > 0 && <MoneyLine label="Giảm giá" value={`−${formatCurrency(order.discount_amount)}`} tone="text-sale" />}
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col justify-between gap-4 bg-navy-50/70 p-5 dark:bg-navy-500/12">
@@ -35,8 +50,8 @@ export const OrderMoneyPanel = ({ order }) => {
         <MoneyLine label="Tiền hàng" value={formatCurrency(order.subtotal)} />
         <MoneyLine
           label="Vận chuyển"
-          value={shippingFree ? "Miễn phí" : formatCurrency(order.shipping_fee)}
-          tone={shippingFree && "text-success"}
+          value="Miễn phí"
+          tone="text-success"
         />
         {discount > 0 && (
           <MoneyLine

@@ -26,7 +26,6 @@ const Row = ({ label, value, tone = "default" }) => (
 /** Tiền hàng: mọi số liệu là DECIMAL nên phải qua toMoney trước khi so sánh với 0. */
 const OrderDetailCosts = ({ order, className }) => {
   const subtotal = toMoney(order.subtotal);
-  const shippingFee = toMoney(order.shipping_fee);
   const discount = toMoney(order.discount_amount);
   const payment = paymentStatusMeta(order.payment_status);
 
@@ -46,8 +45,8 @@ const OrderDetailCosts = ({ order, className }) => {
         <Row label="Tạm tính" value={formatCurrency(subtotal)} />
         <Row
           label="Phí vận chuyển"
-          value={shippingFee === 0 ? "Miễn phí" : formatCurrency(shippingFee)}
-          tone={shippingFee === 0 ? "free" : "default"}
+          value="Miễn phí"
+          tone="free"
         />
         {discount > 0 && (
           <Row label="Ưu đãi" value={`− ${formatCurrency(discount)}`} tone="minus" />
@@ -69,7 +68,7 @@ const OrderDetailCosts = ({ order, className }) => {
           {needsTransferAction(order) && (
             <p className="mt-1 text-[12px] leading-relaxed text-navy-700">
               Đã chuyển khoản rồi? Bấm{" "}
-              <span className="font-bold">Xác nhận đã chuyển khoản</span> ở trên để Chronos
+              <span className="font-bold">Kiểm tra thanh toán</span> ở trên để Chronos
               ghi nhận sớm.
             </p>
           )}

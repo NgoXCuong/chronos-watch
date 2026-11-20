@@ -5,7 +5,7 @@ import { cn } from '../../lib/utils';
 
 const Cell = ({ icon: Icon, title, className, children }) => (
     <div className={cn('space-y-2', className)}>
-        <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.02em] text-navy-700">
+        <h3 className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-[0.02em] text-primary">
             {Icon && <Icon size={15} strokeWidth={2} className="text-navy-500" aria-hidden="true" />}
             {title}
         </h3>
@@ -29,7 +29,7 @@ const OrderReceiptCard = ({ order }) => {
             <div className="mb-5 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
                 <div>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">Mã đơn hàng</p>
-                    <p className="text-xl font-bold tabular-nums text-navy-700">{order.order_code || `#${order.id}`}</p>
+                    <p className="text-xl font-bold tabular-nums text-primary">{order.order_code || `#${order.id}`}</p>
                 </div>
                 <div className="text-right">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">Ngày đặt</p>
@@ -40,7 +40,7 @@ const OrderReceiptCard = ({ order }) => {
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3 md:gap-4">
+            <div className="grid gap-5 sm:grid-cols-2">
                 <Cell icon={MapPin} title="Giao đến">
                     <p className="text-sm font-bold text-foreground">{order.full_name}</p>
                     <p className="text-[13px] leading-relaxed text-muted-foreground">{order.address_line}</p>
@@ -53,7 +53,7 @@ const OrderReceiptCard = ({ order }) => {
                     </p>
                 </Cell>
 
-                <Cell icon={CreditCard} title="Thanh toán" className="md:border-l md:border-border md:pl-4">
+                <Cell icon={CreditCard} title="Thanh toán" className="sm:border-l sm:border-border sm:pl-5">
                     <p className="text-sm font-bold text-foreground">{PAYMENT_LABEL[order.payment_method] || order.payment_method}</p>
                     <span
                         className={cn(
@@ -66,17 +66,17 @@ const OrderReceiptCard = ({ order }) => {
                     </span>
                 </Cell>
 
-                <Cell title="Tiền hàng" className="space-y-1.5 md:border-l md:border-border md:pl-4">
+                <Cell title="Tiền hàng" className="space-y-2 border-t border-border pt-4 sm:col-span-2">
                     <Line label="Tạm tính" value={formatCurrency(order.subtotal)} />
                     <Line
                         label="Phí vận chuyển"
-                        value={Number(order.shipping_fee) > 0 ? formatCurrency(order.shipping_fee) : 'Miễn phí'}
-                        tone={Number(order.shipping_fee) > 0 ? '' : 'text-success'}
+                        value="Miễn phí"
+                        tone="text-success"
                     />
                     {Number(order.discount_amount) > 0 && <Line label="Giảm giá" value={`− ${formatCurrency(order.discount_amount)}`} tone="text-sale" />}
                     <div className="flex items-end justify-between gap-3 border-t border-dashed border-border pt-3">
                         <span className="text-[12px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">Tổng cộng</span>
-                        <span className="text-lg font-bold tabular-nums text-navy-700">{formatCurrency(order.total_amount)}</span>
+                        <span className="text-lg font-bold tabular-nums text-primary">{formatCurrency(order.total_amount)}</span>
                     </div>
                 </Cell>
             </div>

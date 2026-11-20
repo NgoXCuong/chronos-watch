@@ -8,6 +8,7 @@ import ProductDescription from "../../../components/admin/Product/Editor/Product
 import ProductImages from "../../../components/admin/Product/Editor/ProductImages";
 import ProductPerformance from "../../../components/admin/Product/Editor/ProductPerformance";
 import ProductPricing from "../../../components/admin/Product/Editor/ProductPricing";
+import ProductInventoryPlanning from '../../../components/admin/Product/Editor/ProductInventoryPlanning';
 import ProductSpecifications from "../../../components/admin/Product/Editor/ProductSpecifications";
 
 const LoadingState = () => (
@@ -100,6 +101,7 @@ const ProductEditorPage = () => {
             categories={categories}
           />
           <ProductPricing form={form} setField={setField} errors={errors} />
+          <ProductInventoryPlanning form={form} setField={setField} errors={errors} product={product} />
           <ProductImages
             imagePreview={imagePreview}
             imageInputRef={imageInputRef}

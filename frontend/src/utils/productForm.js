@@ -1,5 +1,6 @@
 import { FIELD_MAX } from "../constants/productForm";
 import { SLUG_PATTERN, slugify } from "./slugify";
+import { INVENTORY_FIELDS } from '../constants/inventoryPlanning';
 
 // products.specifications là JSON {key: value}; form giữ dạng mảng để thêm/xóa dòng
 export const specsToObj = (rows = []) =>
@@ -31,6 +32,7 @@ export const EMPTY_FORM = {
   price: "",
   old_price: "",
   stock: "",
+  ...Object.fromEntries(INVENTORY_FIELDS.map(({ key, defaultValue }) => [key, defaultValue])),
   warranty_months: "",
   description: "",
   status: "active",
@@ -60,6 +62,7 @@ export const toFormShape = (product) => ({
   price: toNumStr(product.price),
   old_price: toPositiveNumStr(product.old_price),
   stock: toNumStr(product.stock),
+  ...Object.fromEntries(INVENTORY_FIELDS.map(({ key, defaultValue }) => [key, toNumStr(product[key]) || defaultValue])),
   warranty_months: toNumStr(product.warranty_months),
   description: product.description || "",
   status: product.status || "active",
@@ -86,6 +89,7 @@ export const validateForm = (form) => {
   if (form.sku.trim().length > FIELD_MAX.sku)
     errors.sku = `SKU tối đa ${FIELD_MAX.sku} ký tự.`;
 
+
   if (!form.brand_id) errors.brand_id = "Thương hiệu là bắt buộc (brand_id NOT NULL).";
 
   const price = Number(form.price);
@@ -101,6 +105,13 @@ export const validateForm = (form) => {
 
   if (form.stock !== "" && !isInt(form.stock))
     errors.stock = "Tồn kho phải là số nguyên từ 0.";
+  for (const { key, label, min, max } of INVENTORY_FIELDS) {
+    const value = String(form[key] ?? '').trim();
+    const number = Number(value);
+    if (!/^\d+$/.test(value) || !Number.isSafeInteger(number) || number < min || number > max) {
+      errors[key] = `${label} phải là số nguyên từ ${min} đến ${max} ngày.`;
+    }
+  }
 
   if (form.warranty_months !== "") {
     const months = Number(form.warranty_months);
@@ -141,6 +152,7 @@ export const buildPayload = (form, images = {}) => {
   fd.append("price", String(form.price).trim());
   fd.append("old_price", String(form.old_price).trim() || "0");
   fd.append("stock", String(form.stock).trim() || "0");
+  INVENTORY_FIELDS.forEach(({ key }) => fd.append(key, String(form[key]).trim()));
   fd.append("warranty_months", String(form.warranty_months).trim());
   fd.append("description", form.description || "");
   fd.append("status", form.status || "active");

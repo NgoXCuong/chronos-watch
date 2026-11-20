@@ -17,10 +17,10 @@ const HEAD =
 const ItemCell = ({ item }) => (
   <div className="flex min-w-0 items-center gap-3">
     <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted">
-      {item.product_image || item.product?.image_url ? (
+      {item.product?.image_url ? (
         <img
-          src={item.product_image || item.product?.image_url}
-          alt={item.product_name || item.product?.name}
+          src={item.product?.image_url}
+          alt={item.product?.name}
           loading="lazy"
           className="h-full w-full object-cover p-0.5"
         />
@@ -30,7 +30,7 @@ const ItemCell = ({ item }) => (
     </div>
     <div className="min-w-0">
       <p className="truncate text-[13px] font-semibold text-card-foreground">
-        {item.product_name || item.product?.name || "Sản phẩm đã xóa"}
+        {item.product?.name || "Sản phẩm đã xóa"}
       </p>
       <p className="truncate text-[11px] text-muted-foreground">
         <span className="font-mono uppercase">

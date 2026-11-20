@@ -1,49 +1,29 @@
-import React from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import classicWatch from '../../../assets/dong-ho-co.jpg';
 
 const PRINCIPLES = [
-    'Một sản phẩm — một nguồn gốc: hãng, mã, xuất xứ và thời hạn bảo hành hiển thị ngay ở trang chi tiết.',
-    'Không giá ảo: giá niêm yết và giá ưu đãi tính từ dữ liệu đợt bán đang chạy, hết ưu đãi tự về mức cũ.',
-    'Hậu mãi truy được: mỗi đơn giao thành công sinh một phiếu bảo hành điện tử trên tài khoản của khách.',
+    { title: 'Hiểu điều bạn lựa chọn', text: 'Loại máy, mặt kính, kích thước và khả năng chống nước được trình bày trong từng trang sản phẩm.' },
+    { title: 'Rõ ràng trong từng mức giá', text: 'Giá bán và ưu đãi được hiển thị trước khi bạn quyết định, xuyên suốt từ sản phẩm đến giỏ hàng.' },
+    { title: 'Gắn bó sau khi mua', text: 'Phiếu bảo hành điện tử giúp bạn tra cứu thời hạn và gửi yêu cầu hỗ trợ ngay trong tài khoản.' },
 ];
 
-/** Đoạn đường của Chronos — ba nguyên tắc đều là tính năng đã có thật trên site, không phải lời hứa. */
-const AboutStory = () => (
-    <section className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:gap-14">
-        <figure className="relative">
-            <div className="overflow-hidden rounded-xl border border-border bg-navy-50 shadow-card">
-                <img src={classicWatch} alt="Đồng hồ cơ lộ máy — sản phẩm tiêu biểu của Chronos" className="aspect-[4/5] w-full object-cover" loading="lazy" />
+export default function AboutStory() {
+    return (
+        <section className="about-story" aria-labelledby="about-story-title">
+            <figure className="about-story-image">
+                <img src={classicWatch} alt="Các chi tiết cấu thành bộ máy đồng hồ cơ" loading="lazy" />
+                <figcaption><span className="text-[10px] uppercase tracking-[.15em] text-navy-200">Bên trong mỗi chuyển động</span><p className="mt-2 text-lg font-medium text-white">Sự chính xác tạo nên giá trị.</p></figcaption>
+            </figure>
+            <div>
+                <p className="atelier-eyebrow">01 / Điều chúng tôi tin</p>
+                <h2 id="about-story-title" className="atelier-section-title mt-4">Bắt đầu từ chiếc đồng hồ.<br />Gắn bó bằng sự an tâm.</h2>
+                <p className="mt-5 text-sm leading-7 text-muted-foreground">Cảm giác tìm được một chiếc đồng hồ phù hợp luôn rất riêng. Vì thế, Chronos đặt sự rõ ràng và trải nghiệm của bạn ở trung tâm: dễ tìm kiếm, dễ so sánh, dễ lựa chọn.</p>
+                <div className="mt-6 divide-y divide-border">
+                    {PRINCIPLES.map(({ title, text }, i) => <div key={title} className="flex gap-4 py-4"><span className="pt-0.5 text-xs tabular-nums text-muted-foreground">0{i + 1}</span><div><h3 className="text-sm font-semibold">{title}</h3><p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{text}</p></div></div>)}
+                </div>
+                <Link to="/products" className="atelier-text-link mt-5">Tìm chiếc đồng hồ của bạn <ArrowUpRight /></Link>
             </div>
-            <figcaption className="absolute -bottom-4 left-4 rounded-lg border border-border bg-card px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.02em] text-navy-700 shadow-card">
-                Chronos · Hà Nội
-            </figcaption>
-        </figure>
-
-        <div>
-            <p className="text-[12px] font-bold uppercase tracking-[0.02em] text-navy-600">Cách chúng tôi làm</p>
-            <h2 className="mt-2 text-2xl font-bold leading-tight text-foreground md:text-[28px]">
-                Bán hàng bằng số liệu, không bằng cảm tính
-            </h2>
-
-            <div className="mt-4 space-y-3 text-[15px] leading-relaxed text-muted-foreground">
-                <p>
-                    Chúng tôi không tự nhận mình là “đẳng cấp” hay “tuyệt tác”. Thứ duy nhất Chronos dám cam kết là những gì kiểm chứng được: đúng hãng, đúng mã, đúng thời hạn bảo hành nhà sản xuất công bố.
-                </p>
-                <p>
-                    Phần còn lại của cửa hàng được xây để bạn tự đối chiếu — bộ lọc theo loại máy, chất liệu kính, khả năng chống nước; bảng thông số kỹ thuật cho từng mẫu; đánh giá chỉ hiện khi người mua đã nhận hàng.
-                </p>
-            </div>
-
-            <ul className="mt-6 space-y-2.5">
-                {PRINCIPLES.map((line) => (
-                    <li key={line} className="flex gap-2.5 text-[13px] leading-relaxed text-foreground/90">
-                        <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-navy-600" aria-hidden="true" />
-                        {line}
-                    </li>
-                ))}
-            </ul>
-        </div>
-    </section>
-);
-
-export default AboutStory;
+        </section>
+    );
+}

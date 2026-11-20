@@ -17,6 +17,5 @@ export const PRODUCT_STATUS_OPTIONS = [
 export const WARRANTY_PRESETS = [3, 6, 12, 24, 36, 60];
 
 // Giới hạn upload ảnh đặt ở constants/upload.js (dùng chung với danh mục/thương hiệu)
-export const LOW_STOCK_ALERT = 10;
 
 export const SPEC_CUSTOM = "__custom__";

@@ -12,7 +12,7 @@ const FilterOptionRow = ({ label, count, active, checkable = false, indent = 0, 
         onClick={onClick}
         aria-pressed={active}
         className={cn(
-            'flex w-full items-center gap-2 rounded-lg py-1.5 pr-2 text-left text-[13px] leading-snug transition-colors',
+            'catalog-filter-option flex w-full items-center gap-2 rounded-lg py-1.5 pr-2 text-left text-[13px] leading-snug transition-colors',
             active ? 'font-semibold text-navy-700' : 'text-foreground/85 hover:text-navy-700',
             className
         )}

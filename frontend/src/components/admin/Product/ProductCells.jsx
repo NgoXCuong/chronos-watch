@@ -3,7 +3,9 @@ import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Popover, PopoverContent, PopoverTitle, PopoverTrigger } from "../../ui/popover";
 import { cn } from "@/lib/utils";
-import { PRODUCT_STATUS, LOW_STOCK_THRESHOLD } from "../../../constants/productStatus";
+import { PRODUCT_STATUS } from "../../../constants/productStatus";
+import InventoryHealthBadge from '../Common/InventoryHealthBadge';
+import { inventoryCoverText } from '../../../constants/inventoryPlanning';
 
 // Ô "Sản phẩm": ảnh 40px + tên + SKU (mono) — spec §6 design system
 export const ProductInfoCell = ({ product }) => (
@@ -74,28 +76,12 @@ export const ProductCategoriesCell = ({ categories = [] }) =>
     </div>
   );
 
-const stockTone = (stock) =>
-  stock === 0
-    ? "text-sale"
-    : stock <= LOW_STOCK_THRESHOLD
-      ? "text-warning"
-      : "text-card-foreground";
-
-export const ProductStockCell = ({ stock = 0 }) => (
-  <span
-    className={cn(
-      "inline-flex items-center gap-1.5 text-[13px] font-bold tabular-nums",
-      stockTone(stock),
-    )}
-  >
-    {stock}
-    {stock <= LOW_STOCK_THRESHOLD && (
-      <span
-        aria-hidden="true"
-        className="h-1.5 w-1.5 animate-pulse rounded-full bg-warning"
-      />
-    )}
-  </span>
+export const ProductStockCell = ({ stock = 0, health }) => (
+  <div className="space-y-1 text-center">
+    <p className="text-[13px] font-bold tabular-nums text-foreground">{stock} chiếc</p>
+    <InventoryHealthBadge health={health} />
+    {health?.days_of_cover != null && <p className="whitespace-nowrap text-[11px] tabular-nums text-muted-foreground">{inventoryCoverText(health)}</p>}
+  </div>
 );
 
 export const ProductStatusBadge = ({ status }) => {

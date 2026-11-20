@@ -65,7 +65,7 @@ const OrderDetailActions = ({ order, busy, onConfirmTransfer, onCancel }) => {
           className="gap-1.5"
         >
           <Wallet size={14} strokeWidth={2} aria-hidden="true" />
-          Xác nhận đã chuyển khoản{remaining > 0 && ` · ${formatCurrency(remaining)}`}
+          Kiểm tra thanh toán{remaining > 0 && ` · ${formatCurrency(remaining)}`}
         </Button>
       )}
 

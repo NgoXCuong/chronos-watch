@@ -9,10 +9,10 @@ const displayName = (review) =>
   review.user?.full_name?.trim() || review.user?.username || "Người dùng Chronos";
 
 const TestimonialCard = ({ review }) => (
-  <figure className="flex h-full flex-col rounded-xl border border-border bg-card p-5 shadow-card">
+  <figure className="flex h-full flex-col rounded-xl border border-border bg-card p-6 shadow-card">
     <div className="flex items-center justify-between">
       <ReviewStars rating={Number(review.rating) || 0} size={13} />
-      <Quote size={18} strokeWidth={2} className="text-navy-200" aria-hidden="true" />
+      <Quote size={28} strokeWidth={2} className="text-navy-200" aria-hidden="true" />
     </div>
     <blockquote className="mt-3 line-clamp-4 flex-1 text-sm leading-relaxed text-card-foreground">
       “{review.comment}”
@@ -26,7 +26,7 @@ const TestimonialCard = ({ review }) => (
         )}
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-[13px] font-bold text-navy-900">
+        <span className="block truncate text-[13px] font-bold text-foreground">
           {displayName(review)}
         </span>
         {review.product && (

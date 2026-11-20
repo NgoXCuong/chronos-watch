@@ -12,6 +12,14 @@ export const toLocalDate = (value) => {
 
 const isInt = (value) => Number.isInteger(Number(value)) && Number(value) >= 0;
 
+export const voucherFormOf = (v) => ({
+  code: v?.code || '', discount_type: v?.discount_type || 'percentage', discount_value: v?.discount_value ?? '',
+  max_discount: Number(v?.max_discount) || '', min_order_value: Number(v?.min_order_value) || '',
+  usage_limit: v?.usage_limit ?? '', per_user_limit: v?.per_user_limit ?? '',
+  start_date: toLocalDate(v?.start_date), end_date: toLocalDate(v?.end_date),
+  is_public: v ? Boolean(v.is_public) : true,
+});
+
 export const validateVoucher = (form = {}) => {
   const errors = {};
   const code = (form.code || "").trim().toUpperCase();
@@ -60,6 +68,7 @@ export const buildVoucherPayload = (form = {}) => {
   const num = (value) => (value === "" || value === null ? null : Number(value));
 
   return {
+    is_public: Boolean(form.is_public),
     code: (form.code || "").trim().toUpperCase(),
     discount_type: form.discount_type,
     discount_value: Math.round(Number(form.discount_value)),

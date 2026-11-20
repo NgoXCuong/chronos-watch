@@ -115,7 +115,7 @@ const OrderInvoicePrint = ({ order }) => {
               <td className="py-2 px-2 text-[12px] text-navy-700">{idx + 1}</td>
               <td className="py-2 px-2">
                 <p className="text-[12px] font-bold">
-                  {item.product_name || item.product?.name || "—"}
+                  {item.product?.name || "—"}
                 </p>
                 <p className="text-[11px] font-mono uppercase text-navy-500">
                   {item.sku || item.product?.sku || `#${item.product_id}`}
@@ -140,11 +140,7 @@ const OrderInvoicePrint = ({ order }) => {
           <SumLine label="Tổng tiền hàng" value={formatCurrency(order.subtotal)} />
           <SumLine
             label="Phí vận chuyển"
-            value={
-              Number(order.shipping_fee) === 0
-                ? "Miễn phí"
-                : formatCurrency(order.shipping_fee)
-            }
+            value="Miễn phí"
           />
           {Number(order.discount_amount) > 0 && (
             <SumLine

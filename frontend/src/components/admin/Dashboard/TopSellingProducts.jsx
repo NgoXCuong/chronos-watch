@@ -10,7 +10,7 @@ const PODIUM = {
     count: "text-navy-700 dark:text-navy-100",
     badge: "bg-navy-600 text-white dark:bg-navy-300 dark:text-navy-950",
     medal: "text-navy-600 dark:text-navy-100",
-    height: "h-28 md:h-32",
+    height: "h-24",
   },
   2: {
     ring: "border-border",
@@ -19,7 +19,7 @@ const PODIUM = {
     count: "text-navy-700 dark:text-navy-100",
     badge: "bg-navy-300 text-navy-900",
     medal: "text-navy-500",
-    height: "h-20 md:h-24",
+    height: "h-18",
   },
   3: {
     ring: "border-border",
@@ -28,7 +28,7 @@ const PODIUM = {
     count: "text-foreground",
     badge: "bg-navy-200 text-navy-800",
     medal: "text-navy-300",
-    height: "h-14 md:h-16",
+    height: "h-14",
   },
 };
 
@@ -44,7 +44,7 @@ const PodiumBar = ({ product, rank, navigate }) => {
         <div
           className={cn(
             "overflow-hidden rounded-xl border-2 bg-card p-1 shadow-card transition-all group-hover:shadow-hover",
-            isWinner ? "h-24 w-24" : "h-20 w-20",
+            isWinner ? "h-20 w-20" : "h-16 w-16",
             style.ring,
           )}
         >
@@ -105,8 +105,8 @@ const TopSellingProducts = ({ products, navigate }) => {
   const rankOf = (product) => top3.indexOf(product) + 1;
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5 shadow-card">
-      <div className="mb-5 flex items-center justify-between gap-3">
+    <div className="flex h-full min-h-0 min-w-0 flex-col rounded-xl border border-border bg-card p-5 shadow-card">
+      <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy-50 text-navy-600 dark:bg-navy-500/15 dark:text-navy-100">
             <TrendingUp className="h-5 w-5" strokeWidth={2} />
@@ -126,7 +126,7 @@ const TopSellingProducts = ({ products, navigate }) => {
         </Button>
       </div>
 
-      <div className="flex-1">
+      <div className="flex min-h-0 flex-1 flex-col justify-end">
         {top3.length > 0 ? (
           <div className="grid grid-cols-3 items-end gap-3 pt-4 pb-2">
             {podiumOrder.map((product) => (
@@ -146,33 +146,6 @@ const TopSellingProducts = ({ products, navigate }) => {
         )}
       </div>
 
-      {products?.length > 3 && (
-        <div className="mt-4 space-y-1 border-t border-border pt-4">
-          <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
-            <span>Các sản phẩm khác</span>
-            <span>Doanh số</span>
-          </div>
-          {products.slice(3, 6).map((product, idx) => (
-            <button
-              key={product.id ?? idx}
-              onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-              className="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left transition-colors hover:bg-navy-50 dark:hover:bg-navy-500/10"
-            >
-              <span className="flex min-w-0 items-center gap-2">
-                <span className="w-3 text-[11px] font-bold text-muted-foreground tabular-nums">
-                  {idx + 4}
-                </span>
-                <span className="truncate text-[11px] font-medium text-card-foreground">
-                  {product.name}
-                </span>
-              </span>
-              <span className="shrink-0 text-[11px] font-bold text-foreground tabular-nums">
-                {product.sold_count}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

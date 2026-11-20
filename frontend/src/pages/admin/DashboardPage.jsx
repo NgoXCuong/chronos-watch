@@ -11,6 +11,7 @@ import RevenueMixChart from "../../components/admin/Dashboard/RevenueMixChart";
 import UserGrowthChart from "../../components/admin/Dashboard/UserGrowthChart";
 import ReviewPulse from "../../components/admin/Dashboard/ReviewPulse";
 import RecentOrdersPanel from "../../components/admin/Dashboard/RecentOrdersPanel";
+import TopCustomersPanel from "../../components/admin/Dashboard/TopCustomersPanel";
 import { useDashboardStats } from "../../hooks/useDashboardStats";
 import {
   buildKpiItems,
@@ -72,7 +73,9 @@ const DashboardPage = () => {
         <UserGrowthChart history={stats?.user_growth_history} />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
+      <TopCustomersPanel customers={stats?.top_customers} />
+
+      <div className="grid auto-rows-[360px] grid-cols-1 items-stretch gap-3 lg:grid-cols-2 xl:grid-cols-3">
         <TopSellingProducts
           products={stats?.top_selling_products}
           navigate={navigate}

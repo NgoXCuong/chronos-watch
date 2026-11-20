@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import AccountLayout from "@/components/client/AccountLayout";
 import AccountSummary from "@/components/client/profile/AccountSummary";
 import AddressTab from "./AddressTab";

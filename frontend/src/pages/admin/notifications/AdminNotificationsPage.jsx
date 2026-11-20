@@ -124,7 +124,7 @@ const AdminNotificationsPage = () => {
     <div className="space-y-3 pb-8">
       <AdminHeader
         title="Thông báo"
-        subtitle="Toàn bộ thông báo của tài khoản quản trị — tìm kiếm, lọc và đánh dấu đã đọc tại đây."
+        subtitle="Chỉ hiển thị việc cần chú ý: đơn mới/hủy, bảo hành, đánh giá tiêu cực và cảnh báo tồn kho khẩn cấp."
         actions={
           <Button
             variant="outline"

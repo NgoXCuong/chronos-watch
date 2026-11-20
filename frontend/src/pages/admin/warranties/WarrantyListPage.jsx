@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   CheckCircle2,
   Inbox,
@@ -62,7 +62,7 @@ const WarrantyListPage = () => {
     }
   };
 
-  const fetchWarranties = async () => {
+  const fetchWarranties = useCallback(async () => {
     setLoading(true);
     try {
       const data = await warrantyApi.getAll({
@@ -80,7 +80,7 @@ const WarrantyListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, stateFilter, sort]);
 
   const reload = async () => {
     await Promise.all([fetchWarranties(), fetchStats()]);
@@ -88,7 +88,7 @@ const WarrantyListPage = () => {
 
   useEffect(() => {
     fetchWarranties();
-  }, [currentPage, debouncedSearch, stateFilter, sort]);
+  }, [fetchWarranties]);
 
   useEffect(() => {
     fetchStats();
@@ -225,7 +225,7 @@ const WarrantyListPage = () => {
           <SearchBanner
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
-            placeholder="Tìm theo mã phiếu, serial, tên sản phẩm, SKU, mã đơn, khách hàng..."
+            placeholder="Tìm theo mã phiếu, tên sản phẩm, SKU, mã đơn, khách hàng..."
             onRefresh={reload}
             loading={loading}
             count={count}

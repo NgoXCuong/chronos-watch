@@ -5,7 +5,7 @@ import AddressSection from '../../components/checkout/AddressSection';
 import PaymentMethodPicker from '../../components/checkout/PaymentMethodPicker';
 import CheckoutSummary from '../../components/checkout/CheckoutSummary';
 import { Textarea } from '../../components/ui/textarea';
-import { useCart } from '../../context/CartContext';
+import { useCart } from '../../hooks/useCart';
 import { useCheckout } from '../../hooks/useCheckout';
 
 /**
@@ -69,7 +69,6 @@ const CheckoutPage = () => {
                         cart={checkout.cart}
                         unitPriceOf={unitPriceOf}
                         cartSubtotal={checkout.cartSubtotal}
-                        shippingFee={checkout.shippingFee}
                         discountAmount={checkout.discountAmount}
                         total={checkout.total}
                         submitting={checkout.submitting}

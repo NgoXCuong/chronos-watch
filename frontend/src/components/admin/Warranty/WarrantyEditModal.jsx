@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../ui/dialog";
-import { Input } from "../../ui/input";
 import { Textarea } from "../../ui/textarea";
 import { Button } from "../../ui/button";
 import FormField from "../Common/FormField";
@@ -20,7 +19,6 @@ import {
 } from "../../../constants/warrantyStatus";
 import { formatDate } from "../../../utils/formatCurrency";
 
-const SERIAL_MAX = 50;
 const NOTE_MAX = 500;
 
 // 'expired' không nằm trong WARRANTY_STATUSES (DB) nên danh sách chọn chỉ có 4 giá trị ghi được
@@ -31,7 +29,6 @@ const STATUS_OPTIONS = WARRANTY_STATUSES.map((value) => ({
 }));
 
 const formOf = (warranty) => ({
-  serial: warranty?.serial ?? "",
   status: warranty?.status ?? "active",
   note: warranty?.note ?? "",
 });
@@ -43,7 +40,6 @@ const WarrantyEditBody = ({ warranty, saving, onSubmit, onClose }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     onSubmit({
-      serial: form.serial.trim(),
       status: form.status,
       note: form.note.trim(),
     });
@@ -68,23 +64,6 @@ const WarrantyEditBody = ({ warranty, saving, onSubmit, onClose }) => {
       </DialogHeader>
 
       <form onSubmit={handleSubmit} className="space-y-4 p-5">
-        <FormField
-          label="Số serial"
-          htmlFor="warranty-serial"
-          hint={`Tối đa ${SERIAL_MAX} ký tự, để trống nếu khách chưa cung cấp. Serial trùng sẽ bị backend chặn.`}
-        >
-          <Input
-            id="warranty-serial"
-            value={form.serial}
-            maxLength={SERIAL_MAX}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, serial: event.target.value }))
-            }
-            placeholder="VD: CHR-WT-84920"
-            className="font-mono uppercase tabular-nums"
-          />
-        </FormField>
-
         <FormField
           label="Trạng thái phiếu"
           htmlFor="warranty-status"

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import { FileSpreadsheet, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
@@ -76,7 +76,7 @@ const UserListPage = () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await adminApi.getAllUsers({
@@ -95,7 +95,7 @@ const UserListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, role, status, sort]);
 
   const reload = async () => {
     await Promise.all([fetchUsers(), fetchStats()]);
@@ -103,7 +103,7 @@ const UserListPage = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, debouncedSearch, role, status, sort]);
+  }, [fetchUsers]);
 
   useEffect(() => {
     fetchStats();

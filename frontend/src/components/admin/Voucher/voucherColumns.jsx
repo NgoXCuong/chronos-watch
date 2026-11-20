@@ -6,12 +6,14 @@ import {
   VoucherUsageCell,
   VoucherValueCell,
   VoucherWindowCell,
+  VoucherVisibilityCell,
 } from "./VoucherCells";
 import { VoucherRowActions } from "./VoucherRowActions";
 
 // Cột bảng voucher — mọi cột khai báo width (Rule 3); sortKey là cột backend nhận
 // trong SORTABLE_VOUCHER_COLUMNS (backend/src/services/voucher.service.js).
-export const getVoucherColumns = ({ now, onEdit, onToggle, onDelete } = {}) => [
+export const getVoucherColumns = ({ now, onEdit, onGift, onToggle, onDelete } = {}) => [
+  { id: 'is_public', header: 'Hiển thị', width: '120px', cell: ({ row }) => <VoucherVisibilityCell visible={row.is_public} /> },
   {
     id: "code",
     header: "Mã voucher",
@@ -64,12 +66,13 @@ export const getVoucherColumns = ({ now, onEdit, onToggle, onDelete } = {}) => [
     id: "actions",
     header: "Thao tác",
     align: "right",
-    width: "120px",
+    width: "160px",
     stopRowClick: true,
     cell: ({ row }) => (
       <VoucherRowActions
         voucher={row}
         onEdit={onEdit}
+        onGift={onGift}
         onToggle={onToggle}
         onDelete={onDelete}
       />

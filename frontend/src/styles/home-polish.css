@@ -1,0 +1,275 @@
+/* Ảnh xuyên suốt toàn hero; lớp nền của chữ mờ dần về bên phải. */
+.signature-hero {
+  display: block;
+  position: relative;
+  min-height: 510px;
+  isolation: isolate;
+  background: var(--muted);
+}
+.signature-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--card) 0%,
+    color-mix(in srgb, var(--card) 98%, transparent) 22%,
+    color-mix(in srgb, var(--card) 88%, transparent) 36%,
+    color-mix(in srgb, var(--card) 40%, transparent) 50%,
+    transparent 70%
+  );
+}
+.signature-copy {
+  position: relative;
+  z-index: 2;
+  width: 40%;
+  min-height: 510px;
+  padding: 36px 40px;
+  background: transparent;
+  pointer-events: none;
+}
+.signature-copy a {
+  pointer-events: auto;
+}
+.signature-copy h1 {
+  font-size: 40px;
+  margin-top: 18px;
+}
+.signature-description {
+  font-size: 13px;
+  line-height: 1.75;
+  margin-top: 16px;
+}
+.signature-copy .home-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  gap: 8px;
+}
+.signature-copy .home-eyebrow > span {
+  width: 20px;
+}
+.signature-copy > div:nth-of-type(1) {
+  margin-top: 24px;
+  gap: 16px;
+}
+.signature-copy > div:nth-of-type(1) > a:first-child {
+  height: 42px;
+  font-size: 11px;
+  padding: 0 18px;
+}
+.signature-assurance {
+  margin-top: 26px;
+  padding-top: 16px;
+  line-height: 1.6;
+}
+.signature-visual.signature-banner {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  background: var(--muted);
+}
+.signature-banner-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  flex: none;
+  aspect-ratio: auto;
+}
+.signature-banner-link img {
+  object-fit: cover;
+  object-position: center right;
+  mix-blend-mode: normal;
+}
+.signature-banner-indicators {
+  z-index: 3;
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+  border-radius: 20px;
+  background: var(--card);
+  opacity: 0.92;
+}
+.signature-banner-dash {
+  width: 34px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+.signature-banner-dash::after {
+  content: "";
+  width: 22px;
+  height: 3px;
+  border-radius: 4px;
+  background: var(--border);
+  transition:
+    background 0.15s,
+    width 0.15s;
+}
+.signature-banner-dash.active::after {
+  width: 28px;
+  background: var(--primary);
+}
+.signature-banner-dash:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+.flash-storefront-header {
+  padding: 10px 16px;
+  gap: 12px;
+}
+.flash-storefront-header h2 {
+  font-size: 18px;
+}
+.flash-storefront-header > div:first-child > span {
+  width: 32px;
+  height: 32px;
+}
+.flash-storefront-header > div:first-child > span svg {
+  width: 18px;
+  height: 18px;
+}
+.flash-carousel {
+  padding: 8px 12px 12px;
+}
+.flash-carousel-toolbar {
+  margin-bottom: 6px;
+}
+.flash-carousel-toolbar button {
+  height: 28px;
+  width: 28px;
+}
+.flash-carousel-slide {
+  width: 280px !important;
+}
+.flash-carousel-slide .flash-storefront-card > a {
+  height: 180px;
+}
+.flash-carousel .flash-card-label {
+  padding: 4px 10px;
+}
+.flash-carousel .flash-card-body {
+  padding: 14px;
+}
+.flash-card-body h3 {
+  min-height: 38px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+.flash-carousel .flash-price-caption {
+  display: none;
+}
+.flash-card-prices {
+  margin-bottom: 12px;
+}
+.flash-card-prices > span:first-child {
+  font-size: 17px;
+}
+.flash-card-body > a:last-child {
+  height: 32px;
+  margin-top: 10px;
+  font-size: 11px;
+}
+@media (min-width: 1600px) {
+  .signature-hero,
+  .signature-copy {
+    min-height: 540px;
+  }
+  .signature-copy {
+    padding: 40px 48px;
+  }
+  .flash-carousel-slide {
+    width: 320px !important;
+  }
+  .flash-carousel-slide .flash-storefront-card > a {
+    height: 200px;
+  }
+}
+@media (max-width: 1100px) {
+  .signature-copy {
+    width: 50%;
+    padding: 30px;
+    min-height: 420px;
+  }
+  .signature-hero {
+    min-height: 420px;
+  }
+  .signature-copy h1 {
+    font-size: 34px;
+  }
+  .signature-hero::after {
+    background: linear-gradient(
+      90deg,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 96%, transparent) 32%,
+      color-mix(in srgb, var(--card) 65%, transparent) 50%,
+      transparent 82%
+    );
+  }
+}
+@media (max-width: 767px) {
+  .signature-hero {
+    min-height: 540px;
+  }
+  .signature-copy {
+    width: 100%;
+    min-height: 340px;
+    padding: 26px 24px;
+    justify-content: flex-start;
+  }
+  .signature-copy h1 {
+    font-size: 34px;
+  }
+  .signature-hero::after {
+    background: linear-gradient(
+      180deg,
+      var(--card) 0%,
+      color-mix(in srgb, var(--card) 96%, transparent) 38%,
+      color-mix(in srgb, var(--card) 75%, transparent) 60%,
+      transparent 86%
+    );
+  }
+  .signature-banner-link img {
+    object-position: 65% bottom;
+  }
+  .signature-assurance {
+    margin-top: 20px;
+  }
+  .signature-banner-indicators {
+    bottom: 8px;
+  }
+  .flash-carousel-slide {
+    width: 205px !important;
+  }
+  .flash-carousel-slide .flash-storefront-card > a {
+    height: 155px;
+  }
+  .flash-carousel .flash-card-body {
+    padding: 12px;
+  }
+  .flash-card-prices > span:first-child {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .home-trust {
+    margin-top: -40px;
+  }
+  .home-trust > div {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .home-brand-strip {
+    margin-top: -32px;
+  }
+}

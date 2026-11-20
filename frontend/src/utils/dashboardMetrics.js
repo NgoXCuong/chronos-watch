@@ -113,7 +113,7 @@ export const buildKpiItems = (stats) => {
     {
       label: "Hàng hết kho",
       value: num("out_of_stock_count"),
-      hint: `${num("low_stock_count")} sản phẩm sắp hết`,
+      hint: `${num("low_stock_count")} mẫu cần nhập · ${num("stock_review_count")} cần đối chiếu`,
       icon: PackageX,
       tone: num("out_of_stock_count") > 0 ? "sale" : "success",
     },

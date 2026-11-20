@@ -1,78 +1,40 @@
+import CartQuantityControl from './CartQuantityControl';
 import { Link } from 'react-router-dom';
-import { Minus, Plus, Trash2, Zap } from 'lucide-react';
+import { ArrowUpRight, PackageCheck, Trash2, Zap } from 'lucide-react';
+import { Button } from '../ui/button';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { cn } from '../../lib/utils';
 
-const QtyButton = ({ disabled, label, onClick, children }) => (
-    <button
-        type="button"
-        onClick={onClick}
-        disabled={disabled}
-        aria-label={label}
-        className="flex size-8 items-center justify-center text-navy-600 transition-colors hover:bg-navy-50 disabled:pointer-events-none disabled:opacity-40"
-    >
-        {children}
-    </button>
-);
-
-/** Một dòng sản phẩm trong giỏ. Giá hiển thị là giá THỰC TRẢ (đã trừ flash nếu có). */
-const CartItemRow = ({ item, flash, unitPrice, onRemove, onQuantityChange }) => {
-    const stock = Number(item.stock) > 0 ? Number(item.stock) : null;
-    const maxQty = stock ? Math.max(1, Math.min(stock, 99)) : 99;
+export default function CartItemRow({ item, flash, unitPrice, onRemove, onQuantityChange }) {
+    const stock = item.stock == null ? null : Math.max(0, Number(item.stock) || 0);
     const lineTotal = unitPrice * item.quantity;
-
     return (
-        <div className="flex gap-3 rounded-xl border border-border bg-card p-3 shadow-card transition-shadow hover:shadow-hover md:gap-4 md:p-4">
-            <Link to={`/products/${item.slug}`} className="size-20 shrink-0 overflow-hidden rounded-lg bg-navy-50 p-1 md:size-24">
-                <img src={item.image_url} alt={item.name} loading="lazy" className="size-full object-contain" />
+        <article className="cart-item">
+            <Link to={`/products/${item.slug}`} className="cart-item-image group">
+                <img src={item.image_url} alt={item.name} loading="lazy" className="size-full object-contain transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none" />
+                <span className="cart-image-arrow"><ArrowUpRight size={15} aria-hidden="true" /></span>
             </Link>
-
-            <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
-                <div className="flex items-start justify-between gap-3">
+            <div className="cart-item-content">
+                <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                        <p className="text-[12px] font-semibold uppercase tracking-[0.02em] text-navy-500">{item.brand?.name || 'Chronos'}</p>
-                        <Link to={`/products/${item.slug}`} className="mt-0.5 block truncate text-sm font-bold text-foreground transition-colors hover:text-navy-600">
-                            {item.name}
-                        </Link>
-                        <p className="mt-1 text-[12px] tabular-nums text-muted-foreground">
-                            {formatCurrency(unitPrice)} / chiếc
-                            {stock !== null && <span className={cn('ml-2', item.quantity > stock ? 'text-sale' : 'text-muted-foreground')}>Kho: {stock}</span>}
-                        </p>
+                        <p className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">{item.brand?.name || 'Chronos selection'}</p>
+                        <Link to={`/products/${item.slug}`} className="mt-2 block text-base font-semibold leading-snug tracking-tight text-foreground hover:text-primary md:text-lg">{item.name}</Link>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => onRemove(item.id)}
-                        aria-label={`Xóa ${item.name} khỏi giỏ`}
-                        className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                        <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
-                    </button>
+                    <Button variant="ghost" size="icon" onClick={() => onRemove(item.id)} aria-label={`Xóa ${item.name} khỏi giỏ`} className="size-8 shrink-0 hover:bg-destructive/10 hover:text-destructive"><Trash2 size={16} /></Button>
                 </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center rounded-lg border border-border bg-card">
-                        <QtyButton label="Giảm số lượng" disabled={item.quantity <= 1} onClick={() => onQuantityChange(item.id, item.quantity - 1)}>
-                            <Minus size={14} strokeWidth={2} aria-hidden="true" />
-                        </QtyButton>
-                        <span className="w-9 text-center text-sm font-bold tabular-nums text-foreground">{item.quantity}</span>
-                        <QtyButton label="Tăng số lượng" disabled={item.quantity >= maxQty} onClick={() => onQuantityChange(item.id, item.quantity + 1)}>
-                            <Plus size={14} strokeWidth={2} aria-hidden="true" />
-                        </QtyButton>
-                    </div>
-
-                    <div className="text-right">
-                        <p className={cn('text-base font-bold tabular-nums', flash ? 'text-sale' : 'text-navy-700')}>{formatCurrency(lineTotal)}</p>
-                        {flash && (
-                            <p className="flex items-center justify-end gap-1 text-[12px] font-bold uppercase tracking-[0.02em] text-sale">
-                                <Zap size={12} strokeWidth={2} aria-hidden="true" />
-                                Flash · còn {flash.remaining} suất
-                            </p>
-                        )}
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                    <span className="tabular-nums text-muted-foreground">{formatCurrency(unitPrice)} / chiếc</span>
+                    {stock !== null && <span className={cn('inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-semibold tabular-nums', stock === 0 || item.quantity > stock ? 'border-sale/25 bg-sale-soft text-sale' : 'border-navy-300 bg-navy-100 text-navy-800 dark:border-navy-500 dark:bg-navy-800 dark:text-navy-100')}><PackageCheck size={14} aria-hidden="true" />{stock > 0 ? `Còn ${stock} sản phẩm` : 'Hết hàng'}</span>}
+                    {flash && <span className="inline-flex items-center gap-1 rounded-md bg-sale-soft px-2 py-1 text-[10px] font-semibold text-sale"><Zap size={11} /> Flash Sale · còn {flash.remaining} suất</span>}
+                </div>
+                <div className="cart-item-bottom">
+                    <CartQuantityControl key={`${item.id}:${item.quantity}:${stock}`} quantity={item.quantity} stock={stock} name={item.name} onCommit={(quantity) => onQuantityChange(item.id, quantity)} />
+                    <div className="cart-line-total text-right">
+                        <p className="mb-2 text-[10px] uppercase tracking-wider text-muted-foreground">Thành tiền</p>
+                        <p className={cn('text-xl font-bold tabular-nums tracking-tight', flash ? 'text-sale' : 'text-foreground')}>{formatCurrency(lineTotal)}</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </article>
     );
-};
-
-export default CartItemRow;
+}

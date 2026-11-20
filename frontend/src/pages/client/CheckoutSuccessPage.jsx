@@ -8,6 +8,7 @@ import VietQrPanel from '../../components/checkout/VietQrPanel';
 import orderApi from '../../api/order.api';
 import paymentApi from '../../api/payment.api';
 import { useAuth } from '../../hooks/useAuth';
+import { cn } from '../../lib/utils';
 
 const DELIVERIES = [
     { icon: Truck, text: 'Miễn phí giao hàng toàn quốc' },
@@ -92,47 +93,50 @@ const CheckoutSuccessPage = () => {
     return (
         <div className="min-h-screen bg-background pb-16">
             <header className="border-b border-border bg-card">
-                <div className="mx-auto flex w-full justify-center px-12 py-5 md:px-16 lg:px-24">
+                <div className="mx-auto flex w-full justify-center px-4 py-5 sm:px-6">
                     <CheckoutSteps current={2} />
                 </div>
             </header>
 
-            <main className="mx-auto w-full max-w-3xl space-y-5 px-12 py-10 md:px-16">
-                <section className="text-center">
-                    <span
-                        className={`mx-auto mb-4 flex size-16 items-center justify-center rounded-full ${
-                            needsTransfer ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
-                        }`}
-                    >
-                        {needsTransfer ? (
-                            <Clock size={30} strokeWidth={1.75} aria-hidden="true" />
-                        ) : (
-                            <CheckCircle2 size={30} strokeWidth={1.75} aria-hidden="true" />
-                        )}
-                    </span>
-                    <h1 className="text-2xl font-bold text-foreground md:text-3xl">
-                        {needsTransfer ? 'Đơn hàng đang chờ chuyển khoản' : order.payment_status === 'paid' ? 'Thanh toán thành công' : 'Đặt hàng thành công'}
-                    </h1>
-                    <p className="mx-auto mt-2 max-w-md text-[13px] leading-relaxed text-muted-foreground">
-                        {needsTransfer
-                            ? 'Quét mã VietQR bên dưới để hoàn tất. Đơn sẽ tự cập nhật ngay khi ngân hàng báo tiền về.'
-                            : 'Cảm ơn bạn đã tin tưởng Chronos. Chúng tôi sẽ liên hệ xác nhận giao hàng trong thời gian sớm nhất.'}
-                    </p>
-                </section>
+            <main className={cn('mx-auto w-full space-y-6 px-4 py-8 sm:px-6 lg:py-10', needsTransfer && bankConfig ? 'max-w-7xl' : 'max-w-3xl')}>
+                <div className={cn('grid items-start gap-6', needsTransfer && bankConfig && 'lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]')}>
+                    <div className="min-w-0 space-y-5">
+                        <section className="text-center lg:text-left">
+                            <span
+                                className={`mx-auto mb-4 flex size-16 items-center justify-center rounded-full lg:mx-0 ${
+                                    needsTransfer ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
+                                }`}
+                            >
+                                {needsTransfer ? (
+                                    <Clock size={30} strokeWidth={1.75} aria-hidden="true" />
+                                ) : (
+                                    <CheckCircle2 size={30} strokeWidth={1.75} aria-hidden="true" />
+                                )}
+                            </span>
+                            <h1 className="text-2xl font-bold text-foreground md:text-3xl">
+                                {needsTransfer ? 'Đơn hàng đang chờ chuyển khoản' : order.payment_status === 'paid' ? 'Thanh toán thành công' : 'Đặt hàng thành công'}
+                            </h1>
+                            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground lg:mx-0">
+                                {needsTransfer
+                                    ? 'Quét mã VietQR để hoàn tất. Đơn sẽ tự cập nhật ngay khi ngân hàng báo tiền về.'
+                                    : 'Cảm ơn bạn đã tin tưởng Chronos. Chúng tôi sẽ liên hệ xác nhận giao hàng trong thời gian sớm nhất.'}
+                            </p>
+                        </section>
 
-                <OrderReceiptCard order={order} />
+                        <OrderReceiptCard order={order} />
 
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <Button variant="outline" onClick={() => navigate('/products')} className="gap-2 sm:flex-1">
+                                <ShoppingBag size={16} strokeWidth={2} aria-hidden="true" />
+                                Tiếp tục mua sắm
+                            </Button>
+                            <Button onClick={() => navigate('/orders')} className="gap-2 sm:flex-1">
+                                Theo dõi đơn hàng
+                                <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+                            </Button>
+                        </div>
+                    </div>
                 {needsTransfer && bankConfig && <VietQrPanel order={order} bankConfig={bankConfig} onConfirmed={refetch} />}
-
-                <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-                    <Button variant="outline" onClick={() => navigate('/products')} className="gap-2 sm:min-w-44">
-                        <ShoppingBag size={16} strokeWidth={2} aria-hidden="true" />
-                        Tiếp tục mua sắm
-                    </Button>
-                    <Button onClick={() => navigate('/orders')} className="gap-2 sm:min-w-44">
-                        Theo dõi đơn hàng
-                        <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
-                    </Button>
                 </div>
 
                 <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2 border-t border-border pt-6">

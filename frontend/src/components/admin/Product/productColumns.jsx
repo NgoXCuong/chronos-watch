@@ -52,8 +52,8 @@ export const getProductColumns = ({
     header: "Kho",
     sortKey: "stock",
     align: "center",
-    width: "100px",
-    cell: ({ row }) => <ProductStockCell stock={row.stock} />,
+    width: "190px",
+    cell: ({ row }) => <ProductStockCell stock={row.stock} health={row.inventory_health} />,
   },
   {
     id: "status",

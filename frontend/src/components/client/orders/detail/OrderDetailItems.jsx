@@ -77,8 +77,7 @@ const Item = ({ item, canReview }) => {
 };
 
 /**
- * Dòng sản phẩm lấy từ SNAPSHOT của đơn (product_name/product_image/sku/warranty_months),
- * nên đơn cũ vẫn hiển thị đúng như khách đã mua kể cả khi sản phẩm đã đổi hoặc bị gỡ.
+ * Tên và ảnh lấy từ sản phẩm liên kết; giá, SKU và thời hạn bảo hành giữ theo lúc mua.
  */
 const OrderDetailItems = ({ order, className }) => {
   const items = orderItems(order);

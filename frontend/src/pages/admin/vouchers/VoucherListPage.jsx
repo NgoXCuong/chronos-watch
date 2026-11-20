@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { Plus, Power, PowerOff, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Plus, Power, PowerOff, Trash2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import voucherApi from "../../../api/voucher.api";
 import useDebounce from "../../../hooks/useDebounce";
@@ -17,11 +17,14 @@ import {
   WINDOW_FILTER_OPTIONS,
 } from "../../../constants/voucherForm";
 
+import VoucherGiftDialog from '../../../components/admin/Voucher/VoucherGiftDialog';
+
 const PAGE_SIZE = 10;
 const DEFAULT_SORT = { key: "created_at", dir: "desc" };
 const BULK_ICON = "h-3.5 w-3.5";
 
 const VoucherListPage = () => {
+  const [giftVoucher, setGiftVoucher] = useState(null);
   const [vouchers, setVouchers] = useState([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -39,7 +42,7 @@ const VoucherListPage = () => {
   const [now] = useState(() => new Date());
   const isFirstQuery = useRef(true);
 
-  const fetchVouchers = async () => {
+  const fetchVouchers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await voucherApi.getAll({
@@ -59,11 +62,11 @@ const VoucherListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, type, status, timeWindow, sort]);
 
   useEffect(() => {
     fetchVouchers();
-  }, [currentPage, debouncedSearch, type, status, timeWindow, sort]);
+  }, [fetchVouchers]);
 
   useEffect(() => {
     if (isFirstQuery.current) {
@@ -147,6 +150,16 @@ const VoucherListPage = () => {
 
   const bulkActions = [
     {
+      key: 'public', label: 'Công khai đã chọn',
+      icon: <Eye className={BULK_ICON} strokeWidth={2} />,
+      onClick: () => bulk.run((ids) => voucherApi.bulkSetVisibility(ids, true)),
+    },
+    {
+      key: 'private', label: 'Chuyển về mã riêng',
+      icon: <EyeOff className={BULK_ICON} strokeWidth={2} />,
+      onClick: () => bulk.run((ids) => voucherApi.bulkSetVisibility(ids, false)),
+    },
+    {
       key: "active",
       label: "Cho dùng lại",
       icon: <Power className={BULK_ICON} strokeWidth={2} />,
@@ -225,6 +238,7 @@ const VoucherListPage = () => {
         sort={sort}
         onSortChange={setSort}
         onEdit={openEdit}
+        onGift={setGiftVoucher}
         onToggle={handleToggle}
         onDelete={handleDelete}
         selectedRowKeys={bulk.selectedIds}
@@ -241,6 +255,7 @@ const VoucherListPage = () => {
         }}
       />
 
+      <VoucherGiftDialog voucher={giftVoucher} onClose={() => setGiftVoucher(null)} />
       <VoucherFormModal
         open={modalOpen}
         voucher={editingVoucher}

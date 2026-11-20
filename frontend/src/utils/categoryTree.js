@@ -1,9 +1,3 @@
-/**
- * Cây danh mục chỉ vài chục node và API /categories trả nguyên cây (không phân trang)
- * nên tìm kiếm/lọc/tính đường dẫn làm trên client — không vi phạm Rule 3 (sort server-side
- * chỉ bắt buộc với danh sách có pagination).
- */
-
 const lower = (value) => String(value || "").toLowerCase();
 
 // Giữ node khớp (kèm nguyên nhánh con) hoặc node có cháu khớp — để còn ngữ cảnh cha
@@ -13,9 +7,13 @@ export const filterTree = (nodes = [], term = "") => {
   const walk = (list) =>
     list.reduce((acc, node) => {
       const children = walk(node.children || []);
-      const matched = lower(node.name).includes(q) || lower(node.slug).includes(q);
+      const matched =
+        lower(node.name).includes(q) || lower(node.slug).includes(q);
       if (matched || children.length) {
-        acc.push({ ...node, children: matched ? node.children || [] : children });
+        acc.push({
+          ...node,
+          children: matched ? node.children || [] : children,
+        });
       }
       return acc;
     }, []);
@@ -27,7 +25,8 @@ export const filterTreeByStatus = (nodes = [], wantActive) => {
   const walk = (list) =>
     list.reduce((acc, node) => {
       const children = walk(node.children || []);
-      if (!!node.is_active === wantActive || children.length) acc.push({ ...node, children });
+      if (!!node.is_active === wantActive || children.length)
+        acc.push({ ...node, children });
       return acc;
     }, []);
   return walk(nodes);
@@ -69,5 +68,7 @@ export const countNodes = (nodes = []) =>
 // id của node có con — dùng cho nút "Thu gọn tất cả"
 export const collectExpandableIds = (nodes = []) =>
   nodes.flatMap((node) =>
-    node.children?.length ? [Number(node.id), ...collectExpandableIds(node.children)] : [],
+    node.children?.length
+      ? [Number(node.id), ...collectExpandableIds(node.children)]
+      : [],
   );

@@ -37,11 +37,11 @@ const MyOrderCard = ({ order, onConfirmed }) => {
   const confirmTransfer = async () => {
     setConfirming(true);
     try {
-      await paymentApi.confirmSePayPayment(order.id);
+      await paymentApi.checkSePayPayment(order.id);
       toast.success(`Đã ghi nhận thanh toán cho đơn ${orderCode(order)}`);
       await onConfirmed?.();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Không xác nhận được thanh toán");
+      toast.error(error?.response?.data?.message || error.message || "Không xác nhận được thanh toán");
     } finally {
       setConfirming(false);
     }
@@ -90,7 +90,7 @@ const MyOrderCard = ({ order, onConfirmed }) => {
         <div className="flex flex-wrap items-center gap-2">
           {needsTransferAction(order) && (
             <Button size="sm" variant="buy" loading={confirming} onClick={confirmTransfer}>
-              Xác nhận đã chuyển tiền
+              Kiểm tra thanh toán
             </Button>
           )}
           {reviewTo && (

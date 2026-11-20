@@ -1,6 +1,8 @@
+import "../../../styles/product-catalog.css";
+import "../../../styles/catalog-filters.css";
+import CatalogIntro from "../../../components/products/CatalogIntro";
+import HomeSupport from "../../../components/home/HomeSupport";
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
 import { useProductCatalog } from '../../../hooks/useProductCatalog';
 import { countActiveFilters } from '../../../utils/productFilters';
 import ProductToolbar from '../../../components/products/ProductToolbar';
@@ -38,32 +40,15 @@ const ClientProductListPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-background">
-            <header className="border-b border-border bg-navy-600 text-white">
-                <div className="mx-auto flex w-full flex-wrap items-end justify-between gap-3 px-12 py-7 md:px-16 lg:px-24">
-                    <div>
-                        <p className="mb-1.5 flex items-center gap-1 text-[12px] font-semibold uppercase tracking-[0.02em] text-navy-200">
-                            <Link to="/" className="transition-colors hover:text-white">
-                                Trang chủ
-                            </Link>
-                            <ChevronRight size={12} strokeWidth={2.5} aria-hidden="true" />
-                            <span>Sản phẩm</span>
-                        </p>
-                        <h1 className="text-2xl font-bold leading-tight md:text-3xl">{title}</h1>
-                    </div>
-                    <p className="text-[13px] font-medium text-navy-200">
-                        <span className="text-base font-bold tabular-nums text-white">{totalCount}</span> sản phẩm đang bán
-                    </p>
-                </div>
-            </header>
-
-            <div className="mx-auto w-full px-12 py-8 md:px-16 lg:px-24">
-                <div className="grid items-start gap-6 lg:grid-cols-[268px_minmax(0,1fr)]">
-                    <aside className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-card lg:block">
-                        <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">{panel}</div>
+        <div className="product-catalog min-h-screen bg-card text-foreground">
+            <div className="catalog-shell">
+                <CatalogIntro title={title} totalCount={totalCount} loading={loading} categories={categories} categoryId={filters.categoryId} onCategoryChange={applyFilters} />
+                <div className="catalog-layout">
+                    <aside className="catalog-sidebar hidden lg:block">
+                        <div className="catalog-filter-scroll">{panel}</div>
                     </aside>
 
-                    <main className="min-w-0">
+                    <section aria-label="Danh sách sản phẩm" className="min-w-0">
                         <ProductToolbar
                             page={filters.page}
                             totalCount={totalCount}
@@ -78,7 +63,7 @@ const ClientProductListPage = () => {
                         <ProductGrid products={products} loading={loading} onClearFilters={clearFilters} />
 
                         {totalPages > 1 && (
-                            <div className="mt-6 overflow-hidden rounded-xl border border-border bg-card">
+                            <div className="catalog-pagination mt-6 overflow-hidden rounded-xl border border-border bg-card">
                                 <AdminPagination
                                     currentPage={filters.page}
                                     totalPages={totalPages}
@@ -88,13 +73,14 @@ const ClientProductListPage = () => {
                                 />
                             </div>
                         )}
-                    </main>
+                    </section>
                 </div>
             </div>
 
             <FilterDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} resultCount={totalCount}>
                 {panel}
             </FilterDrawer>
+            <HomeSupport />
         </div>
     );
 };

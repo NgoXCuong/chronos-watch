@@ -7,6 +7,9 @@ import SearchBanner from "../../../components/admin/Common/SearchBanner";
 import FilterSelect from "../../../components/admin/Common/FilterSelect";
 import AdminPagination from "../../../components/admin/Common/AdminPagination";
 import ReviewList from "../../../components/admin/Review/ReviewList";
+import { Button } from "../../../components/ui/button";
+import ReviewDetailDrawer from "../../../components/admin/Review/ReviewDetailDrawer";
+import ReviewDeleteDialog from "../../../components/admin/Review/ReviewDeleteDialog";
 import ReviewStatsBar from "../../../components/admin/Review/ReviewStatsBar";
 import {
   REVIEW_RATING_FILTER_OPTIONS,
@@ -31,6 +34,11 @@ const ReviewListPage = () => {
   const [sortValue, setSortValue] = useState(DEFAULT_SORT);
   const [currentPage, setCurrentPage] = useState(1);
   const [savingReplyId, setSavingReplyId] = useState(null);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [busyId, setBusyId] = useState(null);
+  const listRef = useRef(null);
   const debouncedSearch = useDebounce(searchTerm, 400);
   const isFirstQuery = useRef(true);
 
@@ -92,18 +100,23 @@ const ReviewListPage = () => {
 
   // Ẩn/hiện và phản hồi làm đổi cả danh sách lẫn thanh số liệu (đếm chờ phản hồi,
   // sao trung bình khi ẩn) nên refetch cả hai
-  const reload = () => {
-    fetchReviews();
-    fetchStats();
+  const reload = () => Promise.all([fetchReviews(), fetchStats()]);
+  const changePage = (page) => {
+    setCurrentPage(page);
+    listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const handleToggleVisible = async (review) => {
+    setBusyId(review.id);
     try {
       await adminApi.updateReviewStatus(review.id, review.is_active === false);
       toast.success(review.is_active === false ? "Đã hiện lại đánh giá" : "Đã ẩn đánh giá khỏi trang sản phẩm");
-      reload();
+      setSelectedReview((current) => current?.id === review.id ? { ...current, is_active: review.is_active === false } : current);
+      await reload();
     } catch (err) {
       toast.error(err?.message || "Lỗi cập nhật trạng thái đánh giá");
+    } finally {
+      setBusyId(null);
     }
   };
 
@@ -112,7 +125,8 @@ const ReviewListPage = () => {
     try {
       await adminApi.replyToReview(review.id, reply);
       toast.success("Đã gửi phản hồi");
-      reload();
+      setSelectedReview((current) => current?.id === review.id ? { ...current, admin_reply: reply, replied_at: new Date().toISOString() } : current);
+      await reload();
       return true;
     } catch (err) {
       toast.error(err?.message || "Lỗi gửi phản hồi");
@@ -122,28 +136,37 @@ const ReviewListPage = () => {
     }
   };
 
-  const handleDelete = async (review) => {
-    const who = review.user?.username || "khách";
-    if (!window.confirm(`Xóa hẳn đánh giá của ${who}? Bình luận mất vĩnh viễn, sao trung bình của sản phẩm sẽ tính lại.`))
-      return;
+  const handleDelete = async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
     try {
-      await adminApi.deleteReview(review.id);
+      await adminApi.deleteReview(deleteTarget.id);
       toast.success("Đã xóa đánh giá");
-      // Xóa dòng cuối của trang thì lùi về trang trước để không thành trang trống
-      if (reviews.length === 1 && currentPage > 1) setCurrentPage((page) => page - 1);
-      else reload();
+      setSelectedReview((current) => current?.id === deleteTarget.id ? null : current);
+      setDeleteTarget(null);
+      if (reviews.length === 1 && currentPage > 1) {
+        setCurrentPage((page) => page - 1);
+        await fetchStats();
+      } else await reload();
     } catch (err) {
       toast.error(err?.message || "Không xóa được đánh giá");
+    } finally {
+      setDeleting(false);
     }
   };
 
   const totalPages = Math.ceil(count / PAGE_SIZE);
+  const pagination = { currentPage, totalPages, totalCount: count, countLabel: "đánh giá", onPageChange: changePage };
+  const [sortKey, sortDir] = sortValue.split(":");
 
   return (
     <div className="space-y-3 pb-8">
       <AdminHeader
         title="Quản lý đánh giá"
-        subtitle="Đọc bình luận của khách, phản hồi ngay tại chỗ và kiểm duyệt sao hiển thị ở trang sản phẩm"
+        subtitle="Đọc nhanh đánh giá, mở chi tiết để phản hồi và kiểm duyệt nội dung"
+        actions={<Button variant={replied === "unreplied" ? "default" : "outline"} onClick={() => setReplied("unreplied")}>
+          Chưa phản hồi · {stats?.unreplied_count || 0}
+        </Button>}
       />
 
       <ReviewStatsBar stats={stats} loading={statsLoading} />
@@ -183,27 +206,24 @@ const ReviewListPage = () => {
         />
       </SearchBanner>
 
-      <ReviewList
-        reviews={reviews}
-        loading={loading}
-        hasFilters={hasFilters}
-        savingReplyId={savingReplyId}
-        onReply={handleReply}
-        onToggleVisible={handleToggleVisible}
-        onDelete={handleDelete}
+      <div ref={listRef} className="scroll-mt-20 space-y-3">
+        {totalPages > 1 && <div className="sticky top-16 z-20 overflow-hidden rounded-xl border border-border bg-card shadow-card">
+          <AdminPagination {...pagination} />
+        </div>}
+        <ReviewList
+          reviews={reviews} loading={loading} hasFilters={hasFilters}
+          onOpen={setSelectedReview} onToggleVisible={handleToggleVisible} onDelete={setDeleteTarget}
+          busyId={busyId || savingReplyId} sort={{ key: sortKey, dir: sortDir }}
+          onSortChange={({ key, dir }) => setSortValue(`${key}:${dir}`)}
+          pagination={totalPages > 1 ? pagination : undefined}
+        />
+      </div>
+      <ReviewDetailDrawer
+        review={selectedReview} saving={savingReplyId === selectedReview?.id}
+        busy={busyId === selectedReview?.id} onClose={() => setSelectedReview(null)}
+        onReply={handleReply} onToggleVisible={handleToggleVisible} onDelete={setDeleteTarget}
       />
-
-      {totalPages > 1 && (
-        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
-          <AdminPagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalCount={count}
-            countLabel="đánh giá"
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        </div>
-      )}
+      <ReviewDeleteDialog review={deleteTarget} deleting={deleting} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} />
     </div>
   );
 };

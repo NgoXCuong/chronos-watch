@@ -130,7 +130,6 @@ const WarrantyDetailBody = ({ warrantyId, onClose }) => {
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Tên sản phẩm" value={warranty.product_name} />
                 <Field label="SKU" value={warranty.sku} mono />
-                <Field label="Serial" value={warranty.serial} mono />
                 <Field
                   label="Thời hạn bảo hành"
                   value={`${Number(warranty.warranty_months) || 0} tháng`}

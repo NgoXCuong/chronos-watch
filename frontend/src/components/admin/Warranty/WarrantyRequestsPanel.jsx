@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import warrantyApi from "../../../api/warranty.api";
 import useDebounce from "../../../hooks/useDebounce";
@@ -25,7 +25,7 @@ const WarrantyRequestsPanel = ({ onChanged }) => {
   const debouncedSearch = useDebounce(searchTerm, 400);
   const isFirstQuery = useRef(true);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     setLoading(true);
     try {
       const data = await warrantyApi.getRequests({
@@ -43,11 +43,11 @@ const WarrantyRequestsPanel = ({ onChanged }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, status, sort]);
 
   useEffect(() => {
     fetchRequests();
-  }, [currentPage, debouncedSearch, status, sort]);
+  }, [fetchRequests]);
 
   useEffect(() => {
     if (isFirstQuery.current) {

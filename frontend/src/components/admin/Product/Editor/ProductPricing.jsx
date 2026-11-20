@@ -3,9 +3,7 @@ import { Input } from "../../../ui/input";
 import { Badge } from "../../../ui/badge";
 import FormField from "../../Common/FormField";
 import FormSection from "../../Common/FormSection";
-import { formatCurrency } from "../../../../utils/formatCurrency";
 import {
-  LOW_STOCK_ALERT,
   WARRANTY_PRESETS,
 } from "../../../../constants/productForm";
 import { cn } from "@/lib/utils";
@@ -19,8 +17,7 @@ const ProductPricing = ({ form, setField, errors }) => {
       ? Math.round((1 - price / oldPrice) * 100)
       : 0;
   const stock = Number(form.stock);
-  const lowStock =
-    form.stock !== "" && Number.isFinite(stock) && stock <= LOW_STOCK_ALERT;
+  const outOfStock = form.stock !== "" && Number.isFinite(stock) && stock === 0;
 
   return (
     <FormSection
@@ -87,9 +84,9 @@ const ProductPricing = ({ form, setField, errors }) => {
             className="h-11 tabular-nums"
             error={errors.stock}
           />
-          {lowStock && (
-            <Badge variant="warning" className="shrink-0 whitespace-nowrap">
-              Sắp hết hàng
+          {outOfStock && (
+            <Badge variant="destructive-soft" className="shrink-0 whitespace-nowrap">
+              Hết hàng
             </Badge>
           )}
         </div>

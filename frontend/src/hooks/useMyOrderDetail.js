@@ -36,7 +36,7 @@ export const useMyOrderDetail = (id) => {
         await fetchOrder();
         return true;
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Thao tác không thành công");
+        toast.error(error?.response?.data?.message || error.message || "Thao tác không thành công");
         return false;
       } finally {
         setBusy(null);
@@ -50,7 +50,7 @@ export const useMyOrderDetail = (id) => {
     loading: loadedId !== id,
     busy,
     confirmTransfer: () =>
-      runAction("transfer", () => paymentApi.confirmSePayPayment(id), "Đã ghi nhận chuyển khoản"),
+      runAction("transfer", () => paymentApi.checkSePayPayment(id), "Đã ghi nhận chuyển khoản"),
     cancelOrder: (note) =>
       runAction("cancel", () => orderApi.cancelOrder(id, note), "Đơn hàng đã được hủy"),
   };

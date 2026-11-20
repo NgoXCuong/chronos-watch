@@ -13,13 +13,13 @@ const CheckoutSteps = ({ current, className }) => (
                         index < current
                             ? 'bg-success/10 text-success'
                             : index === current
-                                ? 'bg-navy-600 text-white'
-                                : 'bg-navy-50 text-navy-300',
+                                ? 'bg-primary text-primary-foreground'
+                                : 'bg-muted text-muted-foreground',
                     )}
                 >
                     {index < current ? <Check size={13} strokeWidth={2.5} aria-hidden="true" /> : index + 1}
                 </span>
-                <span className={index === current ? 'text-navy-700' : 'text-muted-foreground'}>{label}</span>
+                <span className={index === current ? 'text-foreground' : 'text-muted-foreground'}>{label}</span>
                 {index < CHECKOUT_STEPS.length - 1 && <ChevronRight size={14} className="text-navy-200" aria-hidden="true" />}
             </li>
         ))}

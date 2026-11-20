@@ -11,6 +11,7 @@ const VoucherTable = ({
   loading = false,
   searchTerm = "",
   onEdit,
+  onGift,
   onToggle,
   onDelete,
   pagination,
@@ -21,8 +22,8 @@ const VoucherTable = ({
   selectionActions,
 }) => {
   const columns = useMemo(
-    () => getVoucherColumns({ now, onEdit, onToggle, onDelete }),
-    [now, onEdit, onToggle, onDelete],
+    () => getVoucherColumns({ now, onEdit, onGift, onToggle, onDelete }),
+    [now, onEdit, onGift, onToggle, onDelete],
   );
 
   return (

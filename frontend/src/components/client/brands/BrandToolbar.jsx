@@ -12,7 +12,7 @@ const Chip = ({ active, children, onClick }) => (
             'rounded-lg border px-3 py-1.5 text-[12px] font-semibold uppercase tracking-[0.02em] whitespace-nowrap transition-colors',
             active
                 ? 'border-navy-600 bg-navy-600 text-white'
-                : 'border-border bg-card text-muted-foreground hover:border-navy-300 hover:text-navy-700',
+                : 'border-border bg-card text-muted-foreground hover:border-navy-300 hover:text-foreground',
         )}
     >
         {children}
@@ -33,7 +33,7 @@ const BrandToolbar = ({ search, onSearch, country, countries, onCountry, shown, 
                 />
             </div>
             <p className="text-[12px] tabular-nums text-muted-foreground md:ml-auto">
-                Đang hiển thị <span className="font-bold text-navy-700">{shown}</span> / {total} thương hiệu
+                Đang hiển thị <span className="font-bold text-foreground">{shown}</span> / {total} thương hiệu
             </p>
         </div>
 

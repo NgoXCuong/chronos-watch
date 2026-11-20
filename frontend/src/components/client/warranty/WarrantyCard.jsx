@@ -57,12 +57,6 @@ const WarrantyCard = ({ warranty }) => {
           <p className="font-mono text-[12px] tabular-nums font-semibold text-navy-700 dark:text-navy-100">
             {warranty.code}
           </p>
-          <p className="text-[11px] text-muted-foreground">
-            Serial:{" "}
-            <span className={cn("font-semibold", warranty.serial ? "font-mono tabular-nums text-foreground" : "italic")}>
-              {warranty.serial || "Chưa cập nhật"}
-            </span>
-          </p>
         </div>
 
         <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/60 px-3 py-2">

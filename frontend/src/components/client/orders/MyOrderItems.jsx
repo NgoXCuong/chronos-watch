@@ -29,8 +29,7 @@ const Thumb = ({ item, size = "large" }) => (
 
 /**
  * Ảnh đại diện + tên sản phẩm đầu, các dòng còn lại chỉ còn thumbnail.
- * Tên và ảnh lấy từ SNAPSHOT của đơn (`product_name`/`product_image`), nên đơn cũ
- * vẫn hiển thị đúng như khách đã mua kể cả khi sản phẩm đã đổi tên hoặc bị gỡ.
+ * Tên và ảnh lấy từ sản phẩm liên kết qua product_id.
  */
 const MyOrderItems = ({ order, className }) => {
   const items = orderItems(order);

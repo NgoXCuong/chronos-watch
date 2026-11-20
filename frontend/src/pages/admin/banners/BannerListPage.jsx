@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import bannerApi from "../../../api/banner.api";
@@ -38,7 +38,7 @@ const BannerListPage = () => {
   const [now] = useState(() => new Date());
   const isFirstQuery = useRef(true);
 
-  const fetchBanners = async () => {
+  const fetchBanners = useCallback(async () => {
     setLoading(true);
     try {
       const data = await bannerApi.getAll({
@@ -57,11 +57,11 @@ const BannerListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, visibility, schedule, sort]);
 
   useEffect(() => {
     fetchBanners();
-  }, [currentPage, debouncedSearch, visibility, schedule, sort]);
+  }, [fetchBanners]);
 
   useEffect(() => {
     if (isFirstQuery.current) {

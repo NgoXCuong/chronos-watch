@@ -4,55 +4,58 @@ import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import paymentApi from '../../api/payment.api';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { cn } from '../../lib/utils';
 
 const BankRow = ({ label, value, strong }) => (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border py-2 last:border-b-0">
         <span className="text-[12px] font-semibold uppercase tracking-[0.02em] text-muted-foreground">{label}</span>
-        <span className={strong ? 'select-all font-mono text-sm font-bold text-navy-700' : 'select-all font-mono text-sm text-foreground'}>{value}</span>
+        <span className={cn('min-w-0 max-w-full select-all break-words text-right font-mono text-sm', strong ? 'font-bold text-primary' : 'text-foreground')}>{value}</span>
     </div>
 );
 
 /**
  * Hướng dẫn chuyển khoản: mã VietQR động (qr.sepay.vn) + thông tin thụ hưởng,
- * kèm nút xác nhận thủ công cho trường hợp chuyển tiền ngoài ứng dụng.
+ * kèm nút kiểm tra trạng thái đã được webhook xác nhận.
  */
 const VietQrPanel = ({ order, bankConfig, onConfirmed }) => {
     const [confirming, setConfirming] = useState(false);
-    const transferCode = order.order_code || `CHRONOS${order.id}`;
+    const transferCode = order.order_code || `CHRONOS ${order.id}`;
 
     const confirm = async () => {
         setConfirming(true);
         try {
-            await paymentApi.confirmSePayPayment(order.id);
+            await paymentApi.checkSePayPayment(order.id);
             toast.success('Đã ghi nhận xác nhận thanh toán');
             await onConfirmed?.();
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Không xác nhận được, vui lòng thử lại');
+            toast.error(error.response?.data?.message || error.message || 'Không xác nhận được, vui lòng thử lại');
         } finally {
             setConfirming(false);
         }
     };
 
     return (
-        <section className="rounded-xl border border-navy-200 bg-navy-50/60 p-5 shadow-card">
-            <h2 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.02em] text-navy-700">
+        <section className="min-w-0 rounded-xl border border-border bg-card p-5 shadow-card sm:p-6">
+            <h2 className="mb-4 flex items-center gap-2 text-[13px] font-bold uppercase tracking-[0.02em] text-primary">
                 <CreditCard size={16} strokeWidth={2} aria-hidden="true" />
                 Hướng dẫn chuyển khoản
             </h2>
 
-            <div className="flex flex-col items-center gap-5 md:flex-row md:items-start">
-                <div className="shrink-0 rounded-xl border border-border bg-white p-3 shadow-card">
-                    <img
-                        src={`${bankConfig.qrBaseUrl || 'https://qr.sepay.vn/img'}?acc=${bankConfig.accountNo}&bank=${bankConfig.bankId}&amount=${order.total_amount}&des=${encodeURIComponent(transferCode)}&template=compact`}
-                        alt="Mã VietQR cho đơn hàng"
-                        width={200}
-                        height={200}
-                        className="size-48 object-contain sm:size-52"
-                    />
-                    <p className="mt-2 flex items-center justify-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.02em] text-navy-600">
-                        <QrCode size={13} strokeWidth={2} aria-hidden="true" />
-                        Quét bằng app ngân hàng
-                    </p>
+            <div className="flex flex-col items-center gap-5">
+                <div className="flex w-full justify-center rounded-xl border border-border bg-muted/40 p-3 sm:p-4">
+                    <div className="min-w-0 rounded-lg bg-white p-3">
+                        <img
+                            src={`${bankConfig.qrBaseUrl || 'https://qr.sepay.vn/img'}?acc=${bankConfig.accountNo}&bank=${bankConfig.bankId}&amount=${order.total_amount}&des=${encodeURIComponent(transferCode)}&template=compact`}
+                            alt="Mã VietQR cho đơn hàng"
+                            width={352}
+                            height={352}
+                            className="aspect-square w-72 max-w-full object-contain sm:w-80 xl:w-88"
+                        />
+                        <p className="mt-2 flex items-center justify-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.02em] text-navy-600">
+                            <QrCode size={13} strokeWidth={2} aria-hidden="true" />
+                            Quét bằng app ngân hàng
+                        </p>
+                    </div>
                 </div>
 
                 <div className="w-full min-w-0 flex-1 space-y-4">
@@ -66,7 +69,7 @@ const VietQrPanel = ({ order, bankConfig, onConfirmed }) => {
 
                     <Button onClick={confirm} loading={confirming} className="w-full gap-2">
                         <BadgeCheck size={16} strokeWidth={2} aria-hidden="true" />
-                        Tôi đã chuyển khoản — xác nhận ngay
+                        Kiểm tra thanh toán
                     </Button>
 
                     <p className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground">

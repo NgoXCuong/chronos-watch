@@ -25,7 +25,7 @@ const PAYMENT_HINT = {
   sepay: "Xác nhận sau khi webhook báo đã có tiền.",
 };
 
-const CollectButton = ({ order, updating, onMarkAsPaid }) => {
+const CollectButton = ({ order, updating, onMarkAsPaid, light = false }) => {
   if (
     order.payment_status === "paid" ||
     !MANUAL_PAYMENT_METHODS.includes(order.payment_method)
@@ -35,15 +35,16 @@ const CollectButton = ({ order, updating, onMarkAsPaid }) => {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <Button
-        variant="outline"
+        variant={light ? "default" : "outline"}
         onClick={onMarkAsPaid}
         disabled={updating}
-        className="h-10 gap-2 rounded-lg border-white/35 bg-transparent text-[13px] font-semibold text-white hover:bg-white/12 hover:text-white"
+        className={cn("h-9 gap-2 rounded-lg text-[13px] font-semibold",
+          !light && "border-white/35 bg-transparent text-white hover:bg-white/12 hover:text-white")}
       >
         <Banknote className="h-4 w-4" strokeWidth={2} />
         {COLLECT_PAYMENT_LABELS[order.payment_method] ?? "Đã thu tiền"}
       </Button>
-      <span className="text-[11px] text-white/55">
+      <span className={cn("text-xs", light ? "text-foreground/80" : "text-white/75")}>
         {PAYMENT_HINT[order.payment_method] ?? "Chờ xác nhận đã nhận tiền."}
       </span>
     </div>
@@ -60,7 +61,7 @@ const ActionPanel = ({ order, updating, onAdvance, onMarkAsPaid, onCancel }) => 
     return (
       <div
         className={cn(
-          "flex flex-col gap-3.5 p-5",
+          "flex flex-col justify-center gap-2 px-5 py-4",
           closed
             ? "bg-success-soft/70 dark:bg-success/10"
             : "bg-sale-soft/70 dark:bg-sale/10",
@@ -77,13 +78,15 @@ const ActionPanel = ({ order, updating, onAdvance, onMarkAsPaid, onCancel }) => 
           )}
           <h3 className="text-[15px] font-extrabold text-card-foreground">
             {closed
-              ? "Giao dịch đã hoàn tất"
+              ? (order.payment_status === "paid" ? "Giao dịch đã hoàn tất" : "Đã giao hàng · chờ thu tiền")
               : `Đơn đã ${order.status === "returned" ? "hoàn trả" : "hủy"}`}
           </h3>
         </div>
-        <p className="text-[13px] leading-relaxed text-muted-foreground">
+        <p className="text-[13px] leading-relaxed text-foreground/80">
           {closed
-            ? "Doanh thu đã được ghi nhận. Không còn thao tác nào cần xử lý."
+            ? (order.payment_status === "paid"
+              ? "Đã giao hàng và thu đủ tiền."
+              : "Khách đã nhận hàng. Xác nhận sau khi thu đủ tiền.")
             : "Tồn kho và voucher đã được đối soát hoàn lại. Không thể chuyển trạng thái."}
         </p>
         {closed && (
@@ -91,6 +94,7 @@ const ActionPanel = ({ order, updating, onAdvance, onMarkAsPaid, onCancel }) => 
             order={order}
             updating={updating}
             onMarkAsPaid={onMarkAsPaid}
+            light
           />
         )}
       </div>
@@ -191,7 +195,10 @@ const OrderTaskConsole = ({
       </div>
     </div>
 
-    <div className="grid gap-px bg-border lg:grid-cols-[minmax(0,1fr)_300px]">
+    <div className={cn("grid gap-px bg-border",
+      NEXT_STEP_ACTION[order.status]
+        ? "lg:grid-cols-[minmax(0,1fr)_300px]"
+        : "lg:grid-cols-[minmax(0,1fr)_420px]")}>
       <ActionPanel
         order={order}
         updating={updating}
@@ -199,7 +206,7 @@ const OrderTaskConsole = ({
         onMarkAsPaid={onMarkAsPaid}
         onCancel={onCancel}
       />
-      <OrderMoneyPanel order={order} />
+      <OrderMoneyPanel order={order} compact={!NEXT_STEP_ACTION[order.status]} />
     </div>
 
     <div className="border-t border-border bg-navy-50/50 px-5 py-4 dark:bg-navy-500/8">

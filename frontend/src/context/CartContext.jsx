@@ -1,17 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useEffectEvent } from 'react';
 import { toast } from 'sonner';
 import cartApi from '../api/cart.api';
 import flashSaleApi from '../api/flashSale.api';
 import { indexFlashItemsByProduct } from '../utils/flashSale';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from './auth-state';
+import useVoucherSelection from '../hooks/useVoucherSelection';
 
-const CartContext = createContext();
+import { CartContext } from "./cart-state";
 
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) throw new Error('useCart must be used within a CartProvider');
-  return context;
-};
 
 export const CartProvider = ({ children }) => {
   const { isAuthenticated, user } = useContext(AuthContext);
@@ -27,7 +23,6 @@ export const CartProvider = ({ children }) => {
     }
   });
 
-  const [promoCode, setPromoCode] = useState(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Sync cart with localStorage
@@ -36,8 +31,7 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   // Sync LOCAL cart with SERVER cart on login
-  useEffect(() => {
-    const syncCart = async () => {
+  const syncCartOnAuth = useEffectEvent(async () => {
       if (isAuthenticated && cart.length > 0) {
         setIsSyncing(true);
         try {
@@ -45,7 +39,7 @@ export const CartProvider = ({ children }) => {
           const res = await cartApi.sync(cart);
           // Update local state with the merged server cart
           const serverCart = res.data?.cart || [];
-          
+
           // Map server items to frontend format
           const formattedCart = serverCart.map(item => ({
             id: item.product_id,
@@ -85,9 +79,10 @@ export const CartProvider = ({ children }) => {
           console.error('Failed to fetch cart', err);
         }
       }
-    };
+  });
 
-    syncCart();
+  useEffect(() => {
+    syncCartOnAuth();
   }, [isAuthenticated]);
 
   const addToCart = async (product, quantity = 1) => {
@@ -95,7 +90,7 @@ export const CartProvider = ({ children }) => {
 
     if (product.status && product.status !== 'active') {
       toast.error('Sản phẩm đã ngừng bán');
-      return;
+      return false;
     }
 
     const existingItem = cart.find(item => item.id === productId);
@@ -105,7 +100,7 @@ export const CartProvider = ({ children }) => {
         await cartApi.add(productId, quantity);
       } catch (err) {
         toast.error(err.response?.data?.message || 'Lỗi khi cập nhật giỏ hàng trên máy chủ');
-        return;
+        return false;
       }
     }
 
@@ -120,6 +115,7 @@ export const CartProvider = ({ children }) => {
       toast.success(`Đã thêm ${product.name} vào giỏ hàng`);
       setCart(prevCart => [...prevCart, { ...product, id: productId, quantity }]);
     }
+    return true;
   };
 
   const removeFromCart = async (productId) => {
@@ -133,13 +129,14 @@ export const CartProvider = ({ children }) => {
         }
       }
       toast.error('Đã xóa sản phẩm khỏi giỏ hàng');
+      if (cart.length === 1) removeVoucher();
       setCart(prevCart => prevCart.filter(item => item.id !== productId));
     }
   };
 
   const updateQuantity = async (productId, quantity) => {
     if (quantity < 1) return;
-    
+
     if (isAuthenticated) {
       try {
         await cartApi.update(productId, quantity);
@@ -155,6 +152,7 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = async () => {
+    removeVoucher();
     if (isAuthenticated) {
       try {
         await cartApi.clear();
@@ -194,9 +192,9 @@ export const CartProvider = ({ children }) => {
   const flashSavings = listSubtotal - cartSubtotal;
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
-  const shippingFee = 0; // Miễn phí vận chuyển toàn quốc
-  const discountAmount = promoCode ? (cartSubtotal * promoCode.discount / 100) : 0;
-  const cartTotal = Math.max(0, cartSubtotal + shippingFee - discountAmount);
+  const voucher = useVoucherSelection(cartSubtotal, isAuthenticated ? user?.id : 'guest');
+  const { discountAmount, removeVoucher } = voucher;
+  const cartTotal = Math.max(0, cartSubtotal - discountAmount);
 
   return (
     <CartContext.Provider value={{
@@ -208,10 +206,8 @@ export const CartProvider = ({ children }) => {
       cartSubtotal,
       listSubtotal,
       cartCount,
-      shippingFee,
       cartTotal,
-      promoCode,
-      setPromoCode,
+      ...voucher,
       discountAmount,
       flashSavings,
       flashOf,

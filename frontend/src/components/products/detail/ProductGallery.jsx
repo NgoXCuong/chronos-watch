@@ -25,9 +25,9 @@ const ProductGallery = ({ product, images, discount }) => {
     };
 
     return (
-        <div className="flex flex-col gap-3 xl:flex-row">
+        <div className={cn("product-gallery", !hasMultiple && "product-gallery-single")}>
             {hasMultiple && (
-                <div className="order-2 grid grid-cols-5 gap-2 sm:grid-cols-6 xl:order-1 xl:w-20 xl:shrink-0 xl:grid-cols-1 xl:content-start xl:gap-2.5">
+                <div className="product-gallery-thumbnails">
                     {images.map((img, idx) => (
                         <button
                             key={`${img}-thumb-${idx}`}
@@ -58,7 +58,7 @@ const ProductGallery = ({ product, images, discount }) => {
                 </div>
             )}
 
-            <div className="relative order-1 min-w-0 flex-1 overflow-hidden rounded-xl border border-border bg-navy-50 shadow-card xl:order-2">
+            <div className="product-gallery-stage relative min-w-0 overflow-hidden rounded-xl border border-border bg-navy-50 shadow-card">
                 {discount > 0 && (
                     <div className="absolute left-4 top-4 z-20 rounded-md bg-sale-soft px-2.5 py-1 text-[12px] font-extrabold uppercase tracking-[0.02em] text-sale">
                         -{discount}%
@@ -66,7 +66,7 @@ const ProductGallery = ({ product, images, discount }) => {
                 )}
 
                 {images.length === 0 ? (
-                    <div className="flex aspect-square w-full items-center justify-center text-navy-300">
+                    <div className="flex size-full items-center justify-center text-navy-300">
                         <Watch size={54} strokeWidth={1.5} aria-hidden="true" />
                     </div>
                 ) : (
@@ -77,18 +77,18 @@ const ProductGallery = ({ product, images, discount }) => {
                         effect="fade"
                         fadeEffect={{ crossFade: true }}
                         modules={[EffectFade]}
-                        className="aspect-square w-full"
+                        className="product-gallery-swiper"
                     >
                         {images.map((img, idx) => (
                             <SwiperSlide key={`${img}-${idx}`}>
-                                <div className="flex h-full w-full items-center justify-center p-4 md:p-8">
+                                <div className="flex h-full w-full items-center justify-center p-3 md:p-5">
                                     <img
                                         src={img}
                                         alt={`${product.name} — ảnh ${idx + 1}`}
                                         loading={idx === 0 ? 'eager' : 'lazy'}
                                         decoding="async"
                                         draggable={false}
-                                        className="max-h-full max-w-full select-none object-contain"
+                                        className="h-full w-full select-none object-contain"
                                     />
                                 </div>
                             </SwiperSlide>

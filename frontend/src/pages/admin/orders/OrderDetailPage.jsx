@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import adminApi from "../../../api/admin.api";
+import paymentApi from "../../../api/payment.api";
 import { Button } from "../../../components/ui/button";
 import OrderTaskConsole from "../../../components/admin/Order/detail/OrderTaskConsole";
+import OrderWarrantySection from "../../../components/admin/Order/detail/OrderWarrantySection";
 import OrderItemsTable from "../../../components/admin/Order/detail/OrderItemsTable";
 import OrderFactTable from "../../../components/admin/Order/detail/OrderFactTable";
 import OrderHistoryTimeline from "../../../components/admin/Order/detail/OrderHistoryTimeline";
@@ -26,7 +28,7 @@ const OrderDetailPage = () => {
   const [updating, setUpdating] = useState(false);
   const [note, setNote] = useState("");
 
-  const fetchOrderDetail = async () => {
+  const fetchOrderDetail = useCallback(async () => {
     setLoading(true);
     try {
       setOrder(await adminApi.getOrderDetail(id));
@@ -36,11 +38,11 @@ const OrderDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchOrderDetail();
-  }, [id]);
+  }, [fetchOrderDetail]);
 
   const runAction = async (action, successMessage) => {
     setUpdating(true);
@@ -71,10 +73,12 @@ const OrderDetailPage = () => {
 
   const handleMarkAsPaid = () =>
     runAction(
-      () => adminApi.markOrderAsPaid(id),
+      () => order?.payment_method === "cod"
+        ? adminApi.markOrderAsPaid(id)
+        : paymentApi.mockSePayPayment(id),
       order?.payment_method === "cod"
         ? "Đã xác nhận thu tiền COD"
-        : "Đã xác nhận khách chuyển khoản",
+        : "Đã giả lập thanh toán chuyển khoản thành công",
     );
 
   if (loading) {
@@ -127,6 +131,7 @@ const OrderDetailPage = () => {
       <div className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,1fr)_400px]">
         <div className="min-w-0 space-y-3">
           <OrderItemsTable order={order} />
+          <OrderWarrantySection key={`${order.id}-${order.status}`} orderId={order.id} />
           <OrderHistoryTimeline history={order.history} />
         </div>
         <div className="min-w-0 space-y-3">

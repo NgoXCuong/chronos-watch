@@ -1,48 +1,27 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Gem, Ticket, Truck } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { ArrowUpRight, Settings, Gem, Droplets } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
+import movementImage from "../../assets/dong-ho-co.jpg";
 
-const PROMOS = [
-    {
-        icon: Gem,
-        title: 'Bộ sưu tập cao cấp',
-        sub: 'Đính đá & giới hạn — dành riêng cho quý ông',
-        to: '/products?category=limited',
-    },
-    {
-        icon: Ticket,
-        title: 'Mã giảm giá 15%',
-        sub: 'Cho đơn hàng đầu tiên trên 500.000₫',
-        to: '/products',
-    },
-    {
-        icon: Truck,
-        title: 'Giao hỏa tốc 4h',
-        sub: 'Nội thành Hà Nội & TP.HCM trong ngày',
-        to: '/about',
-    },
-];
-
-/** 3 banner khuyến mãi gọn kiểu sàn TMĐT (icon + chữ + CTA mũi tên). */
-const PromoBanner = () => (
-    <div className="grid gap-4 md:grid-cols-3">
-        {PROMOS.map(({ icon: Icon, title, sub, to }) => (
-            <Link
-                key={title}
-                to={to}
-                className="group flex items-center gap-4 rounded-xl border border-border bg-linear-to-r from-navy-50 to-card p-5 shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-hover"
-            >
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-navy-600 text-white">
-                    <Icon size={22} strokeWidth={2} aria-hidden="true" />
-                </span>
-                <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-extrabold uppercase text-navy-900">{title}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{sub}</span>
-                </span>
-                <ArrowRight size={18} strokeWidth={2} className="shrink-0 text-navy-500 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-            </Link>
-        ))}
-    </div>
-);
-
-export default PromoBanner;
+export default function PromoBanner() {
+  return (
+    <section className="overflow-hidden rounded-xl border border-border bg-card md:grid md:grid-cols-2">
+      <div className="group relative min-h-64 overflow-hidden bg-navy-950 md:min-h-80">
+        <img src={movementImage} alt="Chi tiết bộ máy cơ và các linh kiện đồng hồ" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-700 motion-safe:group-hover:scale-105" />
+        <span className="absolute bottom-5 left-5 rounded-md border border-white/20 bg-navy-950/80 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white backdrop-blur-sm">The art of watchmaking</span>
+      </div>
+      <div className="flex flex-col justify-center p-6 md:p-8">
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Bên trong một tuyệt tác</p>
+        <h2 className="text-2xl font-extrabold leading-tight tracking-tight text-foreground md:text-3xl">Không chỉ xem giờ.<br />Cảm nhận từng chuyển động.</h2>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">Từ nhịp đập của bộ máy đến đường nét trên mặt số. Khám phá những chi tiết làm nên dấu ấn riêng của chiếc đồng hồ bạn chọn.</p>
+        <div className="mt-5 flex flex-wrap gap-4 border-t border-border pt-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5"><Settings size={15} /> Bộ máy</span>
+          <span className="flex items-center gap-1.5"><Gem size={15} /> Mặt kính</span>
+          <span className="flex items-center gap-1.5"><Droplets size={15} /> Chống nước</span>
+        </div>
+        <Link to="/products?movement=Automatic" className={cn(buttonVariants({ variant: "link" }), "mt-4 h-auto justify-start self-start px-0 py-2")}>Khám phá đồng hồ cơ <ArrowUpRight size={16} /></Link>
+      </div>
+    </section>
+  );
+}

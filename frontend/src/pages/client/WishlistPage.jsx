@@ -3,9 +3,9 @@ import { ArrowRight, Heart } from "lucide-react";
 import AccountLayout from "@/components/client/AccountLayout";
 import NoticeCard from "@/components/client/NoticeCard";
 import WishlistCard from "@/components/client/wishlist/WishlistCard";
-import { buttonVariants } from "@/components/ui/button";
-import { useCart } from "@/context/CartContext";
-import { useWishlist } from "@/context/WishlistContext";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
 import { cn } from "@/lib/utils";
 
 const DiscoverLink = () => (

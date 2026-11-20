@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 // Recharts không nhận class Tailwind → resolve token trong index.css tại runtime.
 // Nhờ vậy biểu đồ tự đổi màu theo light/dark mà không hardcode hex.
@@ -17,7 +17,7 @@ export const resolveTokenColor = (name, fallback = "transparent") => {
 // Trả về hex đã resolve + tự cập nhật khi đổi theme (light ↔ dark)
 export const useChartTokens = (names) => {
   const key = names.join(",");
-  const [theme, setTheme] = useState(() =>
+  const [, setTheme] = useState(() =>
     typeof document !== "undefined"
       ? document.documentElement.classList.contains("dark")
       : false,
@@ -34,11 +34,7 @@ export const useChartTokens = (names) => {
     return () => observer.disconnect();
   }, []);
 
-  return useMemo(
-    () =>
-      Object.fromEntries(key.split(",").map((n) => [n, resolveTokenColor(n)])),
-    [key, theme],
-  );
+  return Object.fromEntries(key.split(",").map((name) => [name, resolveTokenColor(name)]));
 };
 
 // Trạng thái đơn hàng → token màu (spec §6: pending=warning, shipping=info,

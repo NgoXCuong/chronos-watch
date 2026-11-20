@@ -1,4 +1,6 @@
-import React from 'react';
+import CategoryFilterChoices from './CategoryFilterChoices';
+import FilterChoices from './FilterChoices';
+
 import { Banknote, Check, Layers, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { facetOptions, buildPriceTiers, toggleValue } from '../../utils/productFilters';
 import { SPEC_FILTER_GROUPS } from '../../constants/productFilters';
@@ -6,23 +8,6 @@ import FilterSection from './FilterSection';
 import FilterOptionRow from './FilterOptionRow';
 import PriceRangeForm from './PriceRangeForm';
 import { cn } from '@/lib/utils';
-
-/** Cây danh mục 2 cấp → hàng bấm (con thụt đầu dòng), kèm số sản phẩm có thật. */
-const CategoryRows = ({ nodes, filters, applyFilters, depth = 0 }) =>
-    nodes.map((node) => (
-        <React.Fragment key={node.id ?? node._id}>
-            <FilterOptionRow
-                label={node.name}
-                count={node.subtree_product_count ?? node.product_count}
-                indent={depth}
-                active={String(filters.categoryId) === String(node.id)}
-                onClick={() => applyFilters({ categoryId: String(node.id), categoryLabel: node.name })}
-            />
-            {node.children?.length > 0 && depth < 1 && (
-                <CategoryRows nodes={node.children} filters={filters} applyFilters={applyFilters} depth={depth + 1} />
-            )}
-        </React.Fragment>
-    ));
 
 /**
  * Bảng lọc dùng chung cho cột trái (desktop) và drawer (mobile).
@@ -37,9 +22,9 @@ const FilterPanel = ({ filters, categories, brands, facets, applyFilters, clearF
     const toggleSpec = (key, value) => applyFilters({ specs: { ...filters.specs, [key]: toggleValue(filters.specs[key], value) } });
 
     return (
-        <div className={className}>
+        <div className={cn("catalog-filter-panel", className)}>
             <div className="flex items-center justify-between px-4 pb-2 pt-4">
-                <p className="text-[13px] font-bold uppercase tracking-[0.02em] text-navy-700">Bộ lọc</p>
+                <div><p className="text-[13px] font-bold text-foreground inline-flex items-center gap-2"><SlidersHorizontal size={16} />Tinh chỉnh lựa chọn</p><p className="mt-1 text-[11px] text-muted-foreground">Chọn theo nhu cầu của bạn</p></div>
                 <button
                     type="button"
                     onClick={clearFilters}
@@ -49,20 +34,15 @@ const FilterPanel = ({ filters, categories, brands, facets, applyFilters, clearF
                 </button>
             </div>
 
-            <FilterSection title="Danh mục" icon={Layers} activeCount={filters.categoryId ? 1 : 0}>
-                <FilterOptionRow
-                    label="Tất cả danh mục"
-                    active={!filters.categoryId}
-                    onClick={() => applyFilters({ categoryId: '', categoryLabel: '' })}
-                />
-                <CategoryRows nodes={categories} filters={filters} applyFilters={applyFilters} />
+            <FilterSection title="Danh mục" icon={Layers} summary={filters.categoryLabel || 'Chọn theo dòng đồng hồ'} activeCount={filters.categoryId ? 1 : 0}>
+                <CategoryFilterChoices categories={categories} filters={filters} applyFilters={applyFilters} />
             </FilterSection>
 
-            <FilterSection title="Thương hiệu" icon={ShieldCheck} activeCount={activeBrandCount} defaultOpen={activeBrandCount > 0 || tiers.length === 0}>
+            <FilterSection title="Thương hiệu" icon={ShieldCheck} activeCount={activeBrandCount} summary={activeBrandCount ? brands.filter((b) => filters.brandIds.includes(String(b.id))).map((b) => b.name).join(', ') : `${brands.length} thương hiệu trong bộ sưu tập`}>
                 {brands.length === 0 ? (
                     <p className="px-2 py-1 text-xs text-muted-foreground">Chưa có thương hiệu nào.</p>
                 ) : (
-                    brands.map((brand) => (
+                    <FilterChoices>{[...brands.filter((b) => filters.brandIds.includes(String(b.id))), ...brands.filter((b) => !filters.brandIds.includes(String(b.id)))].map((brand) => (
                         <FilterOptionRow
                             key={brand.id ?? brand._id}
                             label={brand.name}
@@ -72,11 +52,11 @@ const FilterPanel = ({ filters, categories, brands, facets, applyFilters, clearF
                             active={filters.brandIds.includes(String(brand.id))}
                             onClick={() => applyFilters({ brandIds: toggleValue(filters.brandIds, String(brand.id)) })}
                         />
-                    ))
+                    ))}</FilterChoices>
                 )}
             </FilterSection>
 
-            <FilterSection title="Khoảng giá" icon={Banknote} activeCount={filters.minPrice || filters.maxPrice ? 1 : 0}>
+            <FilterSection title="Khoảng giá" icon={Banknote} defaultOpen activeCount={filters.minPrice || filters.maxPrice ? 1 : 0}>
                 {tiers.length > 0 && (
                     <div className="grid grid-cols-2 gap-2">
                         {tiers.map((tier, idx) => {
@@ -118,9 +98,9 @@ const FilterPanel = ({ filters, categories, brands, facets, applyFilters, clearF
                     title={group.label}
                     icon={SlidersHorizontal}
                     activeCount={(filters.specs[group.key] || []).length}
-                    defaultOpen={(filters.specs[group.key] || []).length > 0}
+                    summary={(filters.specs[group.key] || []).join(', ') || `${facetOptions(group).length} lựa chọn`}
                 >
-                    {facetOptions(group).map((option) => (
+                    <FilterChoices>{facetOptions(group).map((option) => (
                         <FilterOptionRow
                             key={option.value}
                             label={option.value}
@@ -130,7 +110,7 @@ const FilterPanel = ({ filters, categories, brands, facets, applyFilters, clearF
                             active={(filters.specs[group.key] || []).includes(option.value)}
                             onClick={() => toggleSpec(group.key, option.value)}
                         />
-                    ))}
+                    ))}</FilterChoices>
                 </FilterSection>
             ))}
         </div>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import { Download, FileSpreadsheet } from "lucide-react";
@@ -62,7 +62,7 @@ const OrderListPage = () => {
   const rowsById = useRef(new Map());
   const isFirstQuery = useRef(true);
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     setLoading(true);
     try {
       const data = await adminApi.getAllOrders({
@@ -82,7 +82,7 @@ const OrderListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, filterStatus, sort]);
 
   useEffect(() => {
     if (isFirstQuery.current) {
@@ -94,7 +94,7 @@ const OrderListPage = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, debouncedSearch, filterStatus, sort]);
+  }, [fetchOrders]);
 
   const handleStatusUpdate = async (orderId, status) => {
     setUpdatingId(orderId);

@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
-import { ArrowUp, ArrowUpRight, MessageCircle, Watch, X } from 'lucide-react';
+import { ArrowUp, MessageCircle, Watch, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import aiApi from '../../../api/ai.api';
 import ChatMessage from './ChatMessage';
+import ChatWelcome from './ChatWelcome';
+import '../../../styles/chatbot.css';
 
-const SUGGESTIONS = ['Tư vấn đồng hồ dưới 5 triệu', 'Đồng hồ phù hợp đi làm', 'Chính sách bảo hành'];
+
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +21,7 @@ export default function Chatbot() {
     const launcherRef = useRef(null);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' });
+        if (messages.length > 1 || isLoading) messagesEndRef.current?.scrollIntoView({ behavior: 'instant', block: 'nearest' });
     }, [messages, isOpen, isLoading]);
 
     useEffect(() => {
@@ -59,16 +61,16 @@ export default function Chatbot() {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end sm:bottom-6 sm:right-6">
+        <div className="fixed bottom-4 right-4 z-120 flex flex-col items-end sm:bottom-6 sm:right-6">
             {isOpen && (
                 <section id="chronos-chat" role="dialog" aria-modal="false" aria-labelledby="chronos-chat-title"
-                    className="mb-3 flex h-[min(600px,calc(100dvh-108px))] w-[calc(100vw-32px)] max-w-[400px] flex-col overflow-hidden rounded-xl border border-border bg-card text-card-foreground shadow-navy sm:h-[min(640px,calc(100dvh-120px))]">
-                    <header className="flex shrink-0 items-center gap-3 bg-primary px-4 py-3 text-primary-foreground">
+                    className="chronos-chat">
+                    <header className="chat-header">
                         <div className="flex size-9 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10">
                             <Watch className="size-5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h2 id="chronos-chat-title" className="text-base font-semibold">Chronos AI</h2>
+                            <h2 id="chronos-chat-title" className="text-base font-semibold">Chronos <span className="chat-ai-label">AI</span></h2><p className="mt-1 text-[11px] text-white/65">Trợ lý lựa chọn đồng hồ</p>
                         </div>
                         <Button variant="ghost" size="icon" onClick={closeChat} aria-label="Đóng trò chuyện"
                             className="shrink-0 text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground">
@@ -76,22 +78,11 @@ export default function Chatbot() {
                         </Button>
                     </header>
 
-                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-background p-4">
-                        <p className="mb-4 text-center text-[10px] font-medium uppercase tracking-widest text-muted-foreground">Tư vấn cùng Chronos AI</p>
+                    <div className="chat-conversation">
+
                         <div role="log" aria-label="Nội dung trò chuyện" aria-live="polite" aria-relevant="additions" className="space-y-4">
-                            {messages.map((message, index) => <ChatMessage key={index} message={message} />)}
+                            {messages.length === 1 ? <ChatWelcome onSelect={sendMessage} /> : messages.slice(1).map((message, index) => <ChatMessage key={index} message={message} />)}
                         </div>
-                        {messages.length === 1 && (
-                            <div className="ml-9 mt-5 space-y-2">
-                                <p className="text-xs text-muted-foreground">Bạn có thể bắt đầu với</p>
-                                {SUGGESTIONS.map(question => (
-                                    <Button key={question} variant="outline" onClick={() => sendMessage(question)} disabled={isLoading}
-                                        className="h-auto w-full justify-between gap-3 px-3 py-2.5 text-left text-xs font-medium normal-case">
-                                        {question}<ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground" />
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
                         {isLoading && (
                             <div role="status" className="ml-9 mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                                 <span className="flex gap-1" aria-hidden="true">
@@ -103,8 +94,8 @@ export default function Chatbot() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    <footer className="shrink-0 border-t border-border bg-card p-3">
-                        <form onSubmit={event => { event.preventDefault(); sendMessage(input); }} className="relative">
+                    <footer className="chat-composer">
+                        <form onSubmit={event => { event.preventDefault(); sendMessage(input); }} className="chat-input-shell">
                             <Input ref={inputRef} value={input} onChange={event => setInput(event.target.value)}
                                 onKeyDown={event => {
                                     if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -112,13 +103,13 @@ export default function Chatbot() {
                                         sendMessage(input);
                                     }
                                 }}
-                                aria-label="Câu hỏi cho Chronos AI" placeholder="Nhập tin nhắn..."
-                                className="h-11 bg-background pr-14 text-sm font-normal" />
-                            <Button type="submit" size="icon" disabled={!input.trim() || isLoading} aria-label="Gửi câu hỏi" className="absolute right-1.5 top-1.5 size-8">
+                                aria-label="Câu hỏi cho Chronos AI" placeholder="Bạn đang tìm chiếc đồng hồ thế nào?"
+                                className="chat-input h-12 pr-14 text-sm font-normal" />
+                            <Button type="submit" size="icon" disabled={!input.trim() || isLoading} aria-label="Gửi câu hỏi" className="absolute right-2 top-2 size-8 rounded-lg">
                                 <ArrowUp className="size-4" />
                             </Button>
                         </form>
-                        <p className="mt-2 text-center text-[10px] leading-relaxed text-muted-foreground">Trợ lý AI · Thông tin tư vấn chỉ mang tính tham khảo</p>
+                        <p className="mt-2 text-center text-[10px] leading-relaxed text-muted-foreground">Chronos AI có thể nhầm lẫn · Kiểm tra chi tiết trước khi mua</p>
                     </footer>
                 </section>
             )}

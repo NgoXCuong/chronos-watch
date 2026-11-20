@@ -1,3 +1,5 @@
+import HomeNavigation from "../home/HomeNavigation";
+import { NAV_LINKS } from "../../constants/navigation";
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -14,13 +16,13 @@ import {
 } from "lucide-react";
 import Topbar from "../market/Topbar";
 import MarketHeader from "../market/MarketHeader";
-import MainNav, { NAV_LINKS, Item } from "../market/MainNav";
-import { useTheme } from "../../context/ThemeContext";
+import { Item } from "../market/MainNav";
+import { useTheme } from "../../hooks/useTheme";
 import { useAuth } from "../../hooks/useAuth";
 
 /** Khung đầu trang sàn TMĐT: Topbar 36px → (sticky) Header 74px searchbar + nav ngang; mobile có menu trượt. */
 const Navbar = () => {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menu, setMenu] = useState({ open: false, path: null });
   const [mobileQuery, setMobileQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,9 +30,9 @@ const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const isDark = theme === "dark";
 
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
+  const mobileOpen = menu.open && menu.path === location.pathname;
+  if (menu.path !== location.pathname) setMenu({ open: false, path: location.pathname });
+  const setMobileOpen = (open) => setMenu({ open, path: location.pathname });
 
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
@@ -55,8 +57,8 @@ const Navbar = () => {
   return (
     <>
       <Topbar />
-      <header className="sticky top-0 z-100 border-b border-border bg-background">
-        <div className="mx-auto w-full px-12 md:px-16 lg:px-24">
+      <header className="sticky top-0 z-100 border-b border-border bg-card/95 backdrop-blur-xl">
+        <div className="mx-auto w-full px-4 sm:px-8 md:px-16 lg:px-24">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -71,7 +73,7 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden border-t border-border md:block">
-            <MainNav />
+            <HomeNavigation />
           </div>
         </div>
       </header>

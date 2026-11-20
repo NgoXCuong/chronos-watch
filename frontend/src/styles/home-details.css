@@ -1,0 +1,132 @@
+.home-products > div:first-child {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.home-products h2 {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.dark .signature-visual img {
+  mix-blend-mode: normal;
+}
+@media (min-width: 1600px) {
+  .signature-hero {
+    min-height: 550px;
+  }
+  .signature-copy {
+    padding-left: 64px;
+  }
+  .signature-explore {
+    left: 64px;
+  }
+  .collection-image {
+    height: 340px;
+  }
+}
+@media (max-width: 1100px) {
+  .home-shell {
+    padding-right: 64px;
+    padding-left: 64px;
+  }
+  .signature-copy {
+    padding: 32px 28px 54px;
+  }
+  .signature-copy h1 {
+    font-size: 36px;
+  }
+  .signature-explore {
+    left: 28px;
+  }
+  .signature-assurance {
+    font-size: 9px;
+  }
+  .home-brand-strip {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .home-brand-intro {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .collection-image {
+    height: 240px;
+  }
+}
+@media (max-width: 767px) {
+  .home-shell {
+    padding: 16px 16px 32px;
+    gap: 32px;
+  }
+  .signature-hero {
+    grid-template-columns: 1fr;
+  }
+  .signature-copy {
+    padding: 30px 24px;
+  }
+  .signature-copy h1 {
+    font-size: 38px;
+    margin-top: 18px;
+  }
+  .signature-visual {
+    min-height: 280px;
+  }
+  .signature-assurance {
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+  .signature-explore {
+    display: none;
+  }
+  .signature-edition {
+    font-size: 8px;
+  }
+  .signature-caption {
+    font-size: 9px;
+  }
+  .home-trust {
+    margin-top: -20px;
+  }
+  .home-section-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .home-section-heading h2,
+  .home-products h2 {
+    font-size: 24px;
+  }
+  .home-brand-strip {
+    margin-top: 0;
+  }
+  .home-brand-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .home-brand span:first-child {
+    font-size: 17px;
+  }
+  .home-brand-intro {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .collection-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .collection-image {
+    height: 280px;
+  }
+  [data-editorial] [data-product-info] > div:last-child {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-enter {
+    animation: none;
+  }
+  .collection-tile:hover img {
+    transform: none;
+  }
+}

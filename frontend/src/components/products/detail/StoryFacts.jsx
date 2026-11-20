@@ -77,7 +77,7 @@ const StoryFacts = ({ product }) => {
             <Panel icon={ShieldCheck} title="Chính sách">
                 <dl className="grid gap-x-8 sm:grid-cols-2">
                     <Line label="Bảo hành" value={product.warranty_months ? `${product.warranty_months} tháng` : 'Theo hãng'} />
-                    {product.sku && <Line label="Mã sản phẩm" value={product.sku} />}
+                    {product.sku && <Line label="Mã sản phẩm (SKU)" value={product.sku} />}
                     {POLICY.map((item) => (
                         <Line key={item.label} label={item.label} value={item.value} />
                     ))}

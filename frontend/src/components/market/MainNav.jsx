@@ -2,13 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-export const NAV_LINKS = [
-    { to: '/', label: 'Trang chủ', end: true },
-    { to: '/products', label: 'Sản phẩm' },
-    { to: '/#flash-sale', label: 'Flash Sale', badge: 'HOT', anchor: true },
-    { to: '/brands', label: 'Thương hiệu' },
-    { to: '/about', label: 'Về chúng tôi' },
-];
+import { NAV_LINKS } from "../../constants/navigation";
 
 export const Item = ({ link, className, onClick }) => {
     const inner = (

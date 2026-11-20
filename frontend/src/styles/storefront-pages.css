@@ -1,0 +1,10 @@
+.atelier-shell { width: 100%; padding-inline: 96px; }
+.atelier-eyebrow { display: flex; align-items: center; gap: 10px; color: var(--muted-foreground); font-size: 10px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+.atelier-eyebrow::before { content: ""; width: 24px; height: 1px; background: currentColor; }
+.atelier-title { font-size: clamp(32px, 3vw, 52px); font-weight: 600; line-height: 1.12; letter-spacing: -.045em; text-wrap: balance; }
+.atelier-section-title { font-size: clamp(26px, 2.3vw, 38px); font-weight: 600; line-height: 1.2; letter-spacing: -.035em; text-wrap: balance; }
+.atelier-text-link { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--foreground); text-underline-offset: 5px; }
+.atelier-text-link:hover { text-decoration: underline; }
+.atelier-text-link svg { width: 16px; height: 16px; }
+@media (max-width: 1279px) { .atelier-shell { padding-inline: 64px; } }
+@media (max-width: 767px) { .atelier-shell { padding-inline: 16px; } }

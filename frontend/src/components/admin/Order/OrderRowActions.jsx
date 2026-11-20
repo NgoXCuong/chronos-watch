@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../ui/dropdown-menu";
-import { buttonVariants } from "../../ui/button";
+import { buttonVariants } from "../../ui/button-variants";
 import { cn } from "../../../lib/utils";
 import { ORDER_STATUS, getNextStatuses } from "../../../constants/orderStatus";
 

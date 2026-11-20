@@ -18,7 +18,7 @@ const SkeletonCard = () => (
 const ProductGrid = ({ products, loading, onClearFilters }) => {
     if (loading) {
         return (
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
+            <div className="catalog-product-grid">
                 {Array.from({ length: 8 }, (_, i) => (
                     <SkeletonCard key={i} />
                 ))}
@@ -42,9 +42,9 @@ const ProductGrid = ({ products, loading, onClearFilters }) => {
     }
 
     return (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
+        <div className="catalog-product-grid">
             {products.map((product) => (
-                <ProductCard key={product.id ?? product._id} product={product} />
+                <ProductCard editorial key={product.id ?? product._id} product={product} />
             ))}
         </div>
     );

@@ -1,86 +1,38 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
-import { buttonVariants } from "../../ui/button";
-import heroBanner from "../../../assets/hero-banner-sp.avif";
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { buttonVariants } from '../../ui/button-variants';
+import watchPortrait from '../../../assets/anh-minh-hoa.jpg';
 
-const Stat = ({ value, label }) => (
-  <div>
-    <p className="text-2xl font-bold tabular-nums text-white md:text-3xl">
-      {value}
-    </p>
-    <p className="mt-0.5 text-[12px] uppercase tracking-[0.02em] text-navy-200">
-      {label}
-    </p>
-  </div>
-);
-
-/**
- * Hero "Về chúng tôi": số liệu lấy thẳng từ danh mục đang chạy (không bịa số năm, số hãng),
- * ảnh nền là asset trong repo — trang cũ nhúng ảnh Unsplash nên có thể hỏng bất cứ lúc nào.
- */
-const AboutHero = ({ stats, loading }) => {
-  const shown = (value) => (loading ? "—" : value);
-
-  return (
-    <section className="relative overflow-hidden border-b border-border bg-navy-900">
-      <img
-        src={heroBanner}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 size-full object-cover opacity-20"
-      />
-      <span
-        className="absolute inset-0 bg-gradient-to-r from-navy-900 via-navy-900/90 to-navy-800/60"
-        aria-hidden="true"
-      />
-
-      <div className="relative mx-auto w-full px-12 py-12 md:px-16 lg:px-24 lg:py-16">
-        <p className="text-[12px] font-bold uppercase tracking-[0.02em] text-navy-300">
-          Câu chuyện Chronos
-        </p>
-        <h1 className="mt-3 max-w-3xl text-3xl font-extrabold leading-tight text-white md:text-[40px]">
-          Chúng tôi bán đồng hồ chính hãng, và công khai mọi thứ đi kèm nó
-        </h1>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-navy-100">
-          Chronos bắt đầu từ một nhóm người chơi đồng hồ cơ, mệt mỏi vì phải
-          đoán già đoán non về nguồn gốc sản phẩm. Nên trang này làm theo chiều
-          ngược lại: thông số đầy đủ, giá niêm yết rõ ràng, phiếu bảo hành điện
-          tử tra được bằng tài khoản của bạn.
-        </p>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link
-            to="/products"
-            className={buttonVariants({
-              size: "sm",
-              className: "h-10 gap-1.5",
-            })}
-          >
-            Xem sản phẩm đang bán
-            <ArrowRight size={15} strokeWidth={2} aria-hidden="true" />
-          </Link>
-          <Link
-            to="/brands"
-            className={buttonVariants({
-              variant: "buy",
-              size: "sm",
-              className:
-                "h-10 border-white/40 text-black hover:bg-white hover:text-navy-900",
-            })}
-          >
-            Danh sách thương hiệu
-          </Link>
-        </div>
-
-        <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-navy-700 pt-6 sm:grid-cols-3 lg:max-w-3xl">
-          <Stat value={shown(stats.brandCount)} label="Thương hiệu" />
-          <Stat value={shown(stats.countryCount)} label="Quốc gia xuất xứ" />
-          <Stat value={shown(stats.productCount)} label="Sản phẩm đang bán" />
-        </dl>
-      </div>
-    </section>
-  );
-};
-
-export default AboutHero;
+export default function AboutHero({ stats, loading }) {
+    const metrics = [
+        { value: stats.brandCount, label: 'Thương hiệu tuyển chọn' },
+        { value: stats.countryCount, label: 'Quốc gia chế tác' },
+        { value: stats.productCount, label: 'Thiết kế trong danh mục' },
+    ];
+    return (
+        <header className="about-intro">
+            <div className="about-intro-grid">
+                <div className="about-intro-copy">
+                    <p className="atelier-eyebrow">The Chronos story</p>
+                    <h1 className="atelier-title mt-5">Dành cho những<br />khoảnh khắc <span className="text-foreground">của bạn.</span></h1>
+                    <p className="mt-5 max-w-lg text-sm leading-7 text-muted-foreground">Một chiếc đồng hồ không chỉ để xem giờ. Đó là cách bạn thể hiện mình, trân trọng hiện tại và ghi dấu những điều đáng nhớ.</p>
+                    <p className="mt-3 max-w-lg text-sm leading-7 text-muted-foreground">Chronos giúp bạn tìm thấy thiết kế ấy, với thông tin rõ ràng và trải nghiệm mua sắm an tâm từ lựa chọn đầu tiên đến khi đeo trên tay.</p>
+                    <div className="mt-7 flex flex-wrap items-center gap-5">
+                        <Link to="/products" className={buttonVariants({ size: 'lg' })}>Khám phá đồng hồ <ArrowUpRight size={16} /></Link>
+                        <Link to="/brands" className="atelier-text-link">Các thương hiệu <ArrowUpRight /></Link>
+                    </div>
+                    <p className="mt-8 flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck size={16} className="text-foreground" aria-hidden="true" />Chính hãng · Minh bạch · Đồng hành</p>
+                </div>
+                <figure className="about-intro-image">
+                    <img src={watchPortrait} alt="Cận cảnh mặt số xanh và dây thép của một chiếc đồng hồ chronograph" className="size-full object-cover" fetchPriority="high" />
+                    <figcaption><span className="text-[9px] uppercase tracking-[.18em]">The art of time</span><span className="mt-1 block text-sm font-medium">Tinh tế trong từng chi tiết.</span></figcaption>
+                    <span className="about-photo-index" aria-hidden="true">CHRONOS / 01</span>
+                </figure>
+            </div>
+            <dl className="about-metrics">
+                {metrics.map(({ value, label }) => <div key={label}><dd className="text-4xl font-semibold tabular-nums tracking-tight">{loading ? '—' : value.toLocaleString('vi-VN')}</dd><dt className="mt-2 text-xs text-muted-foreground">{label}</dt></div>)}
+                <div className="about-metrics-note"><ShieldCheck size={23} strokeWidth={1.5} aria-hidden="true" /><p className="text-sm leading-relaxed">Chọn đồng hồ.<br /><span className="font-semibold">Chọn sự an tâm.</span></p></div>
+            </dl>
+        </header>
+    );
+}

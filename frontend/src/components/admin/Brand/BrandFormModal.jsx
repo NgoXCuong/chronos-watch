@@ -17,7 +17,10 @@ import useImagePicker from "../../../hooks/useImagePicker";
 import useSlugField from "../../../hooks/useSlugField";
 import { TAXONOMY_MAX } from "../../../constants/taxonomyForm";
 import { IMAGE_MAX_MB } from "../../../constants/upload";
-import { buildTaxonomyPayload, validateTaxonomy } from "../../../utils/taxonomyForm";
+import {
+  buildTaxonomyPayload,
+  validateTaxonomy,
+} from "../../../utils/taxonomyForm";
 
 // brands: name(100) UNIQUE · slug(100) UNIQUE · country(100) · description TEXT · logo_url
 const EMPTY_FORM = { name: "", slug: "", country: "", description: "" };
@@ -36,7 +39,7 @@ const formOf = (brand) =>
 const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
   const [form, setForm] = useState(() => formOf(brand));
   const [errors, setErrors] = useState({});
-  const { setName, setSlug, slugTouched } = useSlugField(setForm);
+  const { setName, setSlug } = useSlugField(setForm);
   const logo = useImagePicker(brand?.logo_url);
   const {
     file: logoFile,
@@ -68,7 +71,10 @@ const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-navy-600 dark:text-navy-200" strokeWidth={2} />
+              <Building2
+                className="h-4 w-4 text-navy-600 dark:text-navy-200"
+                strokeWidth={2}
+              />
               {brand ? "Cập nhật thương hiệu" : "Thêm thương hiệu mới"}
             </DialogTitle>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
@@ -79,9 +85,17 @@ const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
         </div>
       </DialogHeader>
 
-      <form onSubmit={handleSubmit} className="max-h-[65vh] space-y-4 overflow-y-auto p-5">
+      <form
+        onSubmit={handleSubmit}
+        className="max-h-[65vh] space-y-4 overflow-y-auto p-5"
+      >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField label="Tên thương hiệu" htmlFor="brand-name" required error={errors.name}>
+          <FormField
+            label="Tên thương hiệu"
+            htmlFor="brand-name"
+            required
+            error={errors.name}
+          >
             <Input
               id="brand-name"
               value={form.name}
@@ -95,7 +109,6 @@ const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
           <FormField
             label="Đường dẫn (slug)"
             htmlFor="brand-slug"
-            hint={slugTouched ? "Đang dùng slug nhập tay." : "Tự sinh từ tên."}
             error={errors.slug}
           >
             <Input
@@ -112,14 +125,15 @@ const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
           <FormField
             label="Quốc gia"
             htmlFor="brand-country"
-            hint="Để trống nếu chưa rõ."
             error={errors.country}
           >
             <Input
               id="brand-country"
               value={form.country}
               maxLength={TAXONOMY_MAX.country}
-              onChange={(event) => setForm((prev) => ({ ...prev, country: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, country: event.target.value }))
+              }
               placeholder="VD: Nhật Bản"
               error={errors.country}
             />
@@ -139,25 +153,32 @@ const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
           />
         </div>
 
-        <FormField
-          label="Mô tả"
-          htmlFor="brand-description"
-          hint="Hiển thị ở trang danh sách thương hiệu và khối giới thiệu."
-        >
+        <FormField label="Mô tả" htmlFor="brand-description">
           <Textarea
             id="brand-description"
             rows={4}
             value={form.description}
-            onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+            onChange={(event) =>
+              setForm((prev) => ({ ...prev, description: event.target.value }))
+            }
             placeholder="VD: Casio thành lập năm 1946 tại Tokyo, nổi bật với G-Shock chống va đập..."
           />
         </FormField>
 
         <DialogFooter className="border-t-0 px-0 pb-0 pt-1">
-          <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={saving}
+          >
             Hủy
           </Button>
-          <Button type="submit" loading={saving} className="min-w-[132px] gap-1.5">
+          <Button
+            type="submit"
+            loading={saving}
+            className="min-w-[132px] gap-1.5"
+          >
             {!saving && <Save className="h-4 w-4" strokeWidth={2} />}
             {brand ? "Lưu thay đổi" : "Tạo thương hiệu"}
           </Button>

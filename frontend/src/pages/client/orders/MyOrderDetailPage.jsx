@@ -1,7 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { FileSearch, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import AccountLayout from "@/components/client/AccountLayout";
 import NoticeCard from "@/components/client/NoticeCard";
 import OrderDetailActions from "@/components/client/orders/detail/OrderDetailActions";

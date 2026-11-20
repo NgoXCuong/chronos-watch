@@ -1,7 +1,7 @@
-import { createContext, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import authApi from '../api/auth.api';
 
-export const AuthContext = createContext();
+import { AuthContext } from "./auth-state";
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
             const userData = await authApi.getProfile();
             setUser(userData);
             setIsAuthenticated(true);
-        } catch (error) {
+        } catch {
             setUser(null);
             setIsAuthenticated(false);
         } finally {
@@ -26,26 +26,15 @@ export const AuthProvider = ({ children }) => {
     }, [checkAuthStatus]);
 
     const login = async (credentials) => {
-        try {
-            const data = await authApi.login(credentials);
-            if (data.user) {
-                setUser(data.user);
-                setIsAuthenticated(true);
-            }
-            return data;
-        } catch (error) {
-            throw error;
+        const data = await authApi.login(credentials);
+        if (data.user) {
+            setUser(data.user);
+            setIsAuthenticated(true);
         }
+        return data;
     };
 
-    const register = async (userData) => {
-        try {
-            const data = await authApi.register(userData);
-            return data;
-        } catch (error) {
-            throw error;
-        }
-    };
+    const register = (userData) => authApi.register(userData);
 
     const logout = async () => {
         try {

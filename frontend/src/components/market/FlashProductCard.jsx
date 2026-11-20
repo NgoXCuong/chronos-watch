@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Flame, ShoppingCart } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
+import { Flame, ShoppingCart, Zap } from 'lucide-react';
+import { buttonVariants } from '@/components/ui/button-variants';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { flashSoldPercent } from '../../utils/flashSale';
 import anhminhhoa from '../../assets/anh-minh-hoa.jpg';
@@ -11,7 +11,7 @@ import anhminhhoa from '../../assets/anh-minh-hoa.jpg';
  * nhiêu / còn bao nhiêu). `item` là dòng đã decorate từ /flash-sales/current:
  * { flash_price, quota, sold_count, remaining, discount_percent, sold_out, product }.
  */
-export const FlashProductCard = ({ item }) => {
+export const FlashProductCard = ({ item, ended = false }) => {
     const product = item?.product;
     if (!product) return null;
 
@@ -24,15 +24,11 @@ export const FlashProductCard = ({ item }) => {
 
     return (
         <div
-            className={`group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all duration-300 ${
+            className={`group relative flex flex-col overflow-hidden flash-storefront-card rounded-xl border bg-card shadow-card transition-all duration-300 ${
                 soldOut ? '' : 'hover:-translate-y-0.5 hover:shadow-hover'
             }`}
         >
-            {Number(item.discount_percent) > 0 && (
-                <div className="absolute top-3 left-3 z-10 rounded-md bg-sale-soft px-2 py-1 text-[11px] font-extrabold uppercase text-sale">
-                    -{Number(item.discount_percent)}%
-                </div>
-            )}
+            <div className="flash-card-label"><span><Zap size={13} fill="currentColor" />{ended ? 'ĐÃ KẾT THÚC' : 'FLASH SALE'}</span>{Number(item.discount_percent) > 0 && <span>-{Number(item.discount_percent)}%</span>}</div>
 
             <Link to={`/products/${slug}`} className={`relative block overflow-hidden bg-navy-50 ${soldOut ? 'opacity-50' : ''}`} style={{ aspectRatio: '1' }}>
                 <img
@@ -48,15 +44,17 @@ export const FlashProductCard = ({ item }) => {
                 )}
             </Link>
 
-            <div className="flex flex-1 flex-col p-3">
+            <div className="flash-card-body flex flex-1 flex-col p-3">
+                {product.brand?.name && <p className="mb-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{product.brand.name}</p>}
                 <Link to={`/products/${slug}`}>
-                    <h3 className="mb-1.5 line-clamp-2 text-xs font-medium leading-snug text-card-foreground transition-colors hover:text-navy-600">
+                    <h3 className="mb-3 min-h-9 line-clamp-2 text-[13px] font-semibold leading-snug text-card-foreground transition-colors hover:text-navy-600">
                         {name}
                     </h3>
                 </Link>
 
-                <div className="mb-2 flex items-baseline gap-1.5">
-                    <span className="text-[15px] font-extrabold tabular-nums text-navy-600">{formatCurrency(item.flash_price)}</span>
+                <p className="flash-price-caption mb-1 text-[10px] font-semibold text-sale">{ended ? "Giá ưu đãi đã kết thúc" : "Giá Flash Sale"}</p>
+                <div className="flash-card-prices mb-3 flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-[15px] font-extrabold tabular-nums text-sale">{formatCurrency(item.flash_price)}</span>
                     {Number(item.list_price ?? product.price) > Number(item.flash_price) && (
                         <span className="text-[11px] line-through tabular-nums text-muted-foreground">
                             {formatCurrency(Number(item.list_price ?? product.price))}
@@ -90,13 +88,13 @@ export const FlashProductCard = ({ item }) => {
                     to={`/products/${slug}`}
                     aria-disabled={soldOut}
                     className={buttonVariants({
-                        variant: soldOut ? 'outline' : 'buy',
+                        variant: soldOut || ended ? 'outline' : 'default',
                         size: 'sm',
                         className: `mt-2 w-full justify-center ${soldOut ? 'pointer-events-none opacity-60' : ''}`,
                     })}
                 >
                     <ShoppingCart size={13} strokeWidth={2} aria-hidden="true" />
-                    <span>{soldOut ? 'Hết suất' : 'Mua ngay'}</span>
+                    <span>{soldOut ? 'Hết suất' : ended ? 'Xem sản phẩm' : 'Chọn ưu đãi'}</span>
                 </Link>
             </div>
         </div>

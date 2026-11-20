@@ -15,7 +15,7 @@ const rangeLabel = ({ page, totalCount }) => {
  * sort), nút Bộ lọc cho mobile. Không có toggle lưới/danh sách vì trang chỉ có một kiểu lưới.
  */
 const ProductToolbar = ({ page, totalCount, activeFilterCount, sort, onSortChange, onOpenFilters }) => (
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+    <div className="catalog-product-toolbar">
         <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" onClick={onOpenFilters} className="h-9 gap-1.5 rounded-lg border-border px-3 text-[13px] font-semibold text-navy-700 lg:hidden">
                 <Filter size={14} strokeWidth={2} aria-hidden="true" />

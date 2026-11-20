@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PackageCheck, PackageX, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -64,7 +64,7 @@ const ProductListPage = () => {
     [categories],
   );
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     try {
       const data = await productApi.getAdminAll({
@@ -84,7 +84,7 @@ const ProductListPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, debouncedSearch, brandId, categoryId, statusFilter, sort]);
 
   const fetchFilterData = async () => {
     try {
@@ -113,7 +113,7 @@ const ProductListPage = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, debouncedSearch, brandId, categoryId, statusFilter, sort]);
+  }, [fetchProducts]);
 
   const handleDelete = async (product) => {
     if (!window.confirm(`Xóa sản phẩm "${product.name}"?`)) return;

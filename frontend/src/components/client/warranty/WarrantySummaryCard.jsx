@@ -20,7 +20,7 @@ const Row = ({ label, children, mono = false }) => (
   </div>
 );
 
-// Tóm tắt phiếu: mã/serial mono (đối chiếu thủ công với nhân viên), mốc ngày, tiến trình
+// Tóm tắt phiếu: mã phiếu mono (đối chiếu thủ công với nhân viên), mốc ngày, tiến trình
 const WarrantySummaryCard = ({ warranty }) => (
   <section className="rounded-xl bg-card p-5 ring-1 ring-border">
     <h2 className="text-sm font-semibold uppercase tracking-[0.02em] text-navy-700 dark:text-navy-100">
@@ -30,9 +30,6 @@ const WarrantySummaryCard = ({ warranty }) => (
     <dl className="mt-2 divide-y divide-border">
       <Row label="Mã phiếu" mono>
         {warranty.code}
-      </Row>
-      <Row label="Serial" mono>
-        {warranty.serial || <span className="font-sans text-[12px] italic text-muted-foreground">Chưa cập nhật</span>}
       </Row>
       <Row label="SKU" mono>
         {warranty.sku || "—"}

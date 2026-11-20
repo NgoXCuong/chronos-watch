@@ -205,12 +205,6 @@ const FlashSaleListPage = () => {
         }}
       />
 
-      <p className="text-[11px] text-muted-foreground">
-        Trạng thái trên bảng (Đang chạy / Sắp chạy / Hết hạn / Cháy hàng / Đang
-        tắt) do server suy ra từ lịch và suất đã bán, không phải cột cấu hình —
-        bật/tắt chỉ đổi <span className="font-mono">status</span>.
-      </p>
-
       <FlashSaleFormModal
         open={modalOpen}
         sale={editingSale}

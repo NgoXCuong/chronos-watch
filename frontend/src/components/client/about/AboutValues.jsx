@@ -1,70 +1,30 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, RefreshCw, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { ArrowUpRight, RotateCcw, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { HOTLINE_TEL } from '../../../constants/contact';
 
 const VALUES = [
-    {
-        icon: ShieldCheck,
-        title: 'Bảo hành tra được',
-        body: 'Đơn giao thành công sinh phiếu bảo hành điện tử gắn với tài khoản của bạn, kèm thời hạn của từng sản phẩm.',
-        to: '/warranties',
-        link: 'Xem phiếu bảo hành của tôi',
-    },
-    {
-        icon: SlidersHorizontal,
-        title: 'Thông số công khai',
-        body: 'Loại máy, chất liệu kính, độ chống nước, kích thước mặt hiển thị cho từng mẫu và dùng để lọc sản phẩm.',
-        to: '/products',
-        link: 'Lọc sản phẩm theo thông số',
-    },
-    {
-        icon: RefreshCw,
-        title: 'Nhận hàng rồi mới trả tiền',
-        body: 'Kiểm tra hàng trước khi thanh toán, đổi trả trong 7 ngày nếu sản phẩm còn nguyên vẹn và còn tem niêm phong.',
-        href: HOTLINE_TEL,
-        link: 'Gọi hotline kiểm tra điều kiện',
-    },
+    { icon: <ShieldCheck size={25} strokeWidth={1.5} />, title: 'An tâm dài lâu', body: 'Theo dõi phiếu bảo hành điện tử, thời hạn và yêu cầu hỗ trợ trong tài khoản của bạn.', to: '/warranties', link: 'Tra cứu bảo hành' },
+    { icon: <SlidersHorizontal size={25} strokeWidth={1.5} />, title: 'Lựa chọn có cơ sở', body: 'Tìm kiếm theo thương hiệu, bộ máy và thông số để chọn mẫu phù hợp với nhu cầu của bạn.', to: '/products', link: 'Khám phá danh mục' },
+    { icon: <RotateCcw size={25} strokeWidth={1.5} />, title: 'Luôn có người đồng hành', body: 'Kiểm tra hàng trước khi nhận. Hỗ trợ đổi trả trong 7 ngày với sản phẩm còn nguyên vẹn, đủ điều kiện.', href: HOTLINE_TEL, link: 'Liên hệ tư vấn' },
 ];
 
-/** Ba giá trị cốt lõi — mỗi thẻ trỏ tới đúng nơi trên site nơi cam kết đó được thực hiện. */
-const AboutValues = () => (
-    <section>
-        <p className="text-[12px] font-bold uppercase tracking-[0.02em] text-navy-600">Nguyên tắc bán hàng</p>
-        <h2 className="mt-2 mb-5 text-2xl font-bold leading-tight text-foreground md:text-[28px]">
-            Ba điều chúng tôi giữ được, và chỉ ra được trên site
-        </h2>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            {VALUES.map(({ icon: Icon, title, body, to, href, link }) => (
-                <article key={title} className="flex h-full flex-col rounded-xl border border-border bg-card p-5 shadow-card">
-                    <span className="flex size-10 items-center justify-center rounded-lg bg-navy-50 text-navy-600">
-                        <Icon size={19} strokeWidth={2} aria-hidden="true" />
-                    </span>
-                    <h3 className="mt-3 text-[15px] font-bold text-foreground">{title}</h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{body}</p>
-                    {to && (
-                        <Link
-                            to={to}
-                            className="group mt-auto flex items-center gap-1 pt-4 text-[12px] font-semibold text-navy-600 transition-colors hover:text-navy-800"
-                        >
-                            {link}
-                            <ArrowRight size={13} strokeWidth={2} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                        </Link>
-                    )}
-                    {href && (
-                        <a
-                            href={href}
-                            className="group mt-auto flex items-center gap-1 pt-4 text-[12px] font-semibold text-navy-600 transition-colors hover:text-navy-800"
-                        >
-                            {link}
-                            <ArrowRight size={13} strokeWidth={2} className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
-                        </a>
-                    )}
-                </article>
-            ))}
-        </div>
-    </section>
-);
-
-export default AboutValues;
+export default function AboutValues() {
+    return (
+        <section className="about-values" aria-labelledby="about-values-title">
+            <div className="flex flex-wrap items-end justify-between gap-5">
+                <div><p className="atelier-eyebrow text-navy-200">02 / Trải nghiệm Chronos</p><h2 id="about-values-title" className="atelier-section-title mt-4 text-white">Giá trị ở từng điểm chạm.</h2></div>
+                <p className="max-w-sm text-sm leading-relaxed text-navy-200">Một trải nghiệm trọn vẹn, từ lúc khám phá đến những ngày đồng hành cùng chiếc đồng hồ của bạn.</p>
+            </div>
+            <div className="mt-10 grid gap-7 md:grid-cols-3 md:gap-10">
+                {VALUES.map(({ icon, title, body, to, href, link }, i) => (
+                    <article key={title} className="flex flex-col border-t border-navy-700 pt-6">
+                        <div className="flex items-center justify-between text-navy-200"><span aria-hidden="true">{icon}</span><span className="text-[10px] tabular-nums">0{i + 1}</span></div>
+                        <h3 className="mt-5 text-xl font-medium text-white">{title}</h3>
+                        <p className="mb-6 mt-3 text-[13px] leading-7 text-navy-200">{body}</p>
+                        {to ? <Link to={to} className="about-value-link">{link}<ArrowUpRight size={15} /></Link> : <a href={href} className="about-value-link">{link}<ArrowUpRight size={15} /></a>}
+                    </article>
+                ))}
+            </div>
+        </section>
+    );
+}

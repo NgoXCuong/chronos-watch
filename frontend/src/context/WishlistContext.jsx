@@ -1,15 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import wishlistApi from '../api/wishlist.api';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from './auth-state';
 
-const WishlistContext = createContext();
+import { WishlistContext } from "./wishlist-state";
 
-export const useWishlist = () => {
-  const context = useContext(WishlistContext);
-  if (!context) throw new Error('useWishlist must be used within a WishlistProvider');
-  return context;
-};
 
 export const WishlistProvider = ({ children }) => {
   const { isAuthenticated } = useContext(AuthContext);

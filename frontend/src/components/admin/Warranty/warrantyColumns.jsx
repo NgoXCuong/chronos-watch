@@ -12,7 +12,7 @@ import { WarrantyRowActions } from "./WarrantyRowActions";
 /**
  * Cột bảng phiếu bảo hành — mọi cột khai báo `width` (Rule 3).
  * `sortKey` chỉ đặt ở cột có trong SORTABLE_WARRANTY_COLUMNS của backend
- * (code, product_name, sku, serial, start_date, end_date, created_at);
+ * (code, product_name, sku, start_date, end_date, created_at);
  * cột suy ra (state, tiến trình) và cột JOIN (khách hàng, mã đơn) không sort được.
  */
 export const getWarrantyColumns = ({ onView, onEdit, onDelete } = {}) => [
@@ -35,13 +35,6 @@ export const getWarrantyColumns = ({ onView, onEdit, onDelete } = {}) => [
     header: "Khách hàng",
     width: "190px",
     cell: ({ row }) => <WarrantyCustomerCell row={row} />,
-  },
-  {
-    id: "serial",
-    header: "Serial",
-    sortKey: "serial",
-    width: "160px",
-    cell: ({ row }) => <WarrantyMonoCell value={row.serial} empty="Chưa cập nhật" />,
   },
   {
     id: "term",

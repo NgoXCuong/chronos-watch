@@ -18,7 +18,11 @@ export const useBrandCatalog = () => {
         let alive = true;
         brandApi
             .getAll({ limit: LIMIT })
-            .then((data) => alive && setBrands(toRows(data).filter(isShownBrand)))
+            .then((data) => {
+                if (!alive) return;
+                setBrands(toRows(data).filter(isShownBrand));
+                setFailed(false);
+            })
             .catch((error) => {
                 console.error('Lỗi lấy danh sách thương hiệu:', error);
                 if (alive) {

@@ -94,7 +94,10 @@ const FlashSaleFormBody = ({ sale, saving, onSubmit, onClose }) => {
         if (!alive || !data.flashSale) return;
         setForm(detailToForm(data.flashSale));
       })
-      .catch((err) => alive && toast.error(err?.message || "Không tải được đợt Flash Sale"))
+      .catch(
+        (err) =>
+          alive && toast.error(err?.message || "Không tải được đợt Flash Sale"),
+      )
       .finally(() => alive && setLoadingDetail(false));
     return () => {
       alive = false;
@@ -119,110 +122,113 @@ const FlashSaleFormBody = ({ sale, saving, onSubmit, onClose }) => {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-navy-600 dark:text-navy-200" strokeWidth={2} />
+              <Zap
+                className="h-4 w-4 text-navy-600 dark:text-navy-200"
+                strokeWidth={2}
+              />
               {sale ? "Cập nhật đợt Flash Sale" : "Tạo đợt Flash Sale mới"}
             </DialogTitle>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              Hai đợt đang bật không được chồng lịch; lưu là thay toàn bộ danh sách
-              sản phẩm của đợt.
+              Hai đợt đang bật không được chồng lịch; lưu là thay toàn bộ danh
+              sách sản phẩm của đợt.
             </p>
           </div>
           <DialogCloseButton onClick={onClose} />
         </div>
       </DialogHeader>
 
-      <div className="max-h-[68vh] space-y-4 overflow-y-auto p-5">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
         {/* Form CHỈ ôm các field tên/lịch/status — trình soạn sản phẩm (có Dialog chọn
             sản phẩm + phân trang) nằm ngoài <form> để không nút nào vô tình submit.
             Nút "Lưu" ở dưới nối với form qua attribute form="flash-sale-form". */}
         <form
           id="flash-sale-form"
           onSubmit={handleSubmit}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+          className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]"
         >
-          <FormField
-            label="Tên đợt"
-            htmlFor="flash-name"
-            required
-            className="sm:col-span-2"
-            hint={`Tối đa ${FLASH_SALE_MAX.name} ký tự — tên hiển thị trên panel Flash Sale trang chủ.`}
-            error={errors.name}
-          >
-            <Input
-              id="flash-name"
-              value={form.name}
-              maxLength={FLASH_SALE_MAX.name}
-              onChange={set("name")}
-              placeholder="VD: Flash Sale cuối tuần — đồng hồ cơ"
+          <div className="min-w-0 space-y-4">
+            <FormField
+              label="Tên đợt"
+              htmlFor="flash-name"
+              required
               error={errors.name}
-            />
-          </FormField>
+            >
+              <Input
+                id="flash-name"
+                value={form.name}
+                maxLength={FLASH_SALE_MAX.name}
+                onChange={set("name")}
+                placeholder="VD: Flash Sale cuối tuần — đồng hồ cơ"
+                error={errors.name}
+              />
+            </FormField>
 
-          <FormField
-            label="Mô tả"
-            htmlFor="flash-description"
-            className="sm:col-span-2"
-            hint={`Để trống được; tối đa ${FLASH_SALE_MAX.description} ký tự.`}
-            error={errors.description}
-          >
-            <Textarea
-              id="flash-description"
-              rows={3}
-              value={form.description}
-              maxLength={FLASH_SALE_MAX.description}
-              onChange={set("description")}
-              placeholder="Câu giới thiệu ngắn hiện dưới tên đợt..."
+            <FormField
+              label="Mô tả"
+              htmlFor="flash-description"
               error={errors.description}
-            />
-          </FormField>
-
-          <FormField
-            label="Bắt đầu"
-            htmlFor="flash-start"
-            required
-            hint="Theo giờ máy của admin — server lưu mốc tuyệt đối."
-            error={errors.start_date}
-          >
-            <Input
-              id="flash-start"
-              type="datetime-local"
-              value={form.start_date}
-              onChange={set("start_date")}
-              className="h-11 text-[13px] tabular-nums"
+            >
+              <Textarea
+                id="flash-description"
+                rows={3}
+                value={form.description}
+                maxLength={FLASH_SALE_MAX.description}
+                onChange={set("description")}
+                placeholder="Câu giới thiệu ngắn hiện dưới tên đợt..."
+                error={errors.description}
+              />
+            </FormField>
+          </div>
+          <div className="grid gap-4 rounded-lg border border-border bg-muted/30 p-4 sm:grid-cols-2">
+            <FormField
+              label="Bắt đầu"
+              htmlFor="flash-start"
+              required
               error={errors.start_date}
-            />
-          </FormField>
+            >
+              <Input
+                id="flash-start"
+                type="datetime-local"
+                value={form.start_date}
+                onChange={set("start_date")}
+                className="h-11 text-[13px] tabular-nums"
+                error={errors.start_date}
+              />
+            </FormField>
 
-          <FormField
-            label="Kết thúc"
-            htmlFor="flash-end"
-            required
-            hint="Qua mốc này đợt chuyển sang 'Hết hạn' và ngừng áp giá Flash."
-            error={errors.end_date}
-          >
-            <Input
-              id="flash-end"
-              type="datetime-local"
-              value={form.end_date}
-              onChange={set("end_date")}
-              className="h-11 text-[13px] tabular-nums"
+            <FormField
+              label="Kết thúc"
+              htmlFor="flash-end"
+              required
               error={errors.end_date}
-            />
-          </FormField>
+            >
+              <Input
+                id="flash-end"
+                type="datetime-local"
+                value={form.end_date}
+                onChange={set("end_date")}
+                className="h-11 text-[13px] tabular-nums"
+                error={errors.end_date}
+              />
+            </FormField>
 
-          <FormField
-            label="Cấu hình"
-            htmlFor="flash-status"
-            required
-            hint="'Đang tắt' = lưu lịch nhưng chưa cho khách mua giá Flash."
-          >
-            <FormSelect
-              id="flash-status"
-              value={form.status}
-              onChange={(next) => setForm((prev) => ({ ...prev, status: next }))}
-              options={STATUS_OPTIONS}
-            />
-          </FormField>
+            <FormField
+              className="sm:col-span-2"
+              label="Cấu hình"
+              htmlFor="flash-status"
+              required
+              hint="'Đang tắt' = lưu lịch nhưng chưa cho khách mua giá Flash."
+            >
+              <FormSelect
+                id="flash-status"
+                value={form.status}
+                onChange={(next) =>
+                  setForm((prev) => ({ ...prev, status: next }))
+                }
+                options={STATUS_OPTIONS}
+              />
+            </FormField>
+          </div>
         </form>
 
         {loadingDetail ? (
@@ -241,33 +247,44 @@ const FlashSaleFormBody = ({ sale, saving, onSubmit, onClose }) => {
             }}
           />
         )}
-
-        <DialogFooter className="border-t-0 px-0 pb-0 pt-1">
-          <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
-            Hủy
-          </Button>
-          {/* Nút nằm NGOÀI <form> (form chỉ ôm field) nên phải nối qua form= */}
-          <Button
-            type="submit"
-            form="flash-sale-form"
-            loading={saving}
-            className="min-w-[150px] gap-1.5"
-          >
-            {!saving && <Save className="h-4 w-4" strokeWidth={2} />}
-            {sale ? "Lưu đợt" : "Tạo đợt"}
-          </Button>
-        </DialogFooter>
       </div>
+
+      <DialogFooter className="shrink-0 bg-card px-5 py-4 sm:px-6">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          disabled={saving}
+        >
+          Hủy
+        </Button>
+        {/* Nút nằm NGOÀI <form> (form chỉ ôm field) nên phải nối qua form= */}
+        <Button
+          type="submit"
+          form="flash-sale-form"
+          loading={saving}
+          className="min-w-[150px] gap-1.5"
+        >
+          {!saving && <Save className="h-4 w-4" strokeWidth={2} />}
+          {sale ? "Lưu đợt" : "Tạo đợt"}
+        </Button>
+      </DialogFooter>
     </>
   );
 };
 
-const FlashSaleFormModal = ({ open, sale, saving = false, onSubmit, onClose }) => {
+const FlashSaleFormModal = ({
+  open,
+  sale,
+  saving = false,
+  onSubmit,
+  onClose,
+}) => {
   if (!open) return null;
 
   return (
     <Dialog open onOpenChange={(next) => !next && onClose?.()}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="flex max-h-[90dvh] w-full max-w-6xl flex-col">
         <FlashSaleFormBody
           key={sale?.id ?? "new"}
           sale={sale}

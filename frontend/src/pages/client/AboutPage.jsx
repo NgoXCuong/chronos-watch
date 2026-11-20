@@ -6,6 +6,8 @@ import AboutStory from '../../components/client/about/AboutStory';
 import AboutValues from '../../components/client/about/AboutValues';
 import { useBrandCatalog } from '../../hooks/useBrandCatalog';
 import { countriesOf, totalProductsOf } from '../../utils/brandCatalog';
+import '../../styles/storefront-pages.css';
+import '../../styles/about-page.css';
 
 /**
  * Trang "Về chúng tôi": câu chuyện + nguyên tắc, số liệu ở hero đếm từ danh mục thật
@@ -20,15 +22,15 @@ const AboutPage = () => {
     );
 
     return (
-        <div className="min-h-screen bg-background">
+        <main className="atelier-shell about-page">
             <AboutHero stats={stats} loading={loading} />
 
-            <div className="mx-auto w-full space-y-14 px-12 py-12 md:px-16 lg:space-y-20 lg:px-24 lg:py-16">
+            <div className="about-content">
                 <AboutStory />
                 <AboutValues />
                 <AboutContact />
             </div>
-        </div>
+        </main>
     );
 };
 

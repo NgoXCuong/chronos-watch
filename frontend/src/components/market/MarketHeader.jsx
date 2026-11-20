@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Watch, Heart, ShoppingCart, User, LogOut, Settings, FileText, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { Watch, Heart, ShoppingCart, User, LogOut, Settings, FileText, LayoutDashboard, ShieldCheck, TicketPercent } from 'lucide-react';
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
     DropdownMenuSeparator, DropdownMenuTrigger,
@@ -9,8 +9,8 @@ import HeaderSearch from './HeaderSearch';
 import NotificationBell from '../notifications/NotificationBell';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotificationsContext } from '../../context/NotificationsContext';
-import { useCart } from '../../context/CartContext';
-import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../hooks/useCart';
+import { useWishlist } from '../../hooks/useWishlist';
 
 const CountBadge = ({ count, tone = 'sale' }) =>
     count > 0 && (
@@ -28,15 +28,15 @@ const MarketHeader = () => {
     const { notifications, unreadCount, markAllRead, markRead } = useNotificationsContext();
 
     return (
-        <div className="flex h-[74px] items-center gap-4">
+        <div className="flex h-20 items-center gap-2 md:gap-4">
             {/* Logo */}
             <Link to="/" className="flex shrink-0 items-center gap-2.5">
-                <span className="flex size-10 items-center justify-center rounded-lg bg-navy-600 text-white shadow-card">
+                <span className="flex size-9 items-center justify-center rounded-full sm:size-10 border border-navy-300 bg-navy-900 text-white shadow-card">
                     <Watch size={22} strokeWidth={2} aria-hidden="true" />
                 </span>
-                <span className="hidden flex-col leading-none sm:flex">
-                    <span className="text-lg font-extrabold uppercase tracking-[0.14em] text-navy-900">Chronos</span>
-                    <span className="mt-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Timepieces</span>
+                <span className="flex flex-col leading-none">
+                    <span className="text-sm font-extrabold uppercase sm:text-lg tracking-[0.14em] text-foreground">Chronos</span>
+                    <span className="mt-1 hidden text-[10px] uppercase tracking-[0.2em] sm:block text-muted-foreground">WATCH ATELIER</span>
                 </span>
             </Link>
 
@@ -46,6 +46,7 @@ const MarketHeader = () => {
 
             {/* Actions */}
             <div className="flex shrink-0 items-center gap-1 md:gap-2">
+                <Link to="/vouchers" aria-label="Voucher ưu đãi" className="flex size-9 items-center justify-center rounded-lg text-foreground hover:bg-accent md:hidden"><TicketPercent size={20} /></Link>
                 {/* Chưa đăng nhập: ẩn hẳn avatar (đã có Đăng nhập/Đăng ký trên topbar) */}
                 {isAuthenticated && (
                     <DropdownMenu>
@@ -69,6 +70,7 @@ const MarketHeader = () => {
                             <DropdownMenuItem onClick={() => navigate('/profile')}>
                                 <Settings size={15} strokeWidth={2} aria-hidden="true" /> Hồ sơ của tôi
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/my-vouchers')}><TicketPercent size={15} /> Voucher của tôi</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate('/orders')}>
                                 <FileText size={15} strokeWidth={2} aria-hidden="true" /> Đơn hàng của tôi
                             </DropdownMenuItem>
@@ -104,12 +106,12 @@ const MarketHeader = () => {
                     />
                 )}
 
-                <Link to="/wishlist" aria-label="Danh sách yêu thích" className="relative flex size-11 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-navy-600">
+                <Link to="/wishlist" aria-label="Danh sách yêu thích" className="relative flex size-9 items-center sm:size-11 justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-navy-600">
                     <Heart size={21} strokeWidth={2} aria-hidden="true" />
                     <CountBadge count={wishlistCount} tone="sale" />
                 </Link>
 
-                <Link to="/cart" aria-label="Giỏ hàng" className="relative flex size-11 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-navy-600">
+                <Link to="/cart" aria-label="Giỏ hàng" className="relative flex size-9 items-center sm:size-11 justify-center rounded-lg text-foreground transition-colors hover:bg-accent hover:text-navy-600">
                     <ShoppingCart size={21} strokeWidth={2} aria-hidden="true" />
                     <CountBadge count={cartCount} tone="navy" />
                 </Link>
