@@ -24,7 +24,6 @@ export const SORTABLE_WARRANTY_COLUMNS = [
     'code',
     'product_name',
     'sku',
-    'serial',
     'start_date',
     'end_date',
     'created_at',
@@ -65,7 +64,6 @@ export const applyWarrantySearch = (where, rawSearch, extraFields = []) => {
     const like = { [Op.like]: `%${search}%` };
     where[Op.or] = [
         { code: like },
-        { serial: like },
         { product_name: like },
         { sku: like },
         ...extraFields.map((field) => ({ [field]: like })),
@@ -131,8 +129,7 @@ const warrantyService = {
         for (const detail of order.details || []) {
             const qty = Number(detail.quantity) || 1;
             const existing = await Warranty.count({ where: { order_detail_id: detail.id }, transaction });
-            // 173 dòng order_details cũ (dữ liệu seed) có snapshot NULL -> lấy lại từ products,
-            // không để phiếu blank tên/SKU vì khách và admin đều đọc hai cột này.
+            // Tên lấy từ sản phẩm liên kết; SKU và thời hạn vẫn giữ snapshot lúc mua.
             const product = await Product.findByPk(detail.product_id, {
                 attributes: ['name', 'sku', 'warranty_months'],
                 transaction,
@@ -146,7 +143,7 @@ const warrantyService = {
                     order_detail_id: detail.id,
                     user_id: order.user_id,
                     product_id: detail.product_id,
-                    product_name: detail.product_name || product?.name || null,
+                    product_name: product?.name || null,
                     sku: detail.sku || product?.sku || null,
                     warranty_months: months,
                     start_date: startDate,

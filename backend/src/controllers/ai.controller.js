@@ -1,7 +1,7 @@
 import aiService from '../services/ai.service.js';
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
-import { getChatProducts } from '../services/chat-products.service.js';
+import { validateChatRecommendation } from '../services/chat-products.service.js';
 
 const chat = asyncHandler(async (req, res) => {
     const { message, history } = req.body;
@@ -11,12 +11,12 @@ const chat = asyncHandler(async (req, res) => {
     }
 
     const response = await aiService.generateChatResponse(message, history);
-    const products = await getChatProducts(response);
+    const checked = await validateChatRecommendation(response);
 
     res.status(200).json({
         success: true,
-        data: response,
-        products,
+        data: checked.content,
+        products: checked.products,
     });
 });
 

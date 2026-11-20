@@ -63,10 +63,6 @@ const Order = sequelize.define('Order', {
         type: DataTypes.DECIMAL(15, 0),
         allowNull: false
     },
-    shipping_fee: {
-        type: DataTypes.DECIMAL(15, 0),
-        defaultValue: 0
-    },
     discount_amount: {
         type: DataTypes.DECIMAL(15, 0),
         defaultValue: 0

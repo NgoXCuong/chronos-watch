@@ -2,6 +2,7 @@ import productService from "../services/product.service.js";
 import aiService from "../services/ai.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { buildCreateData, buildUpdateData } from "../utils/productPayload.js";
+import { notifyInventoryAlerts } from '../services/inventory-alerts.service.js';
 
 const productController = {
     getAll: asyncHandler(async (req, res) => {
@@ -33,12 +34,14 @@ const productController = {
     // FormData (body chuỗi + files) → payload: xem utils/productPayload.js
     create: asyncHandler(async (req, res) => {
         const product = await productService.create(buildCreateData(req));
+        await notifyInventoryAlerts([product.id]);
         aiService.clearProductContextCache();
         res.status(201).json({ message: "Tạo sản phẩm thành công!", product });
     }),
 
     update: asyncHandler(async (req, res) => {
         const product = await productService.update(req.params.id, buildUpdateData(req));
+        await notifyInventoryAlerts([product.id]);
         aiService.clearProductContextCache();
         res.json({ message: "Cập nhật sản phẩm thành công!", product });
     }),

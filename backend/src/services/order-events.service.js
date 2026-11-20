@@ -1,5 +1,6 @@
 import notificationService from "./notification.service.js";
-import { LOW_STOCK_THRESHOLD, ORDER_STATUS_LABEL, formatMoney, truncateText } from "../constants/notifications.js";
+import { ORDER_STATUS_LABEL, formatMoney, truncateText } from "../constants/notifications.js";
+import { notifyInventoryAlerts } from './inventory-alerts.service.js';
 
 /**
  * Thông báo phát sinh từ vòng đời đơn hàng — tách khỏi order.service.js (đã dài)
@@ -27,21 +28,11 @@ export const notifyNewOrder = async (order, user, items) => {
         link: `/admin/orders/${order.id}`,
     });
 
-    // Cảnh báo tồn kho chỉ bắn khi sản phẩm vừa chạm ngưỡng, dedupe 24h ở service.
-    for (const item of items) {
-        if (!item.product) continue;
-        const left = Math.max(0, Number(item.product.stock || 0) - Number(item.quantity || 0));
-        if (left > LOW_STOCK_THRESHOLD) continue;
-        await notificationService.notifyAdminsOnce(`stock-${item.product_id}`, {
-            type: "stock",
-            title: left === 0 ? "Hết hàng" : "Sắp hết hàng",
-            message: `Sản phẩm ${item.product.name} chỉ còn ${left} trong kho.`,
-            link: "/admin/products",
-        });
-    }
+    await notifyInventoryAlerts([...new Set(items.map((item) => item.product_id))]);
 };
 
 export const notifyOrderStatus = async (order, status, note) => {
+    await notifyInventoryAlerts();
     if (!order.user_id) return;
     const code = orderCodeOf(order);
     const label = ORDER_STATUS_LABEL[status] || status;
@@ -75,6 +66,7 @@ export const notifyPaymentConfirmed = async (order) => {
 };
 
 export const notifyCustomerCancelled = async (order, note) => {
+    await notifyInventoryAlerts();
     await notificationService.notifyAdmins({
         type: "order",
         title: "Đơn hàng bị hủy",

@@ -1,7 +1,5 @@
-import { Op } from 'sequelize';
 import Order from '../models/order.model.js';
-import Product from '../models/product.model.js';
-import { LOW_STOCK_THRESHOLD } from '../constants/notifications.js';
+import { getInventorySummary } from './inventory-planning.service.js';
 
 /**
  * Số liệu cho badge điều hướng admin (không phải thông báo): đếm THẬT trên bảng,
@@ -11,11 +9,11 @@ import { LOW_STOCK_THRESHOLD } from '../constants/notifications.js';
  */
 const adminBadgeService = {
     getCounts: async () => {
-        const [pendingOrders, lowStock] = await Promise.all([
+        const [pendingOrders, inventory] = await Promise.all([
             Order.count({ where: { status: 'pending' } }),
-            Product.count({ where: { stock: { [Op.lte]: LOW_STOCK_THRESHOLD } } }),
+            getInventorySummary(),
         ]);
-        return { pendingOrders, lowStock };
+        return { pendingOrders, lowStock: inventory.alerts.length };
     },
 };
 

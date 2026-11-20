@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import Notification from '../models/notification.model.js';
 import User from '../models/user.model.js';
+import { importantAdminWhere, isImportantAdminNotification } from '../constants/notificationPolicy.js';
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 100;
@@ -78,6 +79,7 @@ const notificationService = {
     }),
 
     notifyAdmins: (payload) => fireAndForget(async () => {
+        if (!isImportantAdminNotification(payload)) return [];
         const ids = await adminIds();
         if (!ids.length) return [];
         return Notification.bulkCreate(ids.map((user_id) => ({ ...sanitize(payload), user_id })));
@@ -86,6 +88,7 @@ const notificationService = {
     // Cảnh báo tồn kho bắn theo sự kiện, không phải theo mỗi lần poll:
     // cùng dedupe_key trong 24h thì bỏ qua, tránh chuông admin lặp 10 thông báo giống nhau.
     notifyAdminsOnce: (dedupeKey, payload, hours = DEDUPE_WINDOW_HOURS) => fireAndForget(async () => {
+        if (!isImportantAdminNotification(payload)) return [];
         const since = new Date(Date.now() - hours * 60 * 60 * 1000);
         const existing = await Notification.findOne({
             where: { dedupe_key: dedupeKey, created_at: { [Op.gte]: since } },
@@ -101,9 +104,11 @@ const notificationService = {
         );
     }),
 
-    listForUser: async (userId, query = {}) => {
+    listForUser: async (userId, query = {}, role = 'customer') => {
         const { limit, page, offset } = normalizePaging(query);
         const where = buildWhere(userId, query);
+        const audience = role === 'admin' ? importantAdminWhere() : {};
+        where[Op.and] = [audience];
 
         const [result, unreadCount] = await Promise.all([
             Notification.findAndCountAll({
@@ -112,7 +117,7 @@ const notificationService = {
                 limit,
                 offset,
             }),
-            Notification.count({ where: { user_id: userId, read_at: { [Op.is]: null } } }),
+            Notification.count({ where: { user_id: userId, read_at: { [Op.is]: null }, [Op.and]: [audience] } }),
         ]);
 
         return {

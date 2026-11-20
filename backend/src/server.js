@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import router from "./routes/index.routes.js";
 import { notFoundHandler, errorHandler } from "./middlewares/errorHandler.js";
+import { startInventoryMonitor } from './services/inventory-alerts.service.js';
 
 
 dotenv.config();
@@ -68,4 +69,5 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`);
+  startInventoryMonitor();
 });

@@ -1,7 +1,12 @@
+import { removeOrderProductSnapshots } from './migrations/removeOrderProductSnapshots.schema.js';
+import { migrateProductIdentity } from "./migrations/productIdentity.schema.js";
 import sequelize from './config/db.js';
 import { migrateWarrantySchema } from './migrations/warranty.schema.js';
 import { migrateFlashSaleSchema } from './migrations/flashSale.schema.js';
 import { migrateNotificationSchema } from './migrations/notification.schema.js';
+import { migrateInventoryPlanning } from './migrations/inventoryPlanning.schema.js';
+import { migratePublicVouchers } from './migrations/publicVouchers.schema.js';
+import { migrateVoucherGrants } from './migrations/voucherGrants.schema.js';
 
 async function runMigration() {
   console.log('🚀 Bắt đầu quá trình cập nhật cấu trúc Database (Không mất dữ liệu)...');
@@ -199,10 +204,8 @@ async function runMigration() {
       `ALTER TABLE \`orders\` MODIFY \`payment_status\` ENUM('pending','unpaid','paid','refunded','failed') NOT NULL DEFAULT 'unpaid';`
     );
 
-    // 5d. order_details: snapshot product_name, product_image, sku
-    await addColumnIfNotExists('order_details', 'product_name', "VARCHAR(255) DEFAULT NULL COMMENT 'Snapshot tên SP lúc mua' AFTER `product_id`");
-    await addColumnIfNotExists('order_details', 'product_image', "VARCHAR(255) DEFAULT NULL COMMENT 'Snapshot ảnh SP lúc mua' AFTER `product_name`");
-    await addColumnIfNotExists('order_details', 'sku', "VARCHAR(50) DEFAULT NULL COMMENT 'Snapshot SKU lúc mua' AFTER `product_image`");
+    // 5d. order_details: SKU tại thời điểm mua
+    await addColumnIfNotExists('order_details', 'sku', "VARCHAR(50) DEFAULT NULL COMMENT 'Snapshot SKU lúc mua' AFTER `product_id`");
 
     // 5e. order_history: changed_by + FK (admin/user đổi trạng thái)
     await addColumnIfNotExists('order_history', 'changed_by', "INT DEFAULT NULL COMMENT 'Người đổi trạng thái' AFTER `note`");
@@ -262,12 +265,17 @@ async function runMigration() {
     //    Tách sang migrations/warranty.schema.js để migrate.js không vượt Rule 1.
     // ============================================================
     console.log('\n⏳ 6. Kiểm tra và tạo schema bảo hành...');
+    await removeOrderProductSnapshots(sequelize);
     await migrateWarrantySchema(sequelize);
+    await migrateProductIdentity(sequelize);
 
     console.log('\n⏳ 7. Kiểm tra và tạo schema Flash Sale...');
     await migrateFlashSaleSchema(sequelize);
 
     console.log('\n⏳ 8. Kiểm tra và tạo bảng thông báo...');
+    await migrateInventoryPlanning(sequelize);
+    await migratePublicVouchers(sequelize);
+    await migrateVoucherGrants(sequelize);
     await migrateNotificationSchema(sequelize);
 
     console.log('\n🎉 Hoàn thành cập nhật CSDL thành công! Toàn bộ dữ liệu hiện có được giữ nguyên 100%.');

@@ -41,6 +41,10 @@ const Product = sequelize.define('Product', {
         allowNull: true,
         defaultValue: 24
     },
+    reorder_lead_days: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 7, validate: { min: 1, max: 365 } },
+    reorder_safety_days: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 7, validate: { min: 0, max: 365 } },
+    demand_window_days: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 28, validate: { min: 14, max: 90 } },
+    inventory_available_since: { type: DataTypes.DATE, allowNull: true },
     brand_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

@@ -1,3 +1,4 @@
+import { removeWarrantySerial } from "./removeWarrantySerial.schema.js";
 import { buildWarrantyCode, warrantyEndDate } from '../utils/warranty.js';
 
 // Di trú riêng cho mảng bảo hành: migrate.js đã ~265 dòng, gộp thêm là vượt Rule 1.
@@ -38,7 +39,6 @@ const createTables = async (sequelize) => {
           \`product_id\` INT DEFAULT NULL,
           \`product_name\` VARCHAR(255) DEFAULT NULL,
           \`sku\` VARCHAR(50) DEFAULT NULL,
-          \`serial\` VARCHAR(50) DEFAULT NULL,
           \`warranty_months\` INT NOT NULL,
           \`start_date\` DATETIME NOT NULL,
           \`end_date\` DATETIME NOT NULL,
@@ -48,7 +48,6 @@ const createTables = async (sequelize) => {
           \`updated_at\` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
           PRIMARY KEY (\`id\`),
           UNIQUE KEY \`unique_warranty_code\` (\`code\`),
-          UNIQUE KEY \`unique_warranty_serial\` (\`serial\`),
           KEY \`idx_warranty_user\` (\`user_id\`),
           KEY \`idx_warranty_order\` (\`order_id\`),
           KEY \`idx_warranty_end\` (\`end_date\`),
@@ -123,7 +122,7 @@ export const backfillWarranties = async (sequelize) => {
     const starts = await deliveredAtMap(sequelize);
     const [details] = await sequelize.query(
         `SELECT od.id, od.order_id, od.product_id,
-                COALESCE(od.product_name, p.name) AS product_name,
+                p.name AS product_name,
                 COALESCE(od.sku, p.sku) AS sku,
                 od.quantity, od.warranty_months, o.user_id, o.order_code, o.status AS order_status,
                 (SELECT COUNT(*) FROM warranties w WHERE w.order_detail_id = od.id) AS existing
@@ -188,6 +187,7 @@ export const backfillWarranties = async (sequelize) => {
 
 export const migrateWarrantySchema = async (sequelize) => {
     await createTables(sequelize);
+    await removeWarrantySerial(sequelize);
     await backfillOrderDetailSnapshot(sequelize);
     await backfillWarranties(sequelize);
     // Phiếu đã lập trước đây từ dòng đơn có snapshot NULL → vá tên/SKU từ products

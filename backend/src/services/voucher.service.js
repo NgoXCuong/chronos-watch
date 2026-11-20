@@ -3,6 +3,7 @@ import VoucherUsage from '../models/voucher_usage.model.js';
 import { Op } from 'sequelize';
 import AppError from "../utils/AppError.js";
 import { parseBulkIds, runBulk } from "../utils/bulkOps.js";
+import { assertNotGifted, assertVoucherRecipient } from './voucher-gift.service.js';
 
 // Cột được phép sort từ bảng admin (whitelist chống SQL injection qua ORDER BY)
 const SORTABLE_VOUCHER_COLUMNS = [
@@ -34,6 +35,10 @@ const WINDOW_FILTERS = {
 
 const normalizeVoucherInput = (data = {}, { partial = false } = {}) => {
     const out = { ...data };
+    if (out.is_public !== undefined) {
+        if (![true, false, 1, 0, 'true', 'false', '1', '0'].includes(out.is_public)) throw new AppError(400, 'Chế độ công khai voucher không hợp lệ.');
+        out.is_public = [true, 1, 'true', '1'].includes(out.is_public);
+    }
 
     if (out.code !== undefined) out.code = String(out.code ?? '').trim().toUpperCase();
     if (!partial && !out.code) throw new AppError(400, "Mã voucher không được để trống.");
@@ -75,6 +80,13 @@ const normalizeVoucherInput = (data = {}, { partial = false } = {}) => {
 };
 
 const voucherService = {
+    bulkSetVisibility: async (ids, isPublic) => {
+        const list = parseBulkIds(ids);
+        if (typeof isPublic !== 'boolean') throw new AppError(400, 'Chế độ công khai phải là true hoặc false.');
+        if (isPublic) await assertNotGifted(list);
+        const [updated] = await Voucher.update({ is_public: isPublic }, { where: { id: { [Op.in]: list } } });
+        return { updated, requested: list.length, is_public: isPublic };
+    },
     // Admin CRUD
     getAll: async (query = {}) => {
         const { search, discount_type, status, window } = query;
@@ -133,6 +145,7 @@ const voucherService = {
         const voucher = await Voucher.findByPk(id);
         if (!voucher) throw new AppError(404, "Voucher không tồn tại.");
         const input = normalizeVoucherInput(data, { partial: true });
+        if (input.is_public) await assertNotGifted([Number(id)]);
         if (input.code && input.code !== voucher.code) {
             const dup = await Voucher.findOne({ where: { code: input.code } });
             if (dup) throw new AppError(400, "Mã voucher đã tồn tại.");
@@ -175,6 +188,8 @@ const voucherService = {
         if (!voucher) {
             throw new AppError(400, "Mã giảm giá không hợp lệ hoặc đã hết hạn.");
         }
+
+        await assertVoucherRecipient(voucher, userId);
 
         const now = new Date();
         if (now < new Date(voucher.start_date) || now > new Date(voucher.end_date)) {

@@ -5,6 +5,13 @@ import OrderHistory from '../models/order_history.model.js';
 import OrderDetail from '../models/order_detail.model.js';
 import sequelize from '../config/db.js';
 import AppError from '../utils/AppError.js';
+import User from '../models/user.model.js';
+import Cart from '../models/cart.model.js';
+import Product from '../models/product.model.js';
+import flashSaleService from '../services/flash-sale.service.js';
+import orderEvents from '../services/order-events.service.js';
+import warrantyService from '../services/warranty.service.js';
+import Voucher from '../models/voucher.model.js';
 
 // Chặn side effect ghi bảng notifications thật khi test checkout/hủy đơn.
 vi.mock('../services/notification.service.js', () => ({
@@ -72,6 +79,9 @@ describe('orderService - IDOR protection in getOrderDetail', () => {
 describe('orderService - retryPayment & switchPaymentMethodToCOD', () => {
     beforeEach(() => {
         vi.restoreAllMocks();
+        vi.spyOn(User, 'findByPk').mockResolvedValue({ id: 100, role: 'customer' });
+        vi.spyOn(sequelize, 'transaction').mockResolvedValue({ commit: vi.fn(), rollback: vi.fn() });
+        vi.spyOn(OrderHistory, 'create').mockResolvedValue({});
     });
 
     it('UTC_ORD_05: retryPayment tạo dữ liệu thanh toán SePay mới cho chủ đơn hàng', async () => {
@@ -211,5 +221,49 @@ describe('orderService - updateOrderStatus & cancelOrder', () => {
             expect.objectContaining({ order_id: 25, status: 'cancelled' }),
             expect.any(Object)
         );
+    });
+});
+
+describe('orderService - hủy đồng thời', () => {
+    beforeEach(() => vi.restoreAllMocks());
+    it('khách và admin hủy cùng lúc chỉ hoàn kho/voucher một lần', async () => {
+        const order = { id: 25, user_id: 1, status: 'pending', voucher_id: 5, save: vi.fn() };
+        let previous = Promise.resolve();
+        vi.spyOn(sequelize, 'transaction').mockImplementation(async () => {
+            const ready = previous;
+            let release;
+            previous = new Promise((resolve) => { release = resolve; });
+            return { ready, commit: vi.fn(release), rollback: vi.fn(release) };
+        });
+        const lockedRead = async (options) => {
+            expect(options.lock).toBe(true);
+            await options.transaction.ready;
+            return order;
+        };
+        vi.spyOn(Order, 'findOne').mockImplementation(lockedRead);
+        vi.spyOn(Order, 'findByPk').mockImplementation((id, options) => lockedRead(options));
+        vi.spyOn(OrderDetail, 'findAll').mockResolvedValue([{ product_id: 1, quantity: 2 }]);
+        vi.spyOn(Product, 'update').mockResolvedValue([1]);
+        vi.spyOn(Voucher, 'update').mockResolvedValue([1]);
+        vi.spyOn(flashSaleService, 'releaseQuota').mockResolvedValue();
+        vi.spyOn(warrantyService, 'voidForOrder').mockResolvedValue();
+        vi.spyOn(OrderHistory, 'create').mockResolvedValue({});
+        const { default: VoucherUsage } = await import('../models/voucher_usage.model.js');
+        vi.spyOn(VoucherUsage, 'destroy').mockResolvedValue(1);
+        const results = await Promise.allSettled([
+            orderService.cancelOrder(1, 25, 'Khách hủy'),
+            orderService.updateOrderStatus(25, 'cancelled', 'Admin hủy'),
+        ]);
+        expect(results.map((result) => result.status)).toEqual(['fulfilled', 'rejected']);
+        expect(Product.update).toHaveBeenCalledOnce();
+        expect(Voucher.update).toHaveBeenCalledOnce();
+        expect(OrderHistory.create).toHaveBeenCalledOnce();
+    });
+    it('đổi COD với mã đơn không tồn tại không chọn đơn khác', async () => {
+        vi.spyOn(sequelize, 'transaction').mockResolvedValue({ commit: vi.fn(), rollback: vi.fn() });
+        vi.spyOn(Order, 'findByPk').mockResolvedValue(null);
+        const latest = vi.spyOn(Order, 'findOne');
+        await expect(orderService.switchPaymentMethodToCOD(999, 1)).rejects.toMatchObject({ statusCode: 404 });
+        expect(latest).not.toHaveBeenCalled();
     });
 });

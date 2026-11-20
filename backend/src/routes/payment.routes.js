@@ -1,6 +1,7 @@
 import express from 'express';
 import paymentController from '../controllers/payment.controller.js';
 import verifyToken from '../middlewares/auth.middleware.js';
+import isAdmin from '../middlewares/admin.middleware.js';
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const router = express.Router();
 router.post('/sepay/webhook', paymentController.handleSePayWebhook);
 
 // API Giả lập thanh toán SePay thành công (Dành cho Test/Demo local)
-router.post('/sepay/mock-payment/:orderId', paymentController.mockSePayPayment);
+router.post('/sepay/mock-payment/:orderId', verifyToken, isAdmin, paymentController.mockSePayPayment);
 
 // Lấy thông tin thanh toán VietQR SePay của đơn hàng (Requires login)
 router.get('/sepay/info/:orderId', verifyToken, paymentController.getSePayPaymentInfo);

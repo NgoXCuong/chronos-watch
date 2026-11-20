@@ -61,12 +61,6 @@ const Warranty = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: true,
     },
-    // Serial do khách/admin điền khi tiếp nhận; NULL khi chưa có. UNIQUE để không
-    // hai phiếu cùng nhận một số serial (MySQL vẫn cho nhiều dòng NULL).
-    serial: {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    },
     warranty_months: {
       type: DataTypes.INTEGER,
       allowNull: false,

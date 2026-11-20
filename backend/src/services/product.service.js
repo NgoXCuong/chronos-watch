@@ -1,3 +1,4 @@
+import { generateSku } from "../utils/productIdentity.js";
 import Product from "../models/product.model.js";
 import Brand from "../models/brand.model.js";
 import Category from "../models/category.model.js";
@@ -5,6 +6,8 @@ import { Op, col, fn, Sequelize } from "sequelize";
 import AppError from "../utils/AppError.js";
 import { parseBulkIds } from "../utils/bulkOps.js";
 import { SPEC_FILTER_KEYS, specFilterWhere, collectSpecFacets } from "../utils/specFilters.js";
+import { attachInventoryHealth } from './inventory-planning.service.js';
+import { parseInventorySettings } from '../utils/inventoryPlanning.js';
 
 // Cột được phép sort — không nối thẳng query param vào `order:` (SQL injection)
 const SORTABLE_PRODUCT_COLUMNS = ['name', 'price', 'stock', 'status', 'sold_count', 'views', 'created_at'];
@@ -111,7 +114,11 @@ const listProducts = async (filters = {}, { includeInactive = false } = {}) => {
 const productService = {
     getAll: async (filters = {}) => listProducts(filters),
     // Trang quản trị cần thấy cả sản phẩm ngừng bán để mở bán lại.
-    getAdminAll: async (filters = {}) => listProducts(filters, { includeInactive: true }),
+    getAdminAll: async (filters = {}) => {
+        const result = await listProducts(filters, { includeInactive: true });
+        await attachInventoryHealth(result.rows);
+        return result;
+    },
 
     /**
      * Giá trị lọc thật đang có trong CSDL (kèm số sản phẩm), để UI trang /products chỉ
@@ -162,13 +169,16 @@ const productService = {
 
         // Chỉ lượt xem công khai mới được tính; admin mở form sửa không làm tăng views.
         if (!includeInactive) await product.increment('views');
+        else await attachInventoryHealth([product]);
 
         return product;
     },
 
     create: async (productData) => {
         const { category_ids, ...data } = productData;
-        const product = await Product.create(data);
+        Object.assign(data, parseInventorySettings(data));
+        delete data.inventory_available_since;
+        const product = await Product.create({ ...data, sku: data.sku || generateSku() });
 
         if (category_ids && category_ids.length > 0) {
             await product.setCategories(category_ids);
@@ -179,10 +189,15 @@ const productService = {
 
     update: async (id, productData) => {
         const { category_ids, ...data } = productData;
+        Object.assign(data, parseInventorySettings(data));
+        delete data.inventory_available_since;
         const product = await Product.findByPk(id);
         if (!product) throw new AppError(404, "Sản phẩm không tồn tại");
 
-        await product.update(data);
+        if ((Number(product.stock) === 0 && Number(data.stock) > 0) || (product.status === 'inactive' && data.status === 'active')) {
+            data.inventory_available_since = new Date();
+        }
+        await product.update({ ...data, sku: data.sku || product.sku || generateSku() });
 
         if (category_ids) {
             await product.setCategories(category_ids);
@@ -205,7 +220,11 @@ const productService = {
         if (!['active', 'inactive'].includes(status)) {
             throw new AppError(400, "Trạng thái sản phẩm không hợp lệ");
         }
-        const [updated] = await Product.update({ status }, { where: { id: { [Op.in]: list } } });
+        // Ghi mốc trước status để CASE đọc trạng thái cũ trong UPDATE của MySQL.
+        const data = status === 'active'
+            ? { inventory_available_since: Sequelize.literal("CASE WHEN status = 'inactive' THEN NOW() ELSE inventory_available_since END"), status }
+            : { status };
+        const [updated] = await Product.update(data, { where: { id: { [Op.in]: list } } });
         return { updated, status, requested: list.length };
     },
 

@@ -15,7 +15,7 @@ const paymentController = {
     // API Mô phỏng thanh toán SePay thành công (Test Mode khi chạy localhost không có ngrok)
     mockSePayPayment: asyncHandler(async (req, res) => {
         const { orderId } = req.params;
-        const result = await sepayService.mockPayment(orderId);
+        const result = await sepayService.mockPayment(orderId, req.user);
         res.status(200).json({
             message: "Giả lập thanh toán SePay thành công",
             ...result

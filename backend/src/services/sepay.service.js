@@ -1,6 +1,5 @@
-import Order from "../models/order.model.js";
 import OrderHistory from "../models/order_history.model.js";
-import sequelize from "../config/db.js";
+import { withLockedOrder } from "../utils/lockedOrder.js";
 import AppError from "../utils/AppError.js";
 import notificationService from "./notification.service.js";
 import { formatMoney } from "../constants/notifications.js";
@@ -41,7 +40,7 @@ const sepayService = {
     getPaymentData: (order) => {
         const config = sepayService.getConfig();
         const amount = Math.round(Number(order.total_amount) || 0);
-        const paymentCode = `CHRONOS ${order.id}`;
+        const paymentCode = order.order_code || `CHRONOS ${order.id}`;
 
         // Đường dẫn ảnh VietQR động chuẩn SePay
         const qrUrl = `https://qr.sepay.vn/img?acc=${config.accountNo}&bank=${config.bank}&amount=${amount}&des=${encodeURIComponent(paymentCode)}&template=${config.template}`;
@@ -54,6 +53,16 @@ const sepayService = {
             paymentCode,
             qrUrl
         };
+    },
+
+    // Ngân hàng có thể bỏ dấu gạch ngang trong nội dung CHR-YYMMDD-XXXXXX.
+    // Khôi phục đúng mã để tra unique order_code, không suy đoán O/0 hay chọn đơn gần nhất.
+    extractOrderCode: (content, description = "") => {
+        const text = `${content || ''} ${description || ''}`;
+        const matches = [...text.matchAll(/\bCHR[\s-]*(\d{6})[\s-]*([A-Z0-9]{6})(?![A-Z0-9])/gi)];
+        const codes = [...new Set(matches.map((match) => `CHR-${match[1]}-${match[2].toUpperCase()}`))];
+        if (codes.length > 1) throw new AppError(400, "Nội dung chuyển khoản có nhiều mã đơn hàng");
+        return codes[0] || null;
     },
 
     /**
@@ -79,154 +88,86 @@ const sepayService = {
         return null;
     },
 
-    /**
-     * Xử lý Webhook tự động từ SePay khi có biến động số dư
-     * @param {Object} payload - Dữ liệu JSON do SePay gửi đến
-     * @param {String} authHeader - Header Authorization (nếu SePay có cài đặt API Key)
-     */
     processWebhook: async (payload, authHeader = "") => {
         const config = sepayService.getConfig();
+        const expectedKey = config.apiKey.trim();
+        if (!expectedKey) throw new AppError(503, "Chưa cấu hình khóa xác thực SePay Webhook");
+        const match = /^Apikey\s+(.+)$/i.exec(authHeader);
+        if (!match || match[1].trim() !== expectedKey) {
+            throw new AppError(401, "SePay Webhook: API Key không hợp lệ");
+        }
+        if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+            throw new AppError(400, "Dữ liệu SePay không hợp lệ");
+        }
+        if (payload.transferType !== 'in') {
+            return { success: true, message: "Bỏ qua giao dịch không phải tiền vào" };
+        }
+        if (String(payload.accountNumber || '') !== String(config.accountNo)) {
+            throw new AppError(400, "Tài khoản nhận tiền SePay không khớp cấu hình");
+        }
+        const transferAmount = Number(payload.transferAmount);
+        if (!Number.isFinite(transferAmount) || transferAmount <= 0) {
+            throw new AppError(400, "Số tiền thanh toán không hợp lệ");
+        }
+        const orderCode = sepayService.extractOrderCode(payload.content, payload.description);
+        const orderId = orderCode ? null : sepayService.extractOrderId(payload.content, payload.description);
+        if (!orderCode && !orderId) return { success: true, message: "Nội dung chuyển khoản không khớp với bất kỳ đơn hàng Chronos nào" };
 
-        // 1. Kiểm tra xác thực API Key nếu được cấu hình
-        if (config.apiKey) {
-            const expected = config.apiKey.trim();
-            const received = (authHeader || "").replace(/^Apikey\s+/i, "").trim();
-            if (received !== expected) {
-                throw new AppError(401, "SePay Webhook: API Key không hợp lệ");
+        const where = orderCode ? { order_code: orderCode } : { id: orderId };
+        const result = await withLockedOrder(where, async (order, transaction) => {
+            if (['cancelled', 'returned'].includes(order.status)) {
+                return { success: true, message: "Đơn đã hủy/hoàn trả; cần đối soát khoản tiền nhận được" };
             }
-        }
-
-        // 2. Chỉ xử lý giao dịch tiền vào (transferType = 'in') nếu payload có trường này
-        if (payload.transferType && payload.transferType.toLowerCase() !== "in") {
-            return {
-                success: true,
-                message: "Bỏ qua giao dịch tiền ra"
-            };
-        }
-
-        // 3. Trích xuất orderId từ nội dung chuyển khoản
-        const orderId = sepayService.extractOrderId(payload.content, payload.description);
-        if (!orderId) {
-            return {
-                success: true,
-                message: "Nội dung chuyển khoản không khớp với bất kỳ đơn hàng Chronos nào"
-            };
-        }
-
-        // 4. Tìm đơn hàng tương ứng
-        let order = await Order.findByPk(orderId);
-        if (!order) {
-            order = await Order.findOne({ order: [['id', 'DESC']] });
-        }
-        if (!order) {
-            try {
-                order = await Order.create({
-                    id: orderId,
-                    full_name: "Khách hàng Test",
-                    phone_number: "0912345678",
-                    address_line: "123 Đường Test",
-                    city: "Hà Nội",
-                    total_amount: 500000,
-                    subtotal: 500000,
-                    status: "pending",
-                    payment_status: "unpaid",
-                    payment_method: "sepay"
-                });
-            } catch (e) {
-                // Ignore create error
+            if (order.payment_status === 'paid') {
+                return { success: true, order, message: "Đơn hàng đã được ghi nhận thanh toán trước đó" };
             }
-        }
-        if (!order) {
-            throw new AppError(404, `Đơn hàng #${orderId} không tồn tại`);
-        }
-
-        // 5. Idempotency: Nếu đơn hàng đã được thanh toán từ trước
-        if (order.payment_status === "paid") {
-            return {
-                success: true,
-                order,
-                message: "Đơn hàng đã được ghi nhận thanh toán trước đó"
-            };
-        }
-
-        // 6. Kiểm tra số tiền chuyển khoản
-        const transferAmount = Number(payload.transferAmount) || 0;
-        const expectedAmount = Math.round(Number(order.total_amount) || 0);
-
-        if (transferAmount < expectedAmount) {
-            // Trường hợp chuyển thiếu tiền
-            await OrderHistory.create({
-                order_id: order.id,
-                status: order.status,
-                note: `Cảnh báo SePay: Khách hàng chuyển thiếu tiền. Nhận được: ${transferAmount}đ, Cần: ${expectedAmount}đ (Mã GD: ${payload.id || "N/A"})`
-            });
-            throw new AppError(400, `Số tiền thanh toán (${transferAmount}đ) không đủ (${expectedAmount}đ)`);
-        }
-
-        // 7. Cập nhật trạng thái đơn hàng trong Database Transaction
-        const transaction = await sequelize.transaction();
-        try {
-            order.payment_status = "paid";
-            if (order.status === "pending") {
-                order.status = "confirmed";
+            if (!['sepay', 'banking'].includes(order.payment_method)) {
+                throw new AppError(400, "Đơn hàng không sử dụng thanh toán chuyển khoản");
             }
+            const expectedAmount = Number(order.total_amount);
+            if (!Number.isFinite(expectedAmount) || expectedAmount < 0) {
+                throw new AppError(400, "Tổng tiền đơn hàng không hợp lệ");
+            }
+            if (transferAmount < expectedAmount) {
+                throw new AppError(400, `Số tiền thanh toán (${transferAmount}đ) không đủ (${expectedAmount}đ)`);
+            }
+            order.payment_status = 'paid';
+            if (order.status === 'pending') order.status = 'confirmed';
             await order.save({ transaction });
-
             await OrderHistory.create({
-                order_id: order.id,
-                status: order.status,
-                note: `Thanh toán SePay thành công qua ${payload.gateway || config.bank}. Số tiền: ${transferAmount.toLocaleString("vi-VN")}đ (Mã GD: #${payload.id || payload.referenceCode || "N/A"})`
+                order_id: order.id, status: order.status,
+                note: `Thanh toán SePay thành công qua ${payload.gateway || config.bank}. Số tiền: ${transferAmount.toLocaleString("vi-VN")}đ (Mã GD: #${payload.id || payload.referenceCode || "N/A"})`,
             }, { transaction });
-
-            await transaction.commit();
-
-            await notifyPaymentSuccess(order, transferAmount);
-
-            return {
-                success: true,
-                order
-            };
-        } catch (error) {
-            await transaction.rollback();
-            throw error;
-        }
+            return { success: true, order, newlyPaid: true };
+        });
+        if (result.newlyPaid) await notifyPaymentSuccess(result.order, transferAmount);
+        const { newlyPaid, ...response } = result;
+        return response;
     },
 
-    /**
-     * Phương thức giả lập thanh toán SePay thành công (phục vụ test local & demo không cần ngrok)
-     */
-    mockPayment: async (orderId) => {
-        const order = await Order.findByPk(orderId);
-        if (!order) throw new AppError(404, "Đơn hàng không tồn tại");
-
-        if (order.payment_status === "paid") {
-            return { success: true, order, message: "Đơn hàng đã thanh toán trước đó" };
+    mockPayment: async (orderId, actor) => {
+        if (process.env.NODE_ENV === 'production' || process.env.ENABLE_MOCK_PAYMENTS !== 'true') {
+            throw new AppError(404, "Chức năng giả lập thanh toán đã tắt");
         }
-
-        const transaction = await sequelize.transaction();
-        try {
-            order.payment_status = "paid";
-            if (order.status === "pending") {
-                order.status = "confirmed";
+        if (actor?.role !== 'admin') throw new AppError(403, "Chỉ Admin được giả lập thanh toán");
+        const result = await withLockedOrder({ id: orderId }, async (order, transaction) => {
+            if (['cancelled', 'returned'].includes(order.status) || !['sepay', 'banking'].includes(order.payment_method)) {
+                throw new AppError(400, "Đơn hàng không hợp lệ để giả lập thanh toán");
             }
+            if (order.payment_status === 'paid') return { success: true, order };
+            order.payment_status = 'paid';
+            if (order.status === 'pending') order.status = 'confirmed';
             await order.save({ transaction });
-
             await OrderHistory.create({
-                order_id: order.id,
-                status: order.status,
-                note: "Xác nhận thanh toán SePay thành công (Mô phỏng Test Mode)."
+                order_id: order.id, status: order.status, changed_by: actor.id,
+                note: "Admin giả lập thanh toán SePay (môi trường demo).",
             }, { transaction });
-
-            await transaction.commit();
-
-            await notifyPaymentSuccess(order);
-
-            return { success: true, order };
-        } catch (error) {
-            await transaction.rollback();
-            throw error;
-        }
-    }
+            return { success: true, order, newlyPaid: true };
+        });
+        if (result.newlyPaid) await notifyPaymentSuccess(result.order);
+        const { newlyPaid, ...response } = result;
+        return response;
+    },
 };
 
 export default sepayService;

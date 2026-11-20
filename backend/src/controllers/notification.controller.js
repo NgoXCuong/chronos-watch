@@ -4,7 +4,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 const notificationController = {
     list: asyncHandler(async (req, res) => {
-        const data = await notificationService.listForUser(req.user.id, req.query);
+        const data = await notificationService.listForUser(req.user.id, req.query, req.user.role);
         const counts =
             req.user.role === "admin" ? await adminBadgeService.getCounts() : null;
         res.json({ ...data, counts });

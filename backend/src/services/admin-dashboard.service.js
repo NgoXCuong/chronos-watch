@@ -6,6 +6,8 @@ import OrderDetail from "../models/order_detail.model.js";
 import Voucher from "../models/voucher.model.js";
 import { Op, fn, col, QueryTypes } from "sequelize";
 import sequelize from "../config/db.js";
+import getTopCustomers from "./admin-customer-ranking.service.js";
+import { getInventorySummary } from './inventory-planning.service.js';
 
 // Doanh thu theo ngành hàng / thương hiệu (toàn thời gian, loại đơn hủy & hoàn)
 const REVENUE_BY_CATEGORY_SQL = `
@@ -89,17 +91,16 @@ const dashboardService = {
             orderStatusStats,
             revenueHistory,
             topProducts,
-            lowStockProducts,
-            lowStockCount,
+            inventoryPlanning,
             recentOrders,
             pendingOrders,
             ordersToday,
-            outOfStockCount,
             inventory,
             userGrowthHistory,
             reviewDistribution,
             revenueByCategory,
-            revenueByBrand
+            revenueByBrand,
+            topCustomers
         ] = await Promise.all([
             Order.count({ group: ['status'] }),
             Order.findAll({
@@ -120,13 +121,7 @@ const dashboardService = {
                 limit: 5,
                 attributes: ['id', 'name', 'image_url', 'sold_count', 'stock', 'price']
             }),
-            Product.findAll({
-                where: { stock: { [Op.lte]: 10 } },
-                order: [['stock', 'ASC']],
-                limit: 5,
-                attributes: ['id', 'name', 'stock', 'image_url']
-            }),
-            Product.count({ where: { stock: { [Op.lte]: 10 } } }),
+            getInventorySummary(),
             Order.findAll({
                 limit: 6,
                 order: [['created_at', 'DESC']],
@@ -141,7 +136,6 @@ const dashboardService = {
             }),
             Order.count({ where: { status: 'pending' } }),
             Order.count({ where: { created_at: { [Op.gte]: startOfToday }, status: { [Op.notIn]: EXCLUDED_STATUSES } } }),
-            Product.count({ where: { stock: 0 } }),
             Product.findAll({
                 attributes: [
                     [fn('COUNT', col('id')), 'sku_count'],
@@ -168,7 +162,8 @@ const dashboardService = {
                 raw: true
             }),
             sequelize.query(REVENUE_BY_CATEGORY_SQL, { type: QueryTypes.SELECT }),
-            sequelize.query(REVENUE_BY_BRAND_SQL, { type: QueryTypes.SELECT })
+            sequelize.query(REVENUE_BY_BRAND_SQL, { type: QueryTypes.SELECT }),
+            getTopCustomers()
         ]);
 
         return {
@@ -191,18 +186,23 @@ const dashboardService = {
             order_status_distribution: orderStatusStats,
             revenue_history: revenueHistory,
             top_selling_products: topProducts,
-            low_stock_products: lowStockProducts,
-            low_stock_count: lowStockCount,
+            low_stock_products: inventoryPlanning.alerts.slice(0, 5),
+            low_stock_count: inventoryPlanning.alerts.length,
+            stock_review_products: inventoryPlanning.review.slice(0, 5),
+            stock_review_count: inventoryPlanning.review.length,
+            stock_healthy_count: inventoryPlanning.healthy,
+            stock_assessed_count: inventoryPlanning.total,
             recent_orders: recentOrders,
             pending_orders: pendingOrders,
             orders_today: ordersToday,
-            out_of_stock_count: outOfStockCount,
+            out_of_stock_count: inventoryPlanning.out_of_stock,
             stock_units: parseInt(inventory.stock_units || 0, 10),
             stock_value: parseFloat(inventory.stock_value || 0),
             user_growth_history: userGrowthHistory,
             review_distribution: reviewDistribution,
             revenue_by_category: revenueByCategory,
-            revenue_by_brand: revenueByBrand
+            revenue_by_brand: revenueByBrand,
+            top_customers: topCustomers
         };
     },
 

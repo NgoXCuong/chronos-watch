@@ -20,14 +20,6 @@ const OrderDetail = sequelize.define('OrderDetail', {
             key: 'id'
         }
     },
-    product_name: {
-        type: DataTypes.STRING(255),
-        allowNull: true
-    },
-    product_image: {
-        type: DataTypes.STRING(255),
-        allowNull: true
-    },
     sku: {
         type: DataTypes.STRING(50),
         allowNull: true

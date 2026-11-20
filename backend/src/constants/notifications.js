@@ -1,6 +1,3 @@
-// Ngưỡng cảnh báo tồn kho dùng chung cho dashboard + thông báo admin.
-export const LOW_STOCK_THRESHOLD = 10;
-
 export const ORDER_STATUS_LABEL = {
     pending: 'Chờ xác nhận',
     confirmed: 'Đã xác nhận',

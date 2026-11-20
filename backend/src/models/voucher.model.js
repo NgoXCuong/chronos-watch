@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 
 const Voucher = sequelize.define('Voucher', {
+    is_public: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
     code: {
         type: DataTypes.STRING(50),
         allowNull: false,

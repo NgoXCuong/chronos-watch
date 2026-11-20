@@ -39,6 +39,12 @@ const adminWarrantyService = {
             query.search,
             ['$order.order_code$', '$user.username$', '$user.email$']
         );
+        if (query.order_id !== undefined) {
+            const orderId = Number(query.order_id);
+            if (!Number.isInteger(orderId) || orderId <= 0)
+                throw new AppError(400, "Mã đơn hàng không hợp lệ.");
+            where.order_id = orderId;
+        }
         const { page, limit, offset } = parseWarrantyPage(query);
 
         const { count, rows } = await Warranty.findAndCountAll({
@@ -74,20 +80,11 @@ const adminWarrantyService = {
         return decorateWarranties([warranty])[0];
     },
 
-    updateWarranty: async (id, { status, serial, note }) => {
+    updateWarranty: async (id, { status, note }) => {
         if (status && !WARRANTY_STATUSES.includes(status)) throw new AppError(400, "Trạng thái không hợp lệ.");
         const warranty = await Warranty.findByPk(id);
         if (!warranty) throw new AppError(404, "Không tìm thấy phiếu bảo hành");
 
-        if (serial !== undefined) {
-            const clean = String(serial).trim();
-            if (clean.length > 50) throw new AppError(400, "Số serial tối đa 50 ký tự.");
-            if (clean) {
-                const clash = await Warranty.findOne({ where: { serial: clean, id: { [Op.ne]: warranty.id } } });
-                if (clash) throw new AppError(400, `Serial ${clean} đã thuộc phiếu ${clash.code}.`);
-            }
-            warranty.serial = clean || null;
-        }
         if (status) warranty.status = status;
         if (note !== undefined) warranty.note = String(note).trim() || null;
         await warranty.save();
@@ -136,7 +133,7 @@ const adminWarrantyService = {
                 {
                     model: Warranty,
                     as: 'warranty',
-                    attributes: ['id', 'code', 'product_name', 'serial', 'status', 'start_date', 'end_date'],
+                    attributes: ['id', 'code', 'product_name', 'status', 'start_date', 'end_date'],
                 },
                 { model: User, as: 'customer', attributes: ['id', 'username', 'email', 'phone'] },
             ],

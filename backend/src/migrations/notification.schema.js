@@ -1,8 +1,6 @@
 // Di trú riêng cho bảng notifications (Rule 1: migrate.js đã dài).
 // Toàn bộ câu lệnh idempotent — chạy lại `npm run migrate` không nhân bản dữ liệu.
 
-const THRESHOLD = 10;
-
 const runSafe = async (sequelize, label, sql, replacements) => {
     try {
         await sequelize.query(sql, replacements ? { replacements } : undefined);
@@ -61,7 +59,7 @@ const insertOne = (sequelize, row) =>
         [row.user_id, row.type, row.title, row.message, row.link, row.dedupe_key, row.created_at]
     );
 
-// Backfill cho dữ liệu ĐANG có: đơn chờ xử lý 7 ngày gần nhất + sản phẩm sắp hết.
+// Backfill đơn chờ xử lý; cảnh báo kho do inventory monitor đánh giá theo nhu cầu.
 // Nhờ vậy chuông admin không trống trơn ngay sau khi nâng cấp.
 const backfill = async (sequelize) => {
     const admins = await adminIds(sequelize);
@@ -74,14 +72,6 @@ const backfill = async (sequelize) => {
           WHERE status = 'pending' AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
           ORDER BY created_at DESC
           LIMIT 20`
-    );
-    const [products] = await sequelize.query(
-        `SELECT id, name, stock, updated_at
-           FROM products
-          WHERE stock <= ?
-          ORDER BY stock ASC
-          LIMIT 20`,
-        { replacements: [THRESHOLD] }
     );
 
     for (const adminId of admins) {
@@ -96,19 +86,6 @@ const backfill = async (sequelize) => {
                 link: `/admin/orders/${order.id}`,
                 dedupe_key: key,
                 created_at: order.created_at,
-            });
-        }
-        for (const product of products) {
-            const key = `stock-${product.id}`;
-            if (seen.has(`${adminId}:${key}`)) continue;
-            await insertOne(sequelize, {
-                user_id: adminId,
-                type: 'stock',
-                title: Number(product.stock) <= 0 ? 'Hết hàng' : 'Sắp hết hàng',
-                message: `Sản phẩm ${product.name} chỉ còn ${Number(product.stock)} trong kho.`,
-                link: '/admin/products',
-                dedupe_key: key,
-                created_at: product.updated_at || new Date(),
             });
         }
     }
