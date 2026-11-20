@@ -1,7 +1,8 @@
-import { formatDate } from "../../../utils/formatCurrency";
 import {
   BrandCountryCell,
-  BrandCountCell,
+  BrandDescriptionCell,
+  BrandAvailabilityCell,
+  BrandStockCell,
   BrandInfoCell,
   BrandStatusBadge,
 } from "./BrandCells";
@@ -14,37 +15,33 @@ export const getBrandColumns = ({ onEdit, onToggle, onDelete } = {}) => [
     id: "name",
     header: "Thương hiệu",
     sortKey: "name",
-    width: "300px",
+    width: "220px",
     cell: ({ row }) => <BrandInfoCell brand={row} />,
   },
   {
     id: "country",
     header: "Quốc gia",
     sortKey: "country",
-    width: "160px",
+    width: "110px",
     cell: ({ row }) => <BrandCountryCell value={row.country} />,
   },
   {
-    id: "product_count",
-    header: "Sản phẩm",
-    sortKey: "product_count",
-    align: "center",
-    width: "130px",
-    cell: ({ row }) => <BrandCountCell count={row.product_count} />,
+    id: "description", header: "Mô tả", width: "280px",
+    cell: ({ row }) => <BrandDescriptionCell value={row.description} />,
+  },
+  {
+    id: "active_product_count", header: "Đang bán / Tổng mẫu", sortKey: "active_product_count", width: "160px", align: "center",
+    cell: ({ row }) => <BrandAvailabilityCell active={row.active_product_count} total={row.product_count} />,
+  },
+  {
+    id: "stock_total", header: "Tồn kho", sortKey: "stock_total", width: "120px", align: "right",
+    cell: ({ row }) => <BrandStockCell value={row.stock_total} />,
   },
   {
     id: "is_active",
     header: "Trạng thái",
-    width: "170px",
+    width: "135px",
     cell: ({ row }) => <BrandStatusBadge isActive={row.is_active !== false} />,
-  },
-  {
-    id: "created_at",
-    header: "Ngày tạo",
-    sortKey: "created_at",
-    width: "130px",
-    className: "text-[13px] whitespace-nowrap text-muted-foreground tabular-nums",
-    cell: ({ row }) => formatDate(row.created_at),
   },
   {
     id: "actions",

@@ -1,13 +1,13 @@
 import { Crown, UserRound } from 'lucide-react';
 import { cn } from '../../../lib/utils';
+import { rankingTone } from '../../../constants/rankingTones';
 import { formatCurrency } from '../../../utils/formatCurrency';
 
 export function CustomerRankCell({ rank }) {
-    return (
-        <span className={cn('inline-flex size-8 items-center justify-center rounded-lg text-xs font-bold tabular-nums', rank === 1 ? 'bg-navy-100 text-navy-700 dark:bg-navy-500/20 dark:text-navy-100' : 'bg-muted text-muted-foreground')}>
-            {rank === 1 ? <Crown size={16} aria-label="Hạng 1" /> : `0${rank}`}
-        </span>
-    );
+    const tone = rankingTone(rank);
+    return <span aria-label={`Hạng ${rank}`} className={cn('inline-flex h-9 min-w-9 shrink-0 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold tabular-nums shadow-sm', tone.chip)}>
+        {rank === 1 && <Crown size={13} aria-hidden="true" />}{String(rank).padStart(2, '0')}
+    </span>;
 }
 
 export function CustomerIdentityCell({ customer }) {

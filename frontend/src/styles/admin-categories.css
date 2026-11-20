@@ -1,0 +1,15 @@
+.category-detail-header { display:flex; align-items:center; gap:12px; padding:16px; border-bottom:1px solid var(--border); background:var(--muted); }
+.category-tree-panel { border-radius:12px; }
+.category-tree-body { max-height:min(70dvh,740px); overflow-y:auto; scrollbar-width:thin; }
+.category-tree-row { position:relative; margin-block:2px; min-height:46px; }
+.category-tree-row:has([aria-current="true"]) { background:var(--accent); box-shadow:inset 3px 0 var(--primary); }
+.category-tree-row button:focus-visible { outline:2px solid var(--ring); outline-offset:-2px; border-radius:6px; }
+.category-tree-level { display:block; margin-top:2px; font-size:9px; line-height:1.4; font-weight:400; color:var(--muted-foreground); }
+.category-tree-body > ul > li:has(> .category-tree-children) > .category-tree-row:not(:has([aria-current="true"])) { background:var(--muted); border:1px solid var(--border); }
+.category-tree-children > li { position:relative; }
+.category-tree-children > li::before { content:""; position:absolute; left:-12px; top:24px; width:12px; height:2px; background:var(--color-navy-200); }
+.category-tree-row [title$="sản phẩm trực tiếp"] { min-width:30px; justify-content:flex-end; padding:3px 5px; background:var(--muted); border-radius:5px; }
+.category-child-link { position:relative; }
+@media(min-width:1280px) { .category-tree-panel { position:sticky; top:88px; } }
+@media(max-width:767px) { .category-detail-header { flex-wrap:wrap; padding:14px; } .category-tree-body { max-height:320px; } }
+@media(prefers-reduced-motion:reduce) { .category-tree-row { transition:none; } }

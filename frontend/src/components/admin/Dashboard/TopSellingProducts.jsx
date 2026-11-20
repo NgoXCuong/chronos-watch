@@ -1,43 +1,17 @@
 import { TrendingUp, ChevronRight, Trophy, Medal } from "lucide-react";
 import { Button } from "../../ui/button";
 import { cn } from "../../../lib/utils";
-
-const PODIUM = {
-  1: {
-    ring: "border-navy-600/40 dark:border-navy-300/40",
-    base: "bg-navy-100/70 border-navy-200 dark:bg-navy-500/20 dark:border-navy-500/40",
-    rank: "text-navy-700 dark:text-navy-100",
-    count: "text-navy-700 dark:text-navy-100",
-    badge: "bg-navy-600 text-white dark:bg-navy-300 dark:text-navy-950",
-    medal: "text-navy-600 dark:text-navy-100",
-    height: "h-24",
-  },
-  2: {
-    ring: "border-border",
-    base: "bg-navy-50 border-navy-100 dark:bg-navy-500/10 dark:border-navy-500/30",
-    rank: "text-navy-500 dark:text-navy-100",
-    count: "text-navy-700 dark:text-navy-100",
-    badge: "bg-navy-300 text-navy-900",
-    medal: "text-navy-500",
-    height: "h-18",
-  },
-  3: {
-    ring: "border-border",
-    base: "bg-muted border-border",
-    rank: "text-muted-foreground",
-    count: "text-foreground",
-    badge: "bg-navy-200 text-navy-800",
-    medal: "text-navy-300",
-    height: "h-14",
-  },
-};
+import { rankingTone } from "../../../constants/rankingTones";
 
 const PodiumBar = ({ product, rank, navigate }) => {
-  const style = PODIUM[rank];
+  const tone = rankingTone(rank);
+  const style = { ring: tone.block, base: tone.block, rank: tone.value, count: tone.value, badge: tone.chip, height: rank === 1 ? "h-24" : rank === 2 ? "h-18" : "h-14" };
   const isWinner = rank === 1;
   return (
-    <div
-      className="group flex cursor-pointer flex-col items-center"
+    <button
+      type="button"
+      className="group flex min-w-0 cursor-pointer flex-col items-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+      aria-label={`Hạng ${rank}: ${product.name}, ${product.sold_count} đã bán`}
       onClick={() => navigate(`/admin/products/edit/${product.id}`)}
     >
       <div className={cn("relative mb-3", isWinner && "scale-110")}>
@@ -51,7 +25,7 @@ const PodiumBar = ({ product, rank, navigate }) => {
           <img
             src={product.image_url}
             alt={product.name}
-            className="h-full w-full rounded-lg object-cover"
+            className="h-full w-full rounded-lg object-contain"
           />
         </div>
         <span
@@ -70,16 +44,17 @@ const PodiumBar = ({ product, rank, navigate }) => {
       </div>
 
       <div className="w-full space-y-1 text-center">
-        <p className="line-clamp-1 h-4 text-[11px] font-semibold text-card-foreground">
+        <p title={product.name} className="line-clamp-1 h-4 text-[11px] font-semibold text-card-foreground">
           {product.name}
         </p>
         <div
           className={cn(
-            "flex flex-col items-center justify-center rounded-t-xl border-x border-t",
+            "relative flex flex-col items-center justify-center overflow-hidden rounded-t-xl border-x border-t transition-transform duration-200 group-hover:-translate-y-1 motion-reduce:transform-none",
             style.height,
             style.base,
           )}
         >
+          <span className={cn("absolute inset-x-0 top-0 h-1", tone.edge)} aria-hidden="true" />
           <span
             className={cn("text-2xl font-extrabold tabular-nums", style.rank)}
           >
@@ -95,7 +70,7 @@ const PodiumBar = ({ product, rank, navigate }) => {
           </span>
         </div>
       </div>
-    </div>
+    </button>
   );
 };
 

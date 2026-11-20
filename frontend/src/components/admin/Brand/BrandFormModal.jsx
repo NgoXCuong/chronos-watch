@@ -1,3 +1,4 @@
+import { formatDate } from '../../../utils/formatCurrency';
 import { useState } from "react";
 import { Building2, Save } from "lucide-react";
 import {
@@ -83,6 +84,7 @@ const BrandFormBody = ({ brand, saving, onSubmit, onClose }) => {
           </div>
           <DialogCloseButton onClick={onClose} />
         </div>
+        {brand?.created_at && <p className="text-xs text-muted-foreground">Ngày tạo: {formatDate(brand.created_at)}</p>}
       </DialogHeader>
 
       <form

@@ -10,7 +10,6 @@ import DailyTrendChart from "../../components/admin/Dashboard/DailyTrendChart";
 import RevenueMixChart from "../../components/admin/Dashboard/RevenueMixChart";
 import UserGrowthChart from "../../components/admin/Dashboard/UserGrowthChart";
 import ReviewPulse from "../../components/admin/Dashboard/ReviewPulse";
-import RecentOrdersPanel from "../../components/admin/Dashboard/RecentOrdersPanel";
 import TopCustomersPanel from "../../components/admin/Dashboard/TopCustomersPanel";
 import { useDashboardStats } from "../../hooks/useDashboardStats";
 import {
@@ -66,24 +65,18 @@ const DashboardPage = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
-        <RecentOrdersPanel
-          orders={stats?.recent_orders}
-          className="xl:col-span-2"
-        />
+        <div className="h-[360px] min-w-0 xl:col-span-2">
+          <OperationBrief lowStockProducts={stats?.low_stock_products} stats={stats} />
+        </div>
         <UserGrowthChart history={stats?.user_growth_history} />
       </div>
-
-      <TopCustomersPanel customers={stats?.top_customers} />
 
       <div className="grid auto-rows-[360px] grid-cols-1 items-stretch gap-3 lg:grid-cols-2 xl:grid-cols-3">
         <TopSellingProducts
           products={stats?.top_selling_products}
           navigate={navigate}
         />
-        <OperationBrief
-          lowStockProducts={stats?.low_stock_products}
-          stats={stats}
-        />
+        <TopCustomersPanel customers={stats?.top_customers} />
         <ReviewPulse
           distribution={stats?.review_distribution}
           className="lg:col-span-2 xl:col-span-1"

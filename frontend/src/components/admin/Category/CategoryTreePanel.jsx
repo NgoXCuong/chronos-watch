@@ -28,16 +28,17 @@ const TreeBranch = ({
   selectedId,
   onSelect,
   onToggle,
+  depth = 0,
 }) => {
   const children = node.children || [];
   const isOpen = forceOpen || expanded.has(Number(node.id));
   const isSelected = Number(node.id) === Number(selectedId);
 
   return (
-    <li>
+    <li data-depth={depth}>
       <div
         className={cn(
-          "flex items-center gap-1 rounded-lg pr-2 transition-colors",
+          "category-tree-row flex items-center gap-1 rounded-lg pr-2 transition-colors",
           isSelected
             ? "bg-navy-100/80 ring-1 ring-navy-500/25 dark:bg-navy-500/18"
             : "hover:bg-navy-50/80 dark:hover:bg-navy-500/8",
@@ -47,6 +48,7 @@ const TreeBranch = ({
           type="button"
           aria-label={isOpen ? "Thu gọn nhánh" : "Mở rộng nhánh"}
           onClick={() => onToggle(node.id)}
+          aria-expanded={children.length > 0 ? isOpen : undefined}
           className={cn(rowButton, "h-7 w-6", children.length === 0 && "invisible")}
         >
           <ChevronRight
@@ -58,6 +60,8 @@ const TreeBranch = ({
         <button
           type="button"
           onClick={() => onSelect(node.id)}
+          aria-current={isSelected ? 'true' : undefined}
+          title={node.name}
           className="flex min-w-0 flex-1 items-center gap-2 py-2 text-left"
         >
           <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-card ring-1 ring-navy-500/15">
@@ -82,7 +86,8 @@ const TreeBranch = ({
                 : "font-semibold text-foreground",
             )}
           >
-            {node.name}
+            <span className="block truncate">{node.name}</span>
+            <span className="category-tree-level">{depth === 0 ? (children.length ? `Danh mục cha · ${children.length} nhánh con` : 'Danh mục gốc') : `Danh mục con · Cấp ${depth + 1}`}</span>
           </span>
           {!node.is_active && (
             <Badge variant="muted" className="shrink-0 px-1.5 py-0">Ẩn</Badge>
@@ -92,11 +97,12 @@ const TreeBranch = ({
       </div>
 
       {children.length > 0 && isOpen && (
-        <ul className="ml-3 space-y-0.5 border-l border-border pl-2">
+        <ul className="category-tree-children ml-5 space-y-0.5 border-l-2 border-navy-200 pl-3">
           {children.map((child) => (
             <TreeBranch
               key={child.id}
               node={child}
+              depth={depth + 1}
               expanded={expanded}
               forceOpen={forceOpen}
               selectedId={selectedId}
@@ -163,11 +169,12 @@ const CategoryTreePanel = ({
 
   return (
     <FormSection
+      className="category-tree-panel"
       title="Cấu trúc danh mục"
       hint={`${totalCategories} danh mục trong hệ thống`}
       icon={Layers}
       actions={headerActions}
-      bodyClassName="p-2"
+      bodyClassName="category-tree-body p-2"
     >
       {loading && (
         <div className="space-y-1 px-2 py-1">

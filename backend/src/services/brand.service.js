@@ -6,7 +6,7 @@ import { parseBulkIds, runBulk } from "../utils/bulkOps.js";
 
 // Cột sort được phép (Rule 3: sort server-side, whitelist chống chèn ORDER BY)
 // product_count là alias của subquery trong SELECT — MySQL cho phép ORDER BY alias.
-const SORTABLE_BRAND_COLUMNS = ['name', 'country', 'created_at', 'product_count'];
+const SORTABLE_BRAND_COLUMNS = ['name', 'country', 'created_at', 'product_count', 'active_product_count', 'stock_total', 'min_price', 'max_price'];
 
 const buildBrandSort = (sort, dir) => {
     const key = SORTABLE_BRAND_COLUMNS.includes(sort) ? sort : 'name';
@@ -46,7 +46,11 @@ const brandService = {
                             WHERE p.brand_id = Brand.id
                         )`),
                         'product_count'
-                    ]
+                    ],
+                    [sequelize.literal("(SELECT COUNT(*) FROM products p WHERE p.brand_id = Brand.id AND p.status = 'active')"), 'active_product_count'],
+                    [sequelize.literal('(SELECT COALESCE(SUM(p.stock), 0) FROM products p WHERE p.brand_id = Brand.id)'), 'stock_total'],
+                    [sequelize.literal("(SELECT MIN(p.price) FROM products p WHERE p.brand_id = Brand.id AND p.status = 'active')"), 'min_price'],
+                    [sequelize.literal("(SELECT MAX(p.price) FROM products p WHERE p.brand_id = Brand.id AND p.status = 'active')"), 'max_price']
                 ]
             }
         });

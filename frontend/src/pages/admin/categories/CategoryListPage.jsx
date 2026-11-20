@@ -1,3 +1,4 @@
+import "../../../styles/admin-categories.css";
 import { useMemo } from "react";
 import { Plus } from "lucide-react";
 import AdminHeader from "../../../components/admin/Common/AdminHeader";
@@ -44,7 +45,7 @@ const CategoryListPage = () => {
   );
 
   return (
-    <div className="space-y-3 pb-8">
+    <div className="category-manager space-y-4 pb-8">
       <AdminHeader
         title="Quản lý danh mục"
         subtitle="Phân loại sản phẩm theo cây phân cấp hệ thống"
@@ -76,7 +77,7 @@ const CategoryListPage = () => {
         />
       </SearchBanner>
 
-      <div className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 items-start gap-3 xl:grid-cols-[minmax(0,320px)_minmax(0,1fr)]">
         <CategoryTreePanel
           nodes={visibleTree}
           loading={loading}
@@ -90,6 +91,7 @@ const CategoryListPage = () => {
         <CategoryDetailPanel
           category={selected}
           path={path}
+          onSelect={setSelectedId}
           onEdit={openEdit}
           onCreateChild={(category) => openCreate(category.id)}
           onToggle={toggleStatus}
